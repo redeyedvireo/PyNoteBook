@@ -30,6 +30,7 @@ from page_tree import CPageTree
 from search_widget import CSearchWidget
 from tag_list import CTagList
 from title_label_widget import CTitleLabelWidget
+import pynotebook_rc
 
 class Ui_NoteBookClass(object):
     def setupUi(self, PyNoteBookWindow):
