@@ -1,0 +1,5 @@
+Dependencies, and how to install them.
+
+Pyside6:
+To install:
+pip install Pyside6

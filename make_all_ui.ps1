@@ -1,0 +1,1 @@
+pyside6-uic pynotebookwindow.ui -o ui_pynotebookwindow.py
