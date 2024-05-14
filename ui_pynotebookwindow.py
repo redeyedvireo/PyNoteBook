@@ -340,6 +340,7 @@ class Ui_NoteBookClass(object):
         self.toolBar.addAction(self.actionNew_Top_Level_Folder)
 
         self.retranslateUi(PyNoteBookWindow)
+        self.actionExit.triggered.connect(PyNoteBookWindow.close)
 
         self.editorStackedWidget.setCurrentIndex(-1)
         self.navigationTabWidget.setCurrentIndex(3)

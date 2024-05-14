@@ -613,7 +613,7 @@
   <connection>
    <sender>actionExit</sender>
    <signal>triggered()</signal>
-   <receiver>NoteBookClass</receiver>
+   <receiver>PyNoteBookWindow</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
