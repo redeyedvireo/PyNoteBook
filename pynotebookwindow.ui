@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NoteBookClass</class>
+ <class>PyNoteBookWindow</class>
  <widget class="QMainWindow" name="PyNoteBookWindow">
   <property name="geometry">
    <rect>
@@ -14,7 +14,7 @@
    <string>NoteBook</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="pynotebook.qrc">
     <normaloff>:/NoteBook/NoteBook.ico</normaloff>:/NoteBook/NoteBook.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -31,8 +31,11 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>-1</number>
+       <number>0</number>
       </property>
+      <widget class="RichTextEditWidget" name="page">
+       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
+      </widget>
      </widget>
     </item>
     <item>
@@ -603,6 +606,12 @@
    <class>CTitleLabelWidget</class>
    <extends>QWidget</extends>
    <header>title_label_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RichTextEditWidget</class>
+   <extends>QWidget</extends>
+   <header>RichTextEdit</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

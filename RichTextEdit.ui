@@ -359,7 +359,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="PyLogBook.qrc"/>
+  <include location="pynotebook.qrc"/>
  </resources>
  <connections/>
 </ui>

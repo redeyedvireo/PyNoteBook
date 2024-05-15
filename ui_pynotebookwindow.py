@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (QApplication, QDockWidget, QHBoxLayout, QHeaderVi
     QStackedWidget, QStatusBar, QTabWidget, QToolBar,
     QTreeWidgetItem, QVBoxLayout, QWidget)
 
+from RichTextEdit import RichTextEditWidget
 from date_tree import CDateTree
 from favorites_widget import CFavoritesWidget
 from page_history_widget import CPageHistoryWidget
@@ -32,7 +33,7 @@ from tag_list import CTagList
 from title_label_widget import CTitleLabelWidget
 import pynotebook_rc
 
-class Ui_NoteBookClass(object):
+class Ui_PyNoteBookWindow(object):
     def setupUi(self, PyNoteBookWindow):
         if not PyNoteBookWindow.objectName():
             PyNoteBookWindow.setObjectName(u"PyNoteBookWindow")
@@ -98,6 +99,13 @@ class Ui_NoteBookClass(object):
         self.editorStackedWidget = QStackedWidget(self.centralWidget)
         self.editorStackedWidget.setObjectName(u"editorStackedWidget")
         self.editorStackedWidget.setSizeIncrement(QSize(0, 1))
+        self.page = RichTextEditWidget()
+        self.page.setObjectName(u"page")
+        self.horizontalLayout_3 = QHBoxLayout(self.page)
+        self.horizontalLayout_3.setSpacing(6)
+        self.horizontalLayout_3.setContentsMargins(11, 11, 11, 11)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.editorStackedWidget.addWidget(self.page)
 
         self.verticalLayout.addWidget(self.editorStackedWidget)
 
@@ -342,7 +350,7 @@ class Ui_NoteBookClass(object):
         self.retranslateUi(PyNoteBookWindow)
         self.actionExit.triggered.connect(PyNoteBookWindow.close)
 
-        self.editorStackedWidget.setCurrentIndex(-1)
+        self.editorStackedWidget.setCurrentIndex(0)
         self.navigationTabWidget.setCurrentIndex(3)
         self.auxNavigationTabWidget.setCurrentIndex(2)
 
@@ -351,62 +359,62 @@ class Ui_NoteBookClass(object):
     # setupUi
 
     def retranslateUi(self, PyNoteBookWindow):
-        PyNoteBookWindow.setWindowTitle(QCoreApplication.translate("NoteBookClass", u"NoteBook", None))
-        self.actionExit.setText(QCoreApplication.translate("NoteBookClass", u"Exit", None))
-        self.actionCut.setText(QCoreApplication.translate("NoteBookClass", u"Cut", None))
-        self.actionCopy.setText(QCoreApplication.translate("NoteBookClass", u"Copy", None))
-        self.actionPaste.setText(QCoreApplication.translate("NoteBookClass", u"Paste", None))
-        self.actionAbout_NoteBook.setText(QCoreApplication.translate("NoteBookClass", u"About NoteBook...", None))
-        self.actionNew_Toolbar.setText(QCoreApplication.translate("NoteBookClass", u"New Toolbar...", None))
-        self.actionAdd_Page_to_Favorites.setText(QCoreApplication.translate("NoteBookClass", u"Add Page to Favorites", None))
-        self.actionSettings.setText(QCoreApplication.translate("NoteBookClass", u"Settings...", None))
-        self.actionNew_Notebook.setText(QCoreApplication.translate("NoteBookClass", u"New Notebook...", None))
-        self.actionOpen_Notebook.setText(QCoreApplication.translate("NoteBookClass", u"Open Noteboook...", None))
-        self.actionClose.setText(QCoreApplication.translate("NoteBookClass", u"Close", None))
-        self.actionNew_Page.setText(QCoreApplication.translate("NoteBookClass", u"New Page", None))
-        self.actionImport_TiddlyWiki.setText(QCoreApplication.translate("NoteBookClass", u"Import TiddlyWiki...", None))
-        self.actionPage_Info.setText(QCoreApplication.translate("NoteBookClass", u"Page Info...", None))
-        self.actionRecent_Notebooks.setText(QCoreApplication.translate("NoteBookClass", u"Recent Notebooks", None))
-        self.actionNew_Folder.setText(QCoreApplication.translate("NoteBookClass", u"New Folder", None))
-        self.actionNew_Top_Level_Page.setText(QCoreApplication.translate("NoteBookClass", u"New Top-Level Page", None))
-        self.actionNew_Top_Level_Folder.setText(QCoreApplication.translate("NoteBookClass", u"New Top-Level Folder", None))
-        self.actionAbout_Qt.setText(QCoreApplication.translate("NoteBookClass", u"About Qt...", None))
-        self.actionExport.setText(QCoreApplication.translate("NoteBookClass", u"Export...", None))
-        self.actionImportPage.setText(QCoreApplication.translate("NoteBookClass", u"Page...", None))
-        self.actionNew_To_Do_List.setText(QCoreApplication.translate("NoteBookClass", u"New To Do List", None))
+        PyNoteBookWindow.setWindowTitle(QCoreApplication.translate("PyNoteBookWindow", u"NoteBook", None))
+        self.actionExit.setText(QCoreApplication.translate("PyNoteBookWindow", u"Exit", None))
+        self.actionCut.setText(QCoreApplication.translate("PyNoteBookWindow", u"Cut", None))
+        self.actionCopy.setText(QCoreApplication.translate("PyNoteBookWindow", u"Copy", None))
+        self.actionPaste.setText(QCoreApplication.translate("PyNoteBookWindow", u"Paste", None))
+        self.actionAbout_NoteBook.setText(QCoreApplication.translate("PyNoteBookWindow", u"About NoteBook...", None))
+        self.actionNew_Toolbar.setText(QCoreApplication.translate("PyNoteBookWindow", u"New Toolbar...", None))
+        self.actionAdd_Page_to_Favorites.setText(QCoreApplication.translate("PyNoteBookWindow", u"Add Page to Favorites", None))
+        self.actionSettings.setText(QCoreApplication.translate("PyNoteBookWindow", u"Settings...", None))
+        self.actionNew_Notebook.setText(QCoreApplication.translate("PyNoteBookWindow", u"New Notebook...", None))
+        self.actionOpen_Notebook.setText(QCoreApplication.translate("PyNoteBookWindow", u"Open Noteboook...", None))
+        self.actionClose.setText(QCoreApplication.translate("PyNoteBookWindow", u"Close", None))
+        self.actionNew_Page.setText(QCoreApplication.translate("PyNoteBookWindow", u"New Page", None))
+        self.actionImport_TiddlyWiki.setText(QCoreApplication.translate("PyNoteBookWindow", u"Import TiddlyWiki...", None))
+        self.actionPage_Info.setText(QCoreApplication.translate("PyNoteBookWindow", u"Page Info...", None))
+        self.actionRecent_Notebooks.setText(QCoreApplication.translate("PyNoteBookWindow", u"Recent Notebooks", None))
+        self.actionNew_Folder.setText(QCoreApplication.translate("PyNoteBookWindow", u"New Folder", None))
+        self.actionNew_Top_Level_Page.setText(QCoreApplication.translate("PyNoteBookWindow", u"New Top-Level Page", None))
+        self.actionNew_Top_Level_Folder.setText(QCoreApplication.translate("PyNoteBookWindow", u"New Top-Level Folder", None))
+        self.actionAbout_Qt.setText(QCoreApplication.translate("PyNoteBookWindow", u"About Qt...", None))
+        self.actionExport.setText(QCoreApplication.translate("PyNoteBookWindow", u"Export...", None))
+        self.actionImportPage.setText(QCoreApplication.translate("PyNoteBookWindow", u"Page...", None))
+        self.actionNew_To_Do_List.setText(QCoreApplication.translate("PyNoteBookWindow", u"New To Do List", None))
 #if QT_CONFIG(tooltip)
-        self.actionNew_To_Do_List.setToolTip(QCoreApplication.translate("NoteBookClass", u"Create a new To Do list", None))
+        self.actionNew_To_Do_List.setToolTip(QCoreApplication.translate("PyNoteBookWindow", u"Create a new To Do list", None))
 #endif // QT_CONFIG(tooltip)
-        self.label_5.setText(QCoreApplication.translate("NoteBookClass", u"Tags", None))
+        self.label_5.setText(QCoreApplication.translate("PyNoteBookWindow", u"Tags", None))
         self.messageLabel.setText("")
 #if QT_CONFIG(tooltip)
-        self.savePageButton.setToolTip(QCoreApplication.translate("NoteBookClass", u"Save Page (Ctrl+S)", None))
+        self.savePageButton.setToolTip(QCoreApplication.translate("PyNoteBookWindow", u"Save Page (Ctrl+S)", None))
 #endif // QT_CONFIG(tooltip)
-        self.savePageButton.setText(QCoreApplication.translate("NoteBookClass", u"Save Page", None))
+        self.savePageButton.setText(QCoreApplication.translate("PyNoteBookWindow", u"Save Page", None))
 #if QT_CONFIG(shortcut)
-        self.savePageButton.setShortcut(QCoreApplication.translate("NoteBookClass", u"Ctrl+S", None))
+        self.savePageButton.setShortcut(QCoreApplication.translate("PyNoteBookWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
-        self.menuFile.setTitle(QCoreApplication.translate("NoteBookClass", u"File", None))
-        self.menuImport.setTitle(QCoreApplication.translate("NoteBookClass", u"Import...", None))
-        self.menuEdit.setTitle(QCoreApplication.translate("NoteBookClass", u"Edit", None))
-        self.menuSettings.setTitle(QCoreApplication.translate("NoteBookClass", u"Settings", None))
-        self.menuFavorites.setTitle(QCoreApplication.translate("NoteBookClass", u"Favorites", None))
-        self.menuToolbars.setTitle(QCoreApplication.translate("NoteBookClass", u"Toolbars", None))
-        self.menuHelp.setTitle(QCoreApplication.translate("NoteBookClass", u"Help", None))
-        self.menuPage.setTitle(QCoreApplication.translate("NoteBookClass", u"Page", None))
-        self.navigationDockWidget.setWindowTitle(QCoreApplication.translate("NoteBookClass", u"Navigation", None))
+        self.menuFile.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"File", None))
+        self.menuImport.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Import...", None))
+        self.menuEdit.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Edit", None))
+        self.menuSettings.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Settings", None))
+        self.menuFavorites.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Favorites", None))
+        self.menuToolbars.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Toolbars", None))
+        self.menuHelp.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Help", None))
+        self.menuPage.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Page", None))
+        self.navigationDockWidget.setWindowTitle(QCoreApplication.translate("PyNoteBookWindow", u"Navigation", None))
         ___qtreewidgetitem = self.pageTree.headerItem()
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("NoteBookClass", u"Page Title", None));
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.treeTab), QCoreApplication.translate("NoteBookClass", u"Tree", None))
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.listTab), QCoreApplication.translate("NoteBookClass", u"List", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Page Title", None));
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.treeTab), QCoreApplication.translate("PyNoteBookWindow", u"Tree", None))
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.listTab), QCoreApplication.translate("PyNoteBookWindow", u"List", None))
         ___qtreewidgetitem1 = self.dateTree.headerItem()
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("NoteBookClass", u"Date", None));
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.dateTab), QCoreApplication.translate("NoteBookClass", u"Date", None))
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.tagsTab), QCoreApplication.translate("NoteBookClass", u"Tags", None))
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Date", None));
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.dateTab), QCoreApplication.translate("PyNoteBookWindow", u"Date", None))
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.tagsTab), QCoreApplication.translate("PyNoteBookWindow", u"Tags", None))
         self.recentlyViewedDockWidget.setWindowTitle("")
-        self.auxNavigationTabWidget.setTabText(self.auxNavigationTabWidget.indexOf(self.pageHistoryTab), QCoreApplication.translate("NoteBookClass", u"Recently Viewed", None))
-        self.auxNavigationTabWidget.setTabText(self.auxNavigationTabWidget.indexOf(self.searchTab), QCoreApplication.translate("NoteBookClass", u"Search", None))
-        self.auxNavigationTabWidget.setTabText(self.auxNavigationTabWidget.indexOf(self.favoritesTab), QCoreApplication.translate("NoteBookClass", u"Favorites", None))
-        self.toolBar.setWindowTitle(QCoreApplication.translate("NoteBookClass", u"toolBar", None))
+        self.auxNavigationTabWidget.setTabText(self.auxNavigationTabWidget.indexOf(self.pageHistoryTab), QCoreApplication.translate("PyNoteBookWindow", u"Recently Viewed", None))
+        self.auxNavigationTabWidget.setTabText(self.auxNavigationTabWidget.indexOf(self.searchTab), QCoreApplication.translate("PyNoteBookWindow", u"Search", None))
+        self.auxNavigationTabWidget.setTabText(self.auxNavigationTabWidget.indexOf(self.favoritesTab), QCoreApplication.translate("PyNoteBookWindow", u"Favorites", None))
+        self.toolBar.setWindowTitle(QCoreApplication.translate("PyNoteBookWindow", u"toolBar", None))
     # retranslateUi
 

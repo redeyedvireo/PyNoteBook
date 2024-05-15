@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler
 from PySide6 import QtCore, QtWidgets, QtGui
 from qt_util import loadUi
 from util import getScriptPath
-from ui_pynotebookwindow import Ui_NoteBookClass
+from ui_pynotebookwindow import Ui_PyNoteBookWindow
 from database import Database
 
 kLogFile = 'PyNoteBook.log'
@@ -27,7 +27,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.lastUsedDirectory = getScriptPath()    # TODO: First check ini file, and if not there, use getScriptPath()
     self.currentNoteBookPath = ''   # TODO: Get from ini file
 
-    self.ui = Ui_NoteBookClass()
+    self.ui = Ui_PyNoteBookWindow()
     self.ui.setupUi(self)
 
 
