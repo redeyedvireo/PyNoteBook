@@ -45,6 +45,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if len(tempDbPathname) > 0:
       print(f'DB filename: {tempDbPathname}, selected filter: {selectedFilter}')
       self.currentNoteBookPath = tempDbPathname
+      self.OpenNotebookFile()
 
 
 # *************************** FILE ***************************
@@ -52,10 +53,31 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def OpenNotebookFile(self) -> bool:
     if len(self.currentNoteBookPath) > 0 and os.path.exists(self.currentNoteBookPath):
       self.db.openDatabase(self.currentNoteBookPath)
+
+      # TODO: If the database is password protected, get password from the user
+
+      # Read the page order for the notebook, if one exists
+      pageOrderStr = self.db.getPageOrder()
+
+      if pageOrderStr is not None:
+        print(f'Page order string: {pageOrderStr}')
       return True
     else:
       logging.error(f'NoteBook {self.currentNoteBookPath} does not exist')
       return False
+
+  def closeNotebookFile(self):
+    if self.db.isDatabaseOpen():
+      # TODO: CheckSavePage()  - check if user wants to save the page if it hasn't been saved
+
+      # TODO: Save page history
+      # TODO: Save page order
+
+      self.db.closeDatabase()
+
+      self.currentNoteBookPath = ''
+
+      # TODO: SetAppTitle() - ie, remove the Notebook name from the app title
 
 # *************************** SHUTDOWN ***************************
 
@@ -65,7 +87,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   def closeAppWindow(self):
     logging.info('Closing app window...')
-    # self.closeLogFile()
+    self.closeNotebookFile()
     # self.prefs.setWindowPos(self.pos())
     # self.prefs.setWindowSize(self.size())
     # self.prefs.writePrefsFile()

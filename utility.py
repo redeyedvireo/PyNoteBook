@@ -29,11 +29,18 @@ def dateFromFormattedString(dateStr: str) -> datetime.date:
   thisDateTime = datetime.datetime.strptime(dateStr, "%a %b %d %Y")
   return thisDateTime.date()
 
-def bytesToQByteArray(data: bytes) -> QtCore.QByteArray:
-  return QtCore.QByteArray(data)
+def bytesToQByteArray(data: int | str | bytes) -> QtCore.QByteArray:
+  if type(data) is int:
+    return QtCore.QByteArray(data.to_bytes(2, 'little'))
+  elif type(data) is str:
+    return QtCore.QByteArray(bytes(data, 'utf-8'))
+  elif type(data) is bytes:
+    return QtCore.QByteArray(data)
+  else:
+    return QtCore.QByteArray()
 
 def qByteArrayToBytes(data: QtCore.QByteArray) -> bytes:
-  return bytes(data, 'utf-8')
+  return data.data()
 
 def unknownToBytes(data: Any) -> bytes:
   if data is not None:
