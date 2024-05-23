@@ -4,7 +4,9 @@ import datetime
 import logging
 
 from encrypter import Encrypter
-from utility import bytesToQByteArray, qByteArrayToBytes
+from utility import bytesToQByteArray, qByteArrayToBytes, qByteArrayToString
+
+from page_data import PageData
 
 # Global value data type constants
 kDataTypeInteger = 0
@@ -12,6 +14,7 @@ kDataTypeString = 1
 kDataTypeBlob = 2
 
 # Global keys
+# TODO: Make this an Enum
 kPageHistoryKey = "pagehistory"
 kDatabaseVersionId = "databaseversion"
 kPageOrderKey = "pageorder"
@@ -228,3 +231,40 @@ class Database:
       return pageOrder
     else:
       return None
+
+  def getPageList(self) -> tuple[dict[int, PageData], bool]:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select pageid, parentid, pagetitle, lastmodified, pagetype from pages order by pagetitle asc")
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'getPageList error: {sqlErr.type()}')
+      return ({}, False)
+
+    pageDict = {}
+
+    while queryObj.next():
+      pageIdField = queryObj.record().indexOf('pageid')
+      parentIdField = queryObj.record().indexOf('parentid')
+      pageTitleField = queryObj.record().indexOf('pagetitle')
+      lastModifiedField = queryObj.record().indexOf('lastmodified')
+      pageTypeField = queryObj.record().indexOf('pagetype')
+
+      # TODO: Check for encryption, and if so, decrypt (page & title) (may need to convert to bytes)
+
+
+      newPage = PageData()
+
+      newPage.m_pageId = queryObj.value(pageIdField)          # This should be an int
+      newPage.m_parentId = queryObj.value(parentIdField)
+      newPage.m_modifiedDateTime = datetime.datetime.fromtimestamp(queryObj.value(lastModifiedField))
+      newPage.m_title = qByteArrayToString(queryObj.value(pageTitleField))
+      newPage.m_pageType = queryObj.value(pageTypeField)
+
+      pageDict[newPage.m_pageId] = newPage
+
+    return (pageDict, True)

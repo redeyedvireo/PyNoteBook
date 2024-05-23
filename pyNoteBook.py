@@ -61,6 +61,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
       if pageOrderStr is not None:
         print(f'Page order string: {pageOrderStr}')
+        self.PopulateNavigationControls(pageOrderStr)
+
       return True
     else:
       logging.error(f'NoteBook {self.currentNoteBookPath} does not exist')
@@ -78,6 +80,18 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.currentNoteBookPath = ''
 
       # TODO: SetAppTitle() - ie, remove the Notebook name from the app title
+
+# *************************** UI ***************************
+
+  def PopulateNavigationControls(self, pageOrderStr):
+    pageDict, success = self.db.getPageList()
+
+    self.ui.pageTree.addItemsNew(pageDict, pageOrderStr)
+
+    self.ui.pageTitleList.addItems(pageDict)
+    # self.ui.dateTree.AddItems(pageHash)
+    # self.ui.tagList.AddItems(pageIdTagHash)
+
 
 # *************************** SHUTDOWN ***************************
 

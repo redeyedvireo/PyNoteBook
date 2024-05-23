@@ -42,6 +42,9 @@ def bytesToQByteArray(data: int | str | bytes) -> QtCore.QByteArray:
 def qByteArrayToBytes(data: QtCore.QByteArray) -> bytes:
   return data.data()
 
+def qByteArrayToString(data: QtCore.QByteArray) -> str:
+  return qByteArrayToBytes(data).decode()
+
 def unknownToBytes(data: Any) -> bytes:
   if data is not None:
     try:
