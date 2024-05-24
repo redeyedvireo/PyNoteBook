@@ -6,7 +6,7 @@ import logging
 from encrypter import Encrypter
 from utility import bytesToQByteArray, qByteArrayToBytes, qByteArrayToString
 
-from page_data import PageData
+from page_data import PageData, PageDataDict
 
 # Global value data type constants
 kDataTypeInteger = 0
@@ -232,7 +232,7 @@ class Database:
     else:
       return None
 
-  def getPageList(self) -> tuple[dict[int, PageData], bool]:
+  def getPageList(self) -> tuple[PageDataDict, bool]:
     queryObj = QtSql.QSqlQuery()
     queryObj.prepare("select pageid, parentid, pagetitle, lastmodified, pagetype from pages order by pagetitle asc")
 

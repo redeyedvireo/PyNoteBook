@@ -18,3 +18,6 @@ class PageData:
     self.m_numModifications = 0
     self.m_additionalDataItems = []
     self.m_bIsFavorite = False			# True if the page is a "favorite" page
+
+
+PageDataDict = dict[int, PageData]
