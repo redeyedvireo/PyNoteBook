@@ -6,7 +6,7 @@ import logging
 from encrypter import Encrypter
 from utility import bytesToQByteArray, qByteArrayToBytes, qByteArrayToString
 
-from page_data import PageData, PageDataDict
+from page_data import PageData, PageDataDict, PageIdDict
 
 # Global value data type constants
 kDataTypeInteger = 0
@@ -268,3 +268,49 @@ class Database:
       pageDict[newPage.m_pageId] = newPage
 
     return (pageDict, True)
+
+  def getTagList(self) -> tuple[PageIdDict, bool]:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select pageid, tags from pages")
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'getPageList error: {sqlErr.type()}')
+      return ({}, False)
+
+    pageIdDict = {}
+
+    while queryObj.next():
+      pageIdField = queryObj.record().indexOf('pageid')
+      tagsField = queryObj.record().indexOf('tags')
+
+      pageId = queryObj.value(pageIdField)
+      tagsList = queryObj.value(tagsField)
+
+      # TODO: Check for encryption, and if encrypted, decrypt
+
+      if tagsList != '':
+        tagsList = qByteArrayToString(tagsList).strip()
+
+      tagsArray = []
+
+      if len(tagsList) > 0:
+        if ' ' in tagsList:
+          tagsArray = tagsList.split(' ')
+        elif ',' in tagsList:
+          tagsArray = tagsList.split(',')
+        else:
+          tagsArray = [tagsList]      # Just one element
+
+      for tag in tagsArray:
+        if pageId in pageIdDict:
+          tags = pageIdDict[pageId]
+          tags.append(tag)      # This updates the copy in the dictionary
+        else:
+          pageIdDict[pageId] = [tag]
+
+    return (pageIdDict, True)

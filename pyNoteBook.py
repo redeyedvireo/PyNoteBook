@@ -90,7 +90,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     self.ui.pageTitleList.addItems(pageDict)
     self.ui.dateTree.addItems(pageDict)
-    # self.ui.tagList.AddItems(pageIdTagHash)
+
+    pageIdDict, success = self.db.getTagList()
+
+    self.ui.tagList.addItems(pageIdDict)
 
 
 # *************************** SHUTDOWN ***************************

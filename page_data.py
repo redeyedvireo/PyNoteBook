@@ -20,4 +20,5 @@ class PageData:
     self.m_bIsFavorite = False			# True if the page is a "favorite" page
 
 
-PageDataDict = dict[int, PageData]
+PageDataDict = dict[ENTITY_ID, PageData]      # Used when loading a new Notebook
+PageIdDict = dict[ENTITY_ID, list[str]]       # Used when loading a new Notebook
