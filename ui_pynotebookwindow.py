@@ -351,7 +351,7 @@ class Ui_PyNoteBookWindow(object):
         self.actionExit.triggered.connect(PyNoteBookWindow.close)
 
         self.editorStackedWidget.setCurrentIndex(0)
-        self.navigationTabWidget.setCurrentIndex(3)
+        self.navigationTabWidget.setCurrentIndex(0)
         self.auxNavigationTabWidget.setCurrentIndex(2)
 
 
