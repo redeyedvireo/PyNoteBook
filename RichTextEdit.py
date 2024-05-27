@@ -41,6 +41,9 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.initStyleButton()
 
     # Connect signals
+    self.setConnections()
+
+  def setConnections(self):
     self.ui.textColorButton.colorChangedSignal.connect(self.onTextColorChanged)
     self.ui.textColorButton.noColorSignal.connect(self.onTextColorNoColor)
     self.ui.textBackgroundButton.colorChangedSignal.connect(self.onTextBackgroundChanged)
@@ -110,12 +113,35 @@ class RichTextEditWidget(QtWidgets.QWidget):
     doc = self.ui.textEdit.document()
     return doc.isModified()
 
+  def enableEditing(self, enableFlag):
+    self.ui.textEdit.setEnabled(enableFlag)
+    self.setEnabled(enableFlag)
+
+    if enableFlag:
+      # Not sure why, but even when enabled, the background color for the text edit windows stays gray.  We override
+      # this here, but we shouldn't have to.
+      # TODO: Figure out why setting a style sheet is needed here (the background should be set to white automatically,
+      #       when the text edit widget is enabled.)
+      self.ui.textEdit.setStyleSheet('{ background-color: white }')
+    else:
+      # Clear the style sheet
+      self.ui.textEdit.setStyleSheet('')
+
   def setDocumentModified(self, modified):
     doc = self.ui.textEdit.document()
     doc.setModified(modified)
 
   def setDocumentText(self, content: str) -> None:
     self.ui.textEdit.setHtml(content)
+
+  def setPageContents(self, contents: str, imageNames: list[str]) -> None:
+    self.ui.textEdit.clear()
+
+    # TODO: Load images
+
+    self.ui.textEdit.setHtml(contents)      # The C++ version uses insertHtml()
+
+    self.setDocumentModified(True)
 
   def setGlobalFont(self, fontFamily, fontSize):
     selectionCursor = self.ui.textEdit.textCursor()
@@ -124,7 +150,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
       tempCharFormat = QtGui.QTextCharFormat()
 
       # Select entire document
-      selectionCursor.select(QtGui.QTextCursor.Document)
+      selectionCursor.select(QtGui.QTextCursor.SelectionType.Document)
       selectionFormat = selectionCursor.charFormat()
 
       fontSizeToUse = self.findClosestSize(fontSize)
@@ -166,10 +192,11 @@ class RichTextEditWidget(QtWidgets.QWidget):
   def updateControls(self):
     selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
 
-    fontFamily = selectionFormat.fontFamily()
-    index = self.ui.fontCombo.findText(fontFamily)
-    if index != -1:
-      self.ui.fontCombo.setCurrentIndex(index)
+    fontFamilies = selectionFormat.fontFamilies()     # Returns an array of strings (font families)
+    if fontFamilies is not None:
+      index = self.ui.fontCombo.findText(fontFamilies[0])
+      if index != -1:
+        self.ui.fontCombo.setCurrentIndex(index)
 
     fontSize = selectionFormat.fontPointSize()
     fontSizeStr = f'{int(fontSize)}'
@@ -177,7 +204,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     if index != -1:
       self.ui.sizeCombo.setCurrentIndex(index)
 
-    self.ui.boldButton.setChecked(selectionFormat.fontWeight() == QtGui.QFont.Bold)
+    self.ui.boldButton.setChecked(selectionFormat.fontWeight() == QtGui.QFont.Weight.Bold)
     self.ui.italicButton.setChecked(selectionFormat.fontItalic())
     self.ui.underlineButton.setChecked(selectionFormat.fontUnderline())
 
@@ -406,7 +433,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
   def on_styleButton_clicked(self):
     print('Style button clicked')
     styleDlg = SelectStyleDialog(self, self.styleManager)
-    if styleDlg.exec() == QtWidgets.QDialog.Accepted:
+    if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
       styleId = styleDlg.getSelectedStyle()
 
       if styleId is not None:

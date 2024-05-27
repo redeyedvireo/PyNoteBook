@@ -7,6 +7,9 @@ from qt_util import loadUi
 from util import getScriptPath
 from ui_pynotebookwindow import Ui_PyNoteBookWindow
 from database import Database
+from page_data import PageData
+
+from notebook_types import PAGE_TYPE, ENTITY_ID, kInvalidPageId
 
 kLogFile = 'PyNoteBook.log'
 kAppName = 'PyNoteBook'
@@ -18,9 +21,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def __init__(self):
     super(PyNoteBookWindow, self).__init__()
 
-    # self.ui = loadUi('pynotebookwindow.ui')
-    # window.show()
-
     self.db = Database()
 
     self.notebookFileName = ''      # TODO: Get most-recently-used name from ini file
@@ -30,6 +30,14 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui = Ui_PyNoteBookWindow()
     self.ui.setupUi(self)
 
+    self.currendPageId = kInvalidPageId
+    self.tagsModified = False
+
+    self.enableDataEntry(False)
+    self.ui.savePageButton.setEnabled(False)
+    self.ui.editorStackedWidget.setEnabled(True)
+
+    self.setConnections()
 
   # *************************** SLOTS ***************************
 
@@ -47,6 +55,32 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.currentNoteBookPath = tempDbPathname
       self.OpenNotebookFile()
 
+  def setConnections(self):
+    self.ui.pageTree.pageSelectedSignal.connect(self.onPageSelected)
+
+  def initialize(self):
+    # TODO: Load settings from INI file
+    # TODO: From INI file, determine the previously open notebook open (if any) and re-open it.
+    self.ui.pageTree.initialize(self.db)
+
+  def onPageSelected(self, pageId: ENTITY_ID):
+    # TODO: Check if the current page is unsaved, and if so, ask user if he wants to save it.
+
+    pageData = self.db.getPage(pageId)
+
+    if pageData is not None:
+      self.currentPageId = pageId
+
+      # TODO: Get images for page
+      imageNames = []
+
+      self.tagsModified = False
+
+      self.displayPage(pageData, imageNames, False)
+
+      # Add page to the page history
+      # TODO: Add page to the page history (will eventually be in a menu, not in a widget)
+
 
 # *************************** FILE ***************************
 
@@ -61,8 +95,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
       if pageOrderStr is not None:
         print(f'Page order string: {pageOrderStr}')
-        self.PopulateNavigationControls(pageOrderStr)
-
+        self.populateNavigationControls(pageOrderStr)
       return True
     else:
       logging.error(f'NoteBook {self.currentNoteBookPath} does not exist')
@@ -83,7 +116,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
 # *************************** UI ***************************
 
-  def PopulateNavigationControls(self, pageOrderStr):
+  def populateNavigationControls(self, pageOrderStr):
     pageDict, success = self.db.getPageList()
 
     self.ui.pageTree.addItemsNew(pageDict, pageOrderStr)
@@ -94,6 +127,49 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     pageIdDict, success = self.db.getTagList()
 
     self.ui.tagList.addItems(pageIdDict)
+
+  def enableDataEntry(self, enable):
+    self.ui.pageTextEdit.setEnabled(enable)
+    self.ui.pageTextEdit.enableEditing(enable)
+    self.ui.tagsEdit.setEnabled(enable)
+
+  def displayPage(self, pageData: PageData, imageNames: list[str], isNewPage: bool):
+    self.ui.titleLabelWidget.setPageTitleLabel(pageData.m_title)
+
+    # TODO: Once there are multiple editor types, activate the appropriate editor
+
+    if pageData.m_pageType == PAGE_TYPE.kPageTypeUserText:
+      if isNewPage:
+        # TODO: Create new document
+        pass
+      else:
+        self.ui.pageTextEdit.setPageContents(pageData.m_contentString, imageNames)
+
+    # Set tags
+    if len(pageData.m_tags) == 0:
+      self.ui.tagsEdit.clear()
+    else:
+      self.ui.tagsEdit.setText(pageData.m_tags)
+
+    self.setAppTitle()
+
+    self.enableDataEntry(True)
+
+    # Disable the Save button (until an edit is made)
+    self.ui.savePageButton.setEnabled(False)
+
+  def setAppTitle(self):
+    windowTitle = ''
+
+    if len(self.notebookFileName) > 0:
+      windowTitle = f'Notebook - {self.currentNoteBookPath}'
+    else:
+      windowTitle = 'Notebook'
+
+    self.setWindowTitle(windowTitle)
+
+  def pageIsModified(self) -> bool:
+    return self.ui.pageTextEdit.isModified()
 
 
 # *************************** SHUTDOWN ***************************
@@ -125,6 +201,8 @@ def main():
   app = QtWidgets.QApplication([])
 
   window = PyNoteBookWindow()
+  window.initialize()
+
   # widget.resize(800, 600)
   window.show()
 

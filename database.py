@@ -4,9 +4,10 @@ import datetime
 import logging
 
 from encrypter import Encrypter
-from utility import bytesToQByteArray, qByteArrayToBytes, qByteArrayToString
+from utility import bytesToQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray
 
 from page_data import PageData, PageDataDict, PageIdDict
+from notebook_types import PAGE_TYPE
 
 # Global value data type constants
 kDataTypeInteger = 0
@@ -296,15 +297,7 @@ class Database:
       if tagsList != '':
         tagsList = qByteArrayToString(tagsList).strip()
 
-      tagsArray = []
-
-      if len(tagsList) > 0:
-        if ' ' in tagsList:
-          tagsArray = tagsList.split(' ')
-        elif ',' in tagsList:
-          tagsArray = tagsList.split(',')
-        else:
-          tagsArray = [tagsList]      # Just one element
+      tagsArray = stringToArray(tagsList)
 
       for tag in tagsArray:
         if pageId in pageIdDict:
@@ -314,3 +307,72 @@ class Database:
           pageIdDict[pageId] = [tag]
 
     return (pageIdDict, True)
+
+  # TODO: Should return an error message
+  def getPage(self, pageId) -> PageData | None:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select pagetype, parentid, contents, pagetitle, tags, created, lastmodified, nummodifications, additionalitems, isfavorite from pages where pageid=?")
+    queryObj.bindValue(0, pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'getPage error: {sqlErr.type()}')
+      return None
+
+    pageData = PageData()
+
+    while queryObj.next():
+      pageTypeField = queryObj.record().indexOf('pagetype')
+      parentIdField = queryObj.record().indexOf('parentid')
+      contentsField = queryObj.record().indexOf('contents')
+      pageTitleField = queryObj.record().indexOf('pagetitle')
+      tagsField = queryObj.record().indexOf('tags')
+      createdField = queryObj.record().indexOf('created')
+      lastModifiedDateField = queryObj.record().indexOf('lastmodified')
+      numModificationsField = queryObj.record().indexOf("nummodifications")
+      additionalItemsField = queryObj.record().indexOf("additionalitems")
+      isFavoriteField = queryObj.record().indexOf("isfavorite")
+
+      pageType = queryObj.value(pageTypeField)
+      parentId = queryObj.value(parentIdField)
+      contentsData = queryObj.value(contentsField)
+      titleData = queryObj.value(pageTitleField)
+      tagData = queryObj.value(tagsField)
+      lastModifiedTime_t = queryObj.value(lastModifiedDateField)
+      numModifications = queryObj.value(numModificationsField)
+      createdTime_t = queryObj.value(createdField)
+      additionalItemsStr = queryObj.value(additionalItemsField)
+      bIsFavorite = queryObj.value(isFavoriteField) != 0
+
+      # TODO: Check for encryption, and if encrypted, decrypt
+
+      pageData.m_contentString = qByteArrayToString(contentsData) if contentsData != '' else ''
+      pageData.m_title = qByteArrayToString(titleData) if titleData != '' else ''
+      pageData.m_tags = qByteArrayToString(tagData) if tagData != '' else ''
+      pageData.m_pageId = pageId
+
+      try:
+        pageData.m_pageType = PAGE_TYPE(pageType)
+      except ValueError:
+        self.reportError(f'getPage: page type is invalid: {pageType}, for page ID {pageId}')
+        pageData.m_pageType = PAGE_TYPE.kPageTypeUserText
+
+      pageData.m_parentId = parentId
+      pageData.m_modifiedDateTime = datetime.datetime.fromtimestamp(lastModifiedTime_t)
+      pageData.m_createdDateTime = datetime.datetime.fromtimestamp(createdTime_t)
+      pageData.m_numModifications = numModifications
+      pageData.m_bIsFavorite = bIsFavorite
+
+      # Process additional items
+      additionalItems = ''
+      if additionalItemsStr != '':
+        additionalItems = qByteArrayToString(additionalItemsStr).strip()
+
+        if len(additionalItems) > 0:
+          pageData.m_additionalDataItems = additionalItems.split(',')
+
+    return pageData

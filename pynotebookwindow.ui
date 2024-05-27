@@ -33,7 +33,7 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="RichTextEditWidget" name="page">
+      <widget class="RichTextEditWidget" name="pageTextEdit">
        <layout class="QHBoxLayout" name="horizontalLayout_3"/>
       </widget>
      </widget>

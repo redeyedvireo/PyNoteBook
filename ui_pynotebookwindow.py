@@ -99,13 +99,13 @@ class Ui_PyNoteBookWindow(object):
         self.editorStackedWidget = QStackedWidget(self.centralWidget)
         self.editorStackedWidget.setObjectName(u"editorStackedWidget")
         self.editorStackedWidget.setSizeIncrement(QSize(0, 1))
-        self.page = RichTextEditWidget()
-        self.page.setObjectName(u"page")
-        self.horizontalLayout_3 = QHBoxLayout(self.page)
+        self.pageTextEdit = RichTextEditWidget()
+        self.pageTextEdit.setObjectName(u"pageTextEdit")
+        self.horizontalLayout_3 = QHBoxLayout(self.pageTextEdit)
         self.horizontalLayout_3.setSpacing(6)
         self.horizontalLayout_3.setContentsMargins(11, 11, 11, 11)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.editorStackedWidget.addWidget(self.page)
+        self.editorStackedWidget.addWidget(self.pageTextEdit)
 
         self.verticalLayout.addWidget(self.editorStackedWidget)
 

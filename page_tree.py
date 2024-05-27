@@ -2,7 +2,7 @@ from enum import Enum
 
 import logging
 from PySide6 import QtCore, QtWidgets, QtGui
-from notebook_types import kInvalidPageId, PAGE_TYPE
+from notebook_types import kInvalidPageId, PAGE_TYPE, ENTITY_ID
 
 class PageWidgetItemType(Enum):
   eItemPage = 0
@@ -27,9 +27,25 @@ class CPageWidgetItem(QtWidgets.QTreeWidgetItem):
   def UpdateIcon(self):
     pass
 
+
+#************************************************************************
+#* CPageTree                                                            *
+#************************************************************************
+
 class CPageTree(QtWidgets.QTreeWidget):
+  pageSelectedSignal = QtCore.Signal(ENTITY_ID)
+
   def __init__(self, parent):
     super(CPageTree, self).__init__(parent)
+    self.db = None
+
+  def initialize(self, db):
+    self.db = db
+    self.setConnections()
+
+  def setConnections(self):
+    # TODO: Set signal/slot connections
+    self.itemClicked.connect(self.onItemClicked)
 
   def addItemsNew(self, pageDict, pageOrderStr):
     # TODO: Would like to move away from using a page order string.  It would be better to be
@@ -126,3 +142,11 @@ class CPageTree(QtWidgets.QTreeWidget):
     else:
       logging.error(f'CPageTree.findItemInSubTree: pageWidgetItem is not a CPageWidgetItem')
       return None
+
+
+# *************************** SLOTS ***************************
+
+  def onItemClicked(self, item, column):
+    if type(item) is CPageWidgetItem:
+      pageId = item.pageId
+      self.pageSelectedSignal.emit(pageId)

@@ -64,3 +64,16 @@ def unknownToBytes(data: Any) -> bytes:
       return b''
   else:
     return b''
+
+def stringToArray(inStr: str) -> list[str]:
+  """ Separates a joined list.  The list can be joined by either commas or spaces. """
+  resultArray = []
+  if len(inStr) > 0:
+    if ' ' in inStr:
+      resultArray = inStr.split(' ')
+    elif ',' in inStr:
+      resultArray = inStr.split(',')
+    else:
+      resultArray = [inStr]      # Just one element
+
+  return resultArray
