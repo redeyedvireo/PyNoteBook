@@ -7,7 +7,7 @@ from utility import formatDateTime
 
 from ui_RichTextEdit import Ui_RichTextEditWidget
 class RichTextEditWidget(QtWidgets.QWidget):
-  logTextChangedSignal = QtCore.Signal()
+  editorTextChangedSignal = QtCore.Signal()
 
   # def __init__(self, parent):
   def __init__(self):
@@ -122,10 +122,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
       # this here, but we shouldn't have to.
       # TODO: Figure out why setting a style sheet is needed here (the background should be set to white automatically,
       #       when the text edit widget is enabled.)
-      self.ui.textEdit.setStyleSheet('{ background-color: white }')
-    else:
-      # Clear the style sheet
-      self.ui.textEdit.setStyleSheet('')
+      self.ui.textEdit.setStyleSheet('{ background-color: white; }')
 
   def setDocumentModified(self, modified):
     doc = self.ui.textEdit.document()
@@ -256,7 +253,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
   @QtCore.Slot()
   def onTextChanged(self):
-    self.logTextChangedSignal.emit()
+    self.editorTextChangedSignal.emit()
 
   @QtCore.Slot()
   def onCursorPositionChanged(self):
@@ -400,14 +397,15 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     selectionCursor.createList(newListFormat)
 
-  @QtCore.Slot(str)
-  def on_fontCombo_activated(self, text):
+  @QtCore.Slot(int)
+  def on_fontCombo_activated(self, index):
     self.populatePointSizesCombo()
 
     # selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
     selectionCursor = self.ui.textEdit.textCursor()
     selectionFormat = selectionCursor.charFormat()
 
+    text = self.ui.fontCombo.itemText(index)
     selectionFormat.setFontFamily(text)
     selectionCursor.setCharFormat(selectionFormat)
 
@@ -417,10 +415,11 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     self.ui.textEdit.setTextCursor(selectionCursor)
 
-  @QtCore.Slot(str)
-  def on_sizeCombo_activated(self, text):
+  @QtCore.Slot(int)
+  def on_sizeCombo_activated(self, index):
     selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
 
+    text = self.ui.sizeCombo.itemText(index)
     newFontSize = int(text)
 
     tempCharFormat = QtGui.QTextCharFormat()

@@ -30,7 +30,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui = Ui_PyNoteBookWindow()
     self.ui.setupUi(self)
 
-    self.currendPageId = kInvalidPageId
+    self.currentPageData = None
     self.tagsModified = False
 
     self.enableDataEntry(False)
@@ -55,8 +55,44 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.currentNoteBookPath = tempDbPathname
       self.OpenNotebookFile()
 
+  @QtCore.Slot()
+  def on_savePageButton_clicked(self):
+    # Get ID of the log entry from the list control.  If it is a new log entry,
+    # the ID will be kTempItemId.
+
+
+    if self.currentPageData is not None:
+      self.currentPageData.m_title = self.ui.titleLabelWidget.getPageTitleLabel()
+      self.currentPageData.m_tags = self.ui.tagsEdit.text()
+      self.currentPageData.m_contentString = self.ui.pageTextEdit.toHtml()
+
+      success = self.db.updatePage(self.currentPageData)
+
+      if not success:
+        logging.error(f'[on_savePageButton_clicked] Error saving page ID {self.currentPageData.m_pageId} ({self.currentPageData.m_title})')
+        return
+
+      self.tagsModified = False
+      self.ui.pageTextEdit.setDocumentModified(False)
+
+      # TODO: Emit PageSaved signal (see who needs this.  It might not be necessary.)
+
+      self.setAppTitle()
+      self.ui.savePageButton.setEnabled(False)
+    else:
+      # Should never get here: self.currentPageData should always be a valid object.
+      logging.error('[on_savePageButton_clicked] currentPageData is non-existent')
+
+  def onPageModified(self):
+    self.setAppTitle()
+    self.ui.savePageButton.setEnabled(True)
+
   def setConnections(self):
+    # Page Tree signals
     self.ui.pageTree.pageSelectedSignal.connect(self.onPageSelected)
+
+    # Editor signals
+    self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
 
   def initialize(self):
     # TODO: Load settings from INI file
@@ -66,9 +102,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def onPageSelected(self, pageId: ENTITY_ID):
     # TODO: Check if the current page is unsaved, and if so, ask user if he wants to save it.
 
-    pageData = self.db.getPage(pageId)
+    self.currentPageData = self.db.getPage(pageId)
 
-    if pageData is not None:
+    if self.currentPageData is not None:
       self.currentPageId = pageId
 
       # TODO: Get images for page
@@ -76,7 +112,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
       self.tagsModified = False
 
-      self.displayPage(pageData, imageNames, False)
+      self.displayPage(self.currentPageData, imageNames, False)
 
       # Add page to the page history
       # TODO: Add page to the page history (will eventually be in a menu, not in a widget)
@@ -163,6 +199,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     if len(self.notebookFileName) > 0:
       windowTitle = f'Notebook - {self.currentNoteBookPath}'
+
+      if self.pageIsModified():
+        windowTitle += '*'
     else:
       windowTitle = 'Notebook'
 

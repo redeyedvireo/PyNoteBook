@@ -4,7 +4,7 @@ import datetime
 import logging
 
 from encrypter import Encrypter
-from utility import bytesToQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray
+from utility import toQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray, unknownToString
 
 from page_data import PageData, PageDataDict, PageIdDict
 from notebook_types import PAGE_TYPE
@@ -166,7 +166,7 @@ class Database:
         createStr = "update globals set blobval=? where key=?"
 
         # Must convert to a QByteArray
-        valueAsBytes = bytesToQByteArray(value)
+        valueAsBytes = toQByteArray(value)
       else:
         self.reportError("setGlobalValue: invalid data type")
         return
@@ -187,7 +187,7 @@ class Database:
         dataType = kDataTypeBlob
 
         # Must convert to a QByteArray
-        valueAsBytes = bytesToQByteArray(value)
+        valueAsBytes = toQByteArray(value)
       else:
         self.reportError("setGlobalValue: invalid data type")
         return
@@ -263,7 +263,7 @@ class Database:
       newPage.m_pageId = queryObj.value(pageIdField)          # This should be an int
       newPage.m_parentId = queryObj.value(parentIdField)
       newPage.m_modifiedDateTime = datetime.datetime.fromtimestamp(queryObj.value(lastModifiedField))
-      newPage.m_title = qByteArrayToString(queryObj.value(pageTitleField))
+      newPage.m_title = unknownToString(queryObj.value(pageTitleField))
       newPage.m_pageType = queryObj.value(pageTypeField)
 
       pageDict[newPage.m_pageId] = newPage
@@ -295,7 +295,7 @@ class Database:
       # TODO: Check for encryption, and if encrypted, decrypt
 
       if tagsList != '':
-        tagsList = qByteArrayToString(tagsList).strip()
+        tagsList = unknownToString(tagsList).strip()
 
       tagsArray = stringToArray(tagsList)
 
@@ -350,9 +350,9 @@ class Database:
 
       # TODO: Check for encryption, and if encrypted, decrypt
 
-      pageData.m_contentString = qByteArrayToString(contentsData) if contentsData != '' else ''
-      pageData.m_title = qByteArrayToString(titleData) if titleData != '' else ''
-      pageData.m_tags = qByteArrayToString(tagData) if tagData != '' else ''
+      pageData.m_contentString = unknownToString(contentsData) if contentsData != '' else ''
+      pageData.m_title = unknownToString(titleData) if titleData != '' else ''
+      pageData.m_tags = unknownToString(tagData) if tagData != '' else ''
       pageData.m_pageId = pageId
 
       try:
@@ -376,3 +376,34 @@ class Database:
           pageData.m_additionalDataItems = additionalItems.split(',')
 
     return pageData
+
+  # TODO: Should return an error message
+  def saveNewPage(self, pageData: PageData) -> bool:
+    return True
+
+  # TODO: Should return an error message
+  def updatePage(self, pageData) -> bool:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare('update pages set contents=?, pagetitle=?, tags=?, lastmodified=?, nummodifications=?, additionalitems=?, isfavorite=? where pageid=?')
+    # queryObj.bindValue(0, pageId)
+    queryObj.addBindValue(toQByteArray(pageData.m_contentString))
+    queryObj.addBindValue(toQByteArray(pageData.m_title))
+    queryObj.addBindValue(toQByteArray(pageData.m_tags))
+    queryObj.addBindValue(pageData.m_modifiedDateTime.timestamp())
+    queryObj.addBindValue(pageData.m_numModifications)
+    queryObj.addBindValue(pageData.additionalItems())
+    queryObj.addBindValue(pageData.m_bIsFavorite)
+    queryObj.addBindValue(pageData.m_pageId)
+
+    # TODO: Check if this is an encrypted Notebook, and if so, encrypt
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'updatePage error: {sqlErr.type()}')
+      return False
+
+    return True

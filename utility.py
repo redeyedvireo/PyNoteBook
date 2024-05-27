@@ -29,7 +29,7 @@ def dateFromFormattedString(dateStr: str) -> datetime.date:
   thisDateTime = datetime.datetime.strptime(dateStr, "%a %b %d %Y")
   return thisDateTime.date()
 
-def bytesToQByteArray(data: int | str | bytes) -> QtCore.QByteArray:
+def toQByteArray(data: int | str | bytes) -> QtCore.QByteArray:
   if type(data) is int:
     return QtCore.QByteArray(data.to_bytes(2, 'little'))
   elif type(data) is str:
@@ -40,10 +40,19 @@ def bytesToQByteArray(data: int | str | bytes) -> QtCore.QByteArray:
     return QtCore.QByteArray()
 
 def qByteArrayToBytes(data: QtCore.QByteArray) -> bytes:
-  return data.data()
+  if (type(data) is str):
+    return bytes(data)
+  elif isinstance(data, QtCore.QByteArray):
+    return data.data()
+  else:
+    # Unknown data type
+    return data
 
 def qByteArrayToString(data: QtCore.QByteArray) -> str:
   return qByteArrayToBytes(data).decode()
+
+def unknownToString(data: Any) -> str:
+  return unknownToBytes(data).decode('utf-8')
 
 def unknownToBytes(data: Any) -> bytes:
   if data is not None:

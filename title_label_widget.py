@@ -17,3 +17,6 @@ class CTitleLabelWidget(QtWidgets.QWidget):
   def setPageTitleLabel(self, title: str) -> None:
     self.ui.pageTitleLabel.setText(title)
     self.ui.stackedWidget.setCurrentIndex(kLabelPage)
+
+  def getPageTitleLabel(self) -> str:
+    return self.ui.pageTitleLabel.text()
