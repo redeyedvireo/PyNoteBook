@@ -15,3 +15,14 @@ class PAGE_TYPE(Enum):
   kPageTypeToDoList = 2       # To Do list
   kPageTypeHtml = 3						# Specific HTML code
   kPageTypeJavascript = 4     # Javascript
+
+class PAGE_ADD(Enum):
+  kNewPage = 0
+  kNewFolder = 1
+  kNewToDoListPage =2
+
+class PAGE_ADD_WHERE(Enum):
+  kPageAddDefault = 0
+  kPageAddAfterCurrentItem = 1
+  kPageAddBeforeCurrentItem = 2
+  kPageAddTopLevel = 3

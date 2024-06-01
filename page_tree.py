@@ -2,7 +2,7 @@ from enum import Enum
 
 import logging
 from PySide6 import QtCore, QtWidgets, QtGui
-from notebook_types import kInvalidPageId, PAGE_TYPE, ENTITY_ID
+from notebook_types import kInvalidPageId, PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, ENTITY_LIST
 
 class PageWidgetItemType(Enum):
   eItemPage = 0
@@ -15,10 +15,13 @@ class PageWidgetItemType(Enum):
 #************************************************************************
 
 class CPageWidgetItem(QtWidgets.QTreeWidgetItem):
-  def __init__(self, parent, pageId, itemType):
+  def __init__(self, parent, pageId, itemType: PageWidgetItemType):
     super(CPageWidgetItem, self).__init__(parent)
     self.pageId = pageId
     self.itemType = itemType
+
+    self.setText(0, 'Untitled Page')
+    self.setFlags(self.flags() | QtCore.Qt.ItemFlag.ItemIsEditable)
 
   def SetPageId(self, pageId):
     self.pageId = pageId
@@ -34,10 +37,21 @@ class CPageWidgetItem(QtWidgets.QTreeWidgetItem):
 
 class CPageTree(QtWidgets.QTreeWidget):
   pageSelectedSignal = QtCore.Signal(ENTITY_ID)
+  pageTitleChangedSignal = QtCore.Signal(ENTITY_ID, str, bool)
 
   def __init__(self, parent):
     super(CPageTree, self).__init__(parent)
     self.db = None
+
+    # This is a brute-force way to determine if a new page is being created.  It is used when
+    # changing an item's title.  The on_itemChange_triggered function has no way of knowing whether
+    # the item is being edited as the result of the initial title being set, or whether the title
+    # is being changed deliberately by the user after the page has been created.
+    self.newPageBeingCreated = False
+
+    # This is used when loading a Notebook: the itemChanged signal will be triggered for each new
+    # page that is being set.  This is to prevent it from being handled.
+    self.loading = False
 
   def initialize(self, db):
     self.db = db
@@ -46,6 +60,100 @@ class CPageTree(QtWidgets.QTreeWidget):
   def setConnections(self):
     # TODO: Set signal/slot connections
     self.itemClicked.connect(self.onItemClicked)
+    self.itemChanged.connect(self.onItemChanged)
+
+  def itemToCPageWidgetItem(self, item: QtWidgets.QTreeWidgetItem) -> CPageWidgetItem | None:
+    if item is not None and type(item) is CPageWidgetItem:
+      return item
+    else:
+      return None
+
+  def getParentId(self, item: CPageWidgetItem) -> ENTITY_ID:
+    parent = item.parent()
+    pageWidgetItem = self.itemToCPageWidgetItem(parent)
+    if pageWidgetItem is not None:
+      return pageWidgetItem.pageId
+    else:
+      return kInvalidPageId
+
+  def addTopLevelPageTreeItem(self, pageTitle: str, pageId: ENTITY_ID, itemType: PageWidgetItemType):
+    newItem = CPageWidgetItem(0, pageId, itemType)
+    newItem.setText(0, pageTitle)
+    self.addTopLevelItem(newItem)
+
+  def newItem(self, pageId: ENTITY_ID, pageAdd: PAGE_ADD, pageAddWhere: PAGE_ADD_WHERE, title: str) -> tuple[bool, str, int]:
+    """ Adds a new item to the tree.  If title is empty, the user will be given the chance to enter a title.
+        Returns:
+        - success
+        - title (in case the user changed it)
+        - parent ID, or kInvalidPageId if it is a top-level item
+    """
+    newPageId = pageId
+
+    newItemType = PageWidgetItemType.eItemPage
+
+    parentId = kInvalidPageId
+
+    match pageAdd:
+      case PAGE_ADD.kNewPage:
+        newItemType = PageWidgetItemType.eItemPage
+
+      case PAGE_ADD.kNewFolder:
+        newItemType = PageWidgetItemType.eItemFolder
+
+      case PAGE_ADD.kNewToDoListPage:
+        newItemType = PageWidgetItemType.eItemToDoList
+
+      case _:
+        newItemType = PageWidgetItemType.eItemPage
+
+    newItem = CPageWidgetItem(0, newPageId, newItemType)
+
+    currentItem = self.currentItem()
+
+    # - if there is no current item in the page tree, then add a new top-level item
+    # - if the current item is a page (not a folder), then add a sibling item
+    # - if the current item is a folder, then add a child
+
+    if currentItem is None or pageAddWhere == PAGE_ADD_WHERE.kPageAddTopLevel:
+      # Add a new top-level item
+      self.addTopLevelItem(newItem)
+    else:
+      if type(currentItem) is CPageWidgetItem:
+        if currentItem.itemType == PageWidgetItemType.eItemPage:
+          parent = currentItem.parent()
+          if parent is not None:
+            parent.addChild(newItem)
+            if type(parent) is CPageWidgetItem:
+              parentId = parent.pageId
+          else:
+            # currentItem is a top-level (ie, no parent)
+            currentItemIndex = self.indexOfTopLevelItem(currentItem)
+            if currentItemIndex != -1:
+              self.insertTopLevelItem(currentItemIndex + 1, newItem)
+
+        elif currentItem.itemType == PageWidgetItemType.eItemFolder:
+          # The current item is a folder, so add a child item
+          # TODO: Currently, the new page is placed at the end of the folder items.  Maybe it should go after the current one?
+          currentItem.addChild(newItem)
+          currentItem.setExpanded(True)
+          parentId = self.getParentId(currentItem)
+      else:
+        # Error - all items in the tree should be of type CPageWidgetItem
+        logging.error(f'CPageTree.newItem: currentItem is not a CPageWidgetItem')
+        return (False, title, kInvalidPageId)
+
+    self.scrollToItem(newItem)
+
+    if len(title) == 0:
+      # The title parameter was empty, so make the item editable so the user can enter the page title
+      self.newPageBeingCreated = True     # To ensure that this doesn't count as a page modification
+      self.editItem(newItem, 0)
+    else:
+      # Use the title parameter as the item's title
+      newItem.setText(0, title)
+
+    return (True, newItem.text(0), parentId)
 
   def addItemsNew(self, pageDict, pageOrderStr):
     # TODO: Would like to move away from using a page order string.  It would be better to be
@@ -53,10 +161,12 @@ class CPageTree(QtWidgets.QTreeWidget):
 
     pageIdList = pageOrderStr.split(',')
 
+    self.loading = True
+
     for pageIdStr in pageIdList:
       pageId = int(pageIdStr)
 
-      if pageId != kInvalidPageId:
+      if pageId != kInvalidPageId and pageId in pageDict:
         pageData = pageDict[pageId]
 
         pageType = PageWidgetItemType.eItemPage
@@ -79,6 +189,8 @@ class CPageTree(QtWidgets.QTreeWidget):
 
         if not success:
           logging.error(f'CPageTree.addItemsNew: Error adding item')
+
+    self.loading = False
 
   def addItem(self, pageId: int, parentId: int, pageType: PageWidgetItemType, pageTitle: str) -> bool:
     if pageId == kInvalidPageId:
@@ -143,6 +255,29 @@ class CPageTree(QtWidgets.QTreeWidget):
       logging.error(f'CPageTree.findItemInSubTree: pageWidgetItem is not a CPageWidgetItem')
       return None
 
+  def getTreeIdList(self):
+    idList = self.getTreeListForSubfolder(self.invisibleRootItem())
+
+    return ','.join(map(str, idList))
+
+  def getTreeListForSubfolder(self, treeWidgetItem: QtWidgets.QTreeWidgetItem) -> ENTITY_LIST:
+    entityList = []
+
+    numChildren = treeWidgetItem.childCount()
+
+    for i in range(numChildren):
+      subPageItem = treeWidgetItem.child(i)
+
+      if type(subPageItem) is CPageWidgetItem:
+        entityList.append(subPageItem.pageId)
+
+        if subPageItem.itemType == PageWidgetItemType.eItemFolder:
+          # Search folder's children
+          subList = self.getTreeListForSubfolder(subPageItem)
+          entityList.extend(subList)
+
+    return entityList
+
 
 # *************************** SLOTS ***************************
 
@@ -150,3 +285,15 @@ class CPageTree(QtWidgets.QTreeWidget):
     if type(item) is CPageWidgetItem:
       pageId = item.pageId
       self.pageSelectedSignal.emit(pageId)
+
+  def onItemChanged(self, item, column: int):
+    if self.loading:
+      # If loading a Notebook file, do nothing here
+      return
+
+    if type(item) is CPageWidgetItem:
+      self.setCurrentItem(item)
+      self.pageTitleChangedSignal.emit(item.pageId, item.text(0), not self.newPageBeingCreated)
+
+    # Reset this flag.
+    self.newPageBeingCreated = False

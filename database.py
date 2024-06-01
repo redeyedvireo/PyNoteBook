@@ -7,7 +7,7 @@ from encrypter import Encrypter
 from utility import toQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray, unknownToString
 
 from page_data import PageData, PageDataDict, PageIdDict
-from notebook_types import PAGE_TYPE
+from notebook_types import PAGE_TYPE, ENTITY_ID, kInvalidPageId
 
 # Global value data type constants
 kDataTypeInteger = 0
@@ -76,6 +76,10 @@ class Database:
     # TODO: Create database tables
     pass
 
+  def getQueryField(self, queryObj, fieldName) -> int | str | bytes | None:
+    fieldIndex = queryObj.record().indexOf(fieldName)
+    return queryObj.value(fieldIndex)
+
   def getGlobalValue(self, key: str) -> int | str | bytes | None:
     """ Returns the value of a 'global value' for the given key. """
     queryObj = QtSql.QSqlQuery()
@@ -139,7 +143,7 @@ class Database:
 
       return value
 
-  def setGlobalValue(self, key: str, value: int | str | bytes):
+  def setGlobalValue(self, key: str, value: int | str | bytes) -> bool:
     """ Sets the value of the given key to the given value. """
 
     # See if the key exists
@@ -154,7 +158,9 @@ class Database:
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
       self.reportError("Error when attempting to determine if a global value exists: {}".format(sqlErr.text()))
-      return
+      return False
+
+    valueToStore = value
 
     if queryObj.next():
       # Key exists; update its value
@@ -164,16 +170,14 @@ class Database:
         createStr = "update globals set stringval=? where key=?"
       elif isinstance(value, bytes):
         createStr = "update globals set blobval=? where key=?"
-
         # Must convert to a QByteArray
-        valueAsBytes = toQByteArray(value)
+        valueToStore = toQByteArray(value)
       else:
         self.reportError("setGlobalValue: invalid data type")
-        return
+        return False
 
       queryObj.prepare(createStr)
-
-      queryObj.addBindValue(valueAsBytes)
+      queryObj.addBindValue(valueToStore)
       queryObj.addBindValue(key)
     else:
       if isinstance(value, int):
@@ -190,7 +194,7 @@ class Database:
         valueAsBytes = toQByteArray(value)
       else:
         self.reportError("setGlobalValue: invalid data type")
-        return
+        return False
 
       queryObj.prepare(createStr)
 
@@ -205,6 +209,9 @@ class Database:
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
       self.reportError("Error when attempting to set a global value: {}".format(sqlErr.text()))
+      return False
+
+    return True
 
 
   def globalValueExists(self, key):
@@ -224,6 +231,8 @@ class Database:
       atLeastOne = queryObj.next()
       return atLeastOne
 
+  def setPageOrder(self, pageOrderStr) -> bool:
+    return self.setGlobalValue(kPageOrderKey, pageOrderStr)
 
   def getPageOrder(self) -> str | None:
     pageOrder = str(self.getGlobalValue(kPageOrderKey))
@@ -323,57 +332,60 @@ class Database:
       self.reportError(f'getPage error: {sqlErr.type()}')
       return None
 
+    # If queryObj.first() returns False, then the page doesn't exist
+    if not queryObj.first():
+      return None
+
     pageData = PageData()
 
-    while queryObj.next():
-      pageTypeField = queryObj.record().indexOf('pagetype')
-      parentIdField = queryObj.record().indexOf('parentid')
-      contentsField = queryObj.record().indexOf('contents')
-      pageTitleField = queryObj.record().indexOf('pagetitle')
-      tagsField = queryObj.record().indexOf('tags')
-      createdField = queryObj.record().indexOf('created')
-      lastModifiedDateField = queryObj.record().indexOf('lastmodified')
-      numModificationsField = queryObj.record().indexOf("nummodifications")
-      additionalItemsField = queryObj.record().indexOf("additionalitems")
-      isFavoriteField = queryObj.record().indexOf("isfavorite")
+    pageTypeField = queryObj.record().indexOf('pagetype')
+    parentIdField = queryObj.record().indexOf('parentid')
+    contentsField = queryObj.record().indexOf('contents')
+    pageTitleField = queryObj.record().indexOf('pagetitle')
+    tagsField = queryObj.record().indexOf('tags')
+    createdField = queryObj.record().indexOf('created')
+    lastModifiedDateField = queryObj.record().indexOf('lastmodified')
+    numModificationsField = queryObj.record().indexOf("nummodifications")
+    additionalItemsField = queryObj.record().indexOf("additionalitems")
+    isFavoriteField = queryObj.record().indexOf("isfavorite")
 
-      pageType = queryObj.value(pageTypeField)
-      parentId = queryObj.value(parentIdField)
-      contentsData = queryObj.value(contentsField)
-      titleData = queryObj.value(pageTitleField)
-      tagData = queryObj.value(tagsField)
-      lastModifiedTime_t = queryObj.value(lastModifiedDateField)
-      numModifications = queryObj.value(numModificationsField)
-      createdTime_t = queryObj.value(createdField)
-      additionalItemsStr = queryObj.value(additionalItemsField)
-      bIsFavorite = queryObj.value(isFavoriteField) != 0
+    pageType = queryObj.value(pageTypeField)
+    parentId = queryObj.value(parentIdField)
+    contentsData = queryObj.value(contentsField)
+    titleData = queryObj.value(pageTitleField)
+    tagData = queryObj.value(tagsField)
+    lastModifiedTime_t = queryObj.value(lastModifiedDateField)
+    numModifications = queryObj.value(numModificationsField)
+    createdTime_t = queryObj.value(createdField)
+    additionalItemsStr = queryObj.value(additionalItemsField)
+    bIsFavorite = queryObj.value(isFavoriteField) != 0
 
-      # TODO: Check for encryption, and if encrypted, decrypt
+    # TODO: Check for encryption, and if encrypted, decrypt
 
-      pageData.m_contentString = unknownToString(contentsData) if contentsData != '' else ''
-      pageData.m_title = unknownToString(titleData) if titleData != '' else ''
-      pageData.m_tags = unknownToString(tagData) if tagData != '' else ''
-      pageData.m_pageId = pageId
+    pageData.m_contentString = unknownToString(contentsData) if contentsData != '' else ''
+    pageData.m_title = unknownToString(titleData) if titleData != '' else ''
+    pageData.m_tags = unknownToString(tagData) if tagData != '' else ''
+    pageData.m_pageId = pageId
 
-      try:
-        pageData.m_pageType = PAGE_TYPE(pageType)
-      except ValueError:
-        self.reportError(f'getPage: page type is invalid: {pageType}, for page ID {pageId}')
-        pageData.m_pageType = PAGE_TYPE.kPageTypeUserText
+    try:
+      pageData.m_pageType = PAGE_TYPE(pageType)
+    except ValueError:
+      self.reportError(f'getPage: page type is invalid: {pageType}, for page ID {pageId}')
+      pageData.m_pageType = PAGE_TYPE.kPageTypeUserText
 
-      pageData.m_parentId = parentId
-      pageData.m_modifiedDateTime = datetime.datetime.fromtimestamp(lastModifiedTime_t)
-      pageData.m_createdDateTime = datetime.datetime.fromtimestamp(createdTime_t)
-      pageData.m_numModifications = numModifications
-      pageData.m_bIsFavorite = bIsFavorite
+    pageData.m_parentId = parentId
+    pageData.m_modifiedDateTime = datetime.datetime.fromtimestamp(lastModifiedTime_t)
+    pageData.m_createdDateTime = datetime.datetime.fromtimestamp(createdTime_t)
+    pageData.m_numModifications = numModifications
+    pageData.m_bIsFavorite = bIsFavorite
 
-      # Process additional items
-      additionalItems = ''
-      if additionalItemsStr != '':
-        additionalItems = qByteArrayToString(additionalItemsStr).strip()
+    # Process additional items
+    additionalItems = ''
+    if additionalItemsStr != '':
+      additionalItems = qByteArrayToString(additionalItemsStr).strip()
 
-        if len(additionalItems) > 0:
-          pageData.m_additionalDataItems = additionalItems.split(',')
+      if len(additionalItems) > 0:
+        pageData.m_additionalDataItems = additionalItems.split(',')
 
     return pageData
 
@@ -407,3 +419,132 @@ class Database:
       return False
 
     return True
+
+  def addNewBlankPage(self, pageData: PageData) -> bool:
+    """ Creates a blank Notebook page in the database.  The pageData parameter must contain a valid page ID.
+        Returns True if successful, False otherwise.
+    """
+    if pageData.m_pageId == kInvalidPageId:
+      self.reportError(f'addNewBlankPage error: invalid page ID')
+      return False
+
+    # TODO: If this is an encrypted notebook, encrypt the content
+    titleData = toQByteArray(pageData.m_title)
+
+    queryObj = QtSql.QSqlQuery()
+
+    numModifications = 0    # This does not count as a modification
+
+    queryObj.prepare("insert into pages (pageid, parentid, created, lastModified, numModifications, pagetype, pagetitle) values (?, ?, ?, ?, ?, ?, ?)")
+    queryObj.addBindValue(pageData.m_pageId)
+    queryObj.addBindValue(pageData.m_parentId)
+    queryObj.addBindValue(pageData.m_createdDateTime.timestamp())
+    queryObj.addBindValue(pageData.m_modifiedDateTime.timestamp())		# Last modified date and time is same as created date/time for a new page
+    queryObj.addBindValue(numModifications)
+    queryObj.addBindValue(pageData.m_pageType)
+    queryObj.addBindValue(titleData)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'addNewBlankPage error: {sqlErr.type()}')
+      return False
+
+    return True
+
+  def changePageTitle(self, pageId: ENTITY_ID, newTitle: str, isModification: bool) -> bool:
+    """ Changes the title of a page.
+        isModification indicates whether this change should be recorded as a modification (for example, when
+        a page is first created, its title is changed in this manner.  Such a change wouldn't count as a modification).
+    """
+    # TODO: If page is encrypted, encrypt the title
+
+    if isModification:
+      # Get current modification count
+      if not self.incrementPageModificationCount(pageId):
+        return False
+
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("update pages set pagetitle=?, lastmodified=? where pageid=?")
+    queryObj.addBindValue(newTitle)
+    queryObj.addBindValue(datetime.datetime.now().timestamp())
+    queryObj.addBindValue(pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.changePageTitle]: {sqlErr.type()}')
+      return False
+
+    return True
+
+  def incrementPageModificationCount(self, pageId: ENTITY_ID) -> bool:
+    """ Increases the modification count of a page. """
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select nummodifications from pages where pageid=?")
+    queryObj.bindValue(0, pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'incrementPageModificationCount error: {sqlErr.type()}')
+      return False
+
+    if not queryObj.first():
+      return False
+
+    numModifications = self.getQueryField(queryObj, 'nummodifications')
+
+    if type(numModifications) is int:
+      numModifications += 1   # Increment it!
+
+      queryObj.prepare('update pages set nummodifications=? where pageid=?')
+
+      queryObj.addBindValue(numModifications)
+      queryObj.addBindValue(pageId)
+
+      queryObj.exec_()
+
+      # Check for errors
+      sqlErr = queryObj.lastError()
+      if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+        self.reportError(f'[incrementPageModificationCount] page {pageId}: {sqlErr.text()}')
+        return False
+      else:
+        return True
+    else:
+      self.reportError('[incrementPageModificationCount] nummodifications was not an int')
+      return False
+
+  def nextPageId(self) -> ENTITY_ID:
+    """ Returns the next available page ID. """
+    queryObj = QtSql.QSqlQuery()
+
+    queryObj.prepare("select max(pageid) as maxpageid from pages")
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'nextPageId error: {sqlErr.type()}')
+      return kInvalidPageId
+
+    fieldNum = queryObj.record().indexOf('maxpageid')
+
+    if queryObj.first():
+      nextId = queryObj.value(fieldNum)
+      return nextId + 1
+    else:
+      self.reportError(f'nextPageId error: maxpageid was not returned by the query')
+      return kInvalidPageId

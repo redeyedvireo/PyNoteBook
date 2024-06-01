@@ -9,7 +9,7 @@ from ui_pynotebookwindow import Ui_PyNoteBookWindow
 from database import Database
 from page_data import PageData
 
-from notebook_types import PAGE_TYPE, ENTITY_ID, kInvalidPageId
+from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 
 kLogFile = 'PyNoteBook.log'
 kAppName = 'PyNoteBook'
@@ -43,7 +43,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   @QtCore.Slot()
   def on_actionOpen_Notebook_triggered(self):
-    # TODO: First check if a notebook page is open, and if so, prompt the user to save it.
+    self.checkSavePage()          # First check if a notebook page is open, and if so, prompt the user to save it.
 
     tempDbPathname, selectedFilter = QtWidgets.QFileDialog.getOpenFileName(self,
       "NoteBook - Open NoteBook File",
@@ -59,7 +59,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def on_savePageButton_clicked(self):
     # Get ID of the log entry from the list control.  If it is a new log entry,
     # the ID will be kTempItemId.
-
 
     if self.currentPageData is not None:
       self.currentPageData.m_title = self.ui.titleLabelWidget.getPageTitleLabel()
@@ -83,6 +82,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       # Should never get here: self.currentPageData should always be a valid object.
       logging.error('[on_savePageButton_clicked] currentPageData is non-existent')
 
+  @QtCore.Slot()
+  def on_actionNew_Page_triggered(self):
+    self.createNewPage(PAGE_TYPE.kPageTypeUserText)
+
   def onPageModified(self):
     self.setAppTitle()
     self.ui.savePageButton.setEnabled(True)
@@ -90,6 +93,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def setConnections(self):
     # Page Tree signals
     self.ui.pageTree.pageSelectedSignal.connect(self.onPageSelected)
+    self.ui.pageTree.pageTitleChangedSignal.connect(self.onPageTitleChanged)
 
     # Editor signals
     self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
@@ -100,7 +104,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTree.initialize(self.db)
 
   def onPageSelected(self, pageId: ENTITY_ID):
-    # TODO: Check if the current page is unsaved, and if so, ask user if he wants to save it.
+    self.checkSavePage()        # Check if the current page is unsaved, and if so, ask user if he wants to save it.
 
     self.currentPageData = self.db.getPage(pageId)
 
@@ -116,6 +120,19 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
       # Add page to the page history
       # TODO: Add page to the page history (will eventually be in a menu, not in a widget)
+    else:
+      # Page does not exist.  Blank out editors.
+      logging.error(f'[PyNoteBookWindow.onPageSelected] Page ID {pageId} does not exist')
+      self.clearPageEditControls()
+      self.enableDataEntry(False)
+
+      QtWidgets.QMessageBox.critical(self, kAppName, "Page does not exist")
+
+  def onPageTitleChanged(self, pageId: ENTITY_ID, newTitle: str, isModification: bool):
+    self.db.changePageTitle(pageId, newTitle, isModification)
+    self.ui.titleLabelWidget.setPageTitleLabel(newTitle)
+    if self.currentPageData is not None:
+      self.currentPageData.m_title = newTitle
 
 
 # *************************** FILE ***************************
@@ -139,7 +156,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   def closeNotebookFile(self):
     if self.db.isDatabaseOpen():
-      # TODO: CheckSavePage()  - check if user wants to save the page if it hasn't been saved
+      self.checkSavePage()        # check if user wants to save the page if it hasn't been saved
 
       # TODO: Save page history
       # TODO: Save page order
@@ -169,6 +186,51 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTextEdit.enableEditing(enable)
     self.ui.tagsEdit.setEnabled(enable)
 
+  def createNewPage(self, pageType: PAGE_TYPE, pageTitle = ''):
+    """ Creates a new page.
+     @param pageTitle Title of the new page.  If this is not specified, the item will be editable in
+                      the Page tree so the user can enter a title.
+    """
+    self.checkSavePage()      # Check if the current page is unsaved
+
+    # Create new page
+    newPageId = self.db.nextPageId()      # Get an unused ID to use for this new page
+
+    self.currentPageData = PageData()
+    self.currentPageData.m_pageId = newPageId
+    self.currentPageData.m_pageType = pageType
+
+    self.clearPageEditControls()
+
+    typeOfItem = PAGE_ADD.kNewPage
+
+    if pageType == PAGE_TYPE.kPageTypeUserText:
+      typeOfItem = PAGE_ADD.kNewPage
+    else:
+      typeOfItem = PAGE_ADD.kNewToDoListPage
+
+    success, title, parentId = self.ui.pageTree.newItem(newPageId, typeOfItem, PAGE_ADD_WHERE.kPageAddDefault, pageTitle)
+
+    if success:
+      self.currentPageData.m_parentId = parentId      # This might be kInvalidPageId, which is OK
+      self.currentPageData.m_title = title
+
+      # Currently, addNewBlankPage applies for creating both pages and folders.
+      self.db.addNewBlankPage(self.currentPageData)
+
+      if pageType == PAGE_TYPE.kPageTypeUserText:
+        # TODO: Should a 'new page created' event be emitted here?
+        pass
+
+      elif pageType == PAGE_TYPE.kPageFolder:
+        # TODO: Should a 'new folder created' event be emitted here?
+        pass
+
+      # Write the page order to the database.
+      pageOrderStr = self.ui.pageTree.getTreeIdList()
+      self.db.setPageOrder(pageOrderStr)
+
+
   def displayPage(self, pageData: PageData, imageNames: list[str], isNewPage: bool):
     self.ui.titleLabelWidget.setPageTitleLabel(pageData.m_title)
 
@@ -194,6 +256,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     # Disable the Save button (until an edit is made)
     self.ui.savePageButton.setEnabled(False)
 
+  def checkSavePage(self):
+    # TODO: Implement checkSavePage
+    pass
+
   def setAppTitle(self):
     windowTitle = ''
 
@@ -210,6 +276,23 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def pageIsModified(self) -> bool:
     return self.ui.pageTextEdit.isModified()
 
+  def clearPageEditControls(self):
+    self.ui.titleLabelWidget.clear()
+
+    fontSize = 12
+    fontFamily = 'Arial'
+
+    # TODO: When prefs are implemented, uncomment this
+    # fontSize = self.prefs.getEditorDefaultFontSize()
+
+    # if fontSize < 0:
+    #   fontSize = 10
+
+    # fontFamily = self.prefs.getEditorDefaultFontFamily()
+
+    self.ui.pageTextEdit.newDocument(fontFamily, fontSize)
+
+    self.ui.tagsEdit.clear()
 
 # *************************** SHUTDOWN ***************************
 
