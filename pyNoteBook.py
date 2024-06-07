@@ -42,6 +42,14 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   # *************************** SLOTS ***************************
 
+  def setConnections(self):
+    # Page Tree signals
+    self.ui.pageTree.pageSelectedSignal.connect(self.onPageSelected)
+    self.ui.pageTree.pageTitleChangedSignal.connect(self.onPageTitleChanged)
+
+    # Editor signals
+    self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
+
   @QtCore.Slot()
   def on_actionOpen_Notebook_triggered(self):
     self.checkSavePage()          # First check if a notebook page is open, and if so, prompt the user to save it.
@@ -88,17 +96,11 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def on_actionNew_Page_triggered(self):
     self.createNewPage(PAGE_TYPE.kPageTypeUserText)
 
-  def onPageModified(self):
-    self.setAppTitle()
-    self.ui.savePageButton.setEnabled(True)
-
-  def setConnections(self):
-    # Page Tree signals
-    self.ui.pageTree.pageSelectedSignal.connect(self.onPageSelected)
-    self.ui.pageTree.pageTitleChangedSignal.connect(self.onPageTitleChanged)
-
-    # Editor signals
-    self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
+  @QtCore.Slot()
+  def on_actionClose_triggered(self):
+    self.closeNotebookFile()
+    self.clearAllControls()
+    self.enableDataEntry(False)
 
   def initialize(self):
     # TODO: Load settings from INI file
@@ -277,9 +279,23 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     # Disable the Save button (until an edit is made)
     self.ui.savePageButton.setEnabled(False)
 
+  def clearAllControls(self):
+    self.clearPageEditControls()
+    self.ui.pageTree.clear()
+    self.ui.pageTitleList.clear()
+    self.ui.dateTree.clear()
+    self.ui.tagList.clear()
+    self.ui.recentlyViewedList.clear()
+    self.ui.searchWidget.clear()
+    self.ui.favoritesWidget.clear()
+
   def checkSavePage(self):
     # TODO: Implement checkSavePage
     pass
+
+  def onPageModified(self):
+    self.setAppTitle()
+    self.ui.savePageButton.setEnabled(True)
 
   def setAppTitle(self):
     windowTitle = ''
