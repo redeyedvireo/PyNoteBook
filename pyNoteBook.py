@@ -8,6 +8,7 @@ from util import getScriptPath
 from ui_pynotebookwindow import Ui_PyNoteBookWindow
 from database import Database
 from page_data import PageData
+from page_recovery import PageRecovery
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 
@@ -54,6 +55,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       print(f'DB filename: {tempDbPathname}, selected filter: {selectedFilter}')
       self.currentNoteBookPath = tempDbPathname
       self.OpenNotebookFile()
+      self.checkForMissingPages()
 
   @QtCore.Slot()
   def on_savePageButton_clicked(self):
@@ -159,18 +161,37 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.checkSavePage()        # check if user wants to save the page if it hasn't been saved
 
       # TODO: Save page history
-      # TODO: Save page order
+
+      # Save page order
+      pageOrderStr = self.ui.pageTree.getPageOrderString()
+      self.db.setPageOrder(pageOrderStr)
 
       self.db.closeDatabase()
 
       self.currentNoteBookPath = ''
 
-      # TODO: SetAppTitle() - ie, remove the Notebook name from the app title
+      self.setAppTitle()          # Remove the Notebook name from the app title
+
+  def checkForMissingPages(self):
+    """Checks if there are any pages in the database that are not in the page tree.  If so, these pages
+    need to be reloaded.
+    """
+    pagesAndParentsList, success = self.db.getAllPageIdsAndParents()
+
+    if success:
+      pageRecovery = PageRecovery(pagesAndParentsList, self.ui.pageTree.getTreeIdList())
+
+      if pageRecovery.thereAreLostPages():
+        QtWidgets.QMessageBox.information(self, kAppName, "The list of pages need to be rescanned from the database")
+        pagesToInsert = pageRecovery.recoverPages()
+        pagesToInsertStr = ','.join(map(str, pagesToInsert))
+        self.populateNavigationControls(pagesToInsertStr)
+
 
 # *************************** UI ***************************
 
-  def populateNavigationControls(self, pageOrderStr):
-    pageDict, success = self.db.getPageList()
+  def populateNavigationControls(self, pageOrderStr: str):
+    pageDict, success = self.db.getPageList()   # Retrieve all pages, regardless of whether they appear in the pageOrderStr
 
     self.ui.pageTree.addItemsNew(pageDict, pageOrderStr)
 
@@ -227,7 +248,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
         pass
 
       # Write the page order to the database.
-      pageOrderStr = self.ui.pageTree.getTreeIdList()
+      pageOrderStr = self.ui.pageTree.getPageOrderString()
       self.db.setPageOrder(pageOrderStr)
 
 

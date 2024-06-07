@@ -156,9 +156,6 @@ class CPageTree(QtWidgets.QTreeWidget):
     return (True, newItem.text(0), parentId)
 
   def addItemsNew(self, pageDict, pageOrderStr):
-    # TODO: Would like to move away from using a page order string.  It would be better to be
-    #       able to just read the pages from the database.
-
     pageIdList = pageOrderStr.split(',')
 
     self.loading = True
@@ -255,10 +252,12 @@ class CPageTree(QtWidgets.QTreeWidget):
       logging.error(f'CPageTree.findItemInSubTree: pageWidgetItem is not a CPageWidgetItem')
       return None
 
-  def getTreeIdList(self):
-    idList = self.getTreeListForSubfolder(self.invisibleRootItem())
-
+  def getPageOrderString(self) -> str:
+    idList = self.getTreeIdList()
     return ','.join(map(str, idList))
+
+  def getTreeIdList(self) -> ENTITY_LIST:
+    return self.getTreeListForSubfolder(self.invisibleRootItem())
 
   def getTreeListForSubfolder(self, treeWidgetItem: QtWidgets.QTreeWidgetItem) -> ENTITY_LIST:
     entityList = []

@@ -5,6 +5,8 @@ kInvalidPageId = 0
 # Type aliases
 ENTITY_ID = int
 ENTITY_LIST = list[ENTITY_ID]
+ENTITY_PAIR = tuple[ENTITY_ID, ENTITY_ID]       # Used to indicate a page ID and a parent ID
+ENTITY_PAIR_LIST = list[ENTITY_PAIR]
 TAG_LIST = list[str]
 
 

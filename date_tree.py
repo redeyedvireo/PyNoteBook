@@ -30,7 +30,6 @@ class CDateTree(QtWidgets.QTreeWidget):
     super(CDateTree, self).__init__(parent)
 
   def addItems(self, pageDict: PageDataDict) -> None:
-    self.clear()
     self.setSortingEnabled(False)
 
     for pageId, pageData in pageDict.items():

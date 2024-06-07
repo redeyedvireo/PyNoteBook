@@ -7,7 +7,7 @@ from encrypter import Encrypter
 from utility import toQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray, unknownToString
 
 from page_data import PageData, PageDataDict, PageIdDict
-from notebook_types import PAGE_TYPE, ENTITY_ID, kInvalidPageId
+from notebook_types import PAGE_TYPE, ENTITY_ID, ENTITY_LIST, ENTITY_PAIR, ENTITY_PAIR_LIST, kInvalidPageId
 
 # Global value data type constants
 kDataTypeInteger = 0
@@ -241,6 +241,32 @@ class Database:
       return pageOrder
     else:
       return None
+
+
+  def getAllPageIdsAndParents(self) -> tuple[ENTITY_PAIR_LIST, bool]:
+    """ Retrieves page IDs and the parent IDs. """
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select pageid, parentid from pages")
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.getAllPageIdsAndParents] error: {sqlErr.type()}')
+      return ([(kInvalidPageId, kInvalidPageId)], False)
+
+    pageList = []
+
+    while queryObj.next():
+      pageId = self.getQueryField(queryObj, 'pageid')
+      parentId = self.getQueryField(queryObj, 'parentid')
+
+      if pageId != kInvalidPageId:
+        pageList.append((pageId, parentId))
+
+    return (pageList, True)
 
   def getPageList(self) -> tuple[PageDataDict, bool]:
     queryObj = QtSql.QSqlQuery()
