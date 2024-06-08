@@ -19,6 +19,8 @@ kMaxLogileSize = 1024 * 1024
 
 # ---------------------------------------------------------------
 class PyNoteBookWindow(QtWidgets.QMainWindow):
+  MW_PageDeleted = QtCore.Signal(ENTITY_ID)
+
   def __init__(self):
     super(PyNoteBookWindow, self).__init__()
 
@@ -41,12 +43,20 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     self.setConnections()
 
+
+  def initialize(self):
+    # TODO: Load settings from INI file
+    # TODO: From INI file, determine the previously open notebook open (if any) and re-open it.
+    self.ui.pageTree.initialize(self.db)
+
+
   # *************************** SLOTS ***************************
 
   def setConnections(self):
     # Page Tree signals
     self.ui.pageTree.pageSelectedSignal.connect(self.onPageSelected)
     self.ui.pageTree.pageTitleChangedSignal.connect(self.onPageTitleChanged)
+    self.ui.pageTree.PT_PageDeleted.connect(self.onPageDeleted)
 
     # Editor signals
     self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
@@ -115,11 +125,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.clearAllControls()
     self.enableDataEntry(False)
 
-  def initialize(self):
-    # TODO: Load settings from INI file
-    # TODO: From INI file, determine the previously open notebook open (if any) and re-open it.
-    self.ui.pageTree.initialize(self.db)
-
   def onPageSelected(self, pageId: ENTITY_ID):
     self.checkSavePage()        # Check if the current page is unsaved, and if so, ask user if he wants to save it.
 
@@ -150,6 +155,17 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.titleLabelWidget.setPageTitleLabel(newTitle)
     if self.currentPageData is not None:
       self.currentPageData.m_title = newTitle
+
+  def onPageDeleted(self, pageId: ENTITY_ID):
+    # self.db.deleteAllImagesForPage(pageId)      # TODO: Implement this
+    self.db.deletePage(pageId)
+
+    self.clearPageEditControls()
+
+    self.ui.pageTree.removePage(pageId)
+
+    # TODO: Rethink this - instead of emitting a signal, just call the page removal member functions of each widget
+    self.MW_PageDeleted.emit(pageId)
 
 
 # *************************** FILE ***************************

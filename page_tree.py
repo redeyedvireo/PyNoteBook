@@ -3,6 +3,7 @@ from enum import Enum
 import logging
 from PySide6 import QtCore, QtWidgets, QtGui
 from notebook_types import kInvalidPageId, PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, ENTITY_LIST
+from database import Database
 
 class PageWidgetItemType(Enum):
   eItemPage = 0
@@ -52,10 +53,15 @@ class CPageWidgetItem(QtWidgets.QTreeWidgetItem):
 class CPageTree(QtWidgets.QTreeWidget):
   pageSelectedSignal = QtCore.Signal(ENTITY_ID)
   pageTitleChangedSignal = QtCore.Signal(ENTITY_ID, str, bool)
+  PT_PageDeleted = QtCore.Signal(ENTITY_ID)
 
   def __init__(self, parent):
     super(CPageTree, self).__init__(parent)
     self.db = None
+
+    self.pageContextMenu = QtWidgets.QMenu()
+    self.folderContextMenu = QtWidgets.QMenu()
+    self.blankAreaContextMenu = QtWidgets.QMenu()
 
     # This is a brute-force way to determine if a new page is being created.  It is used when
     # changing an item's title.  The on_itemChange_triggered function has no way of knowing whether
@@ -67,9 +73,17 @@ class CPageTree(QtWidgets.QTreeWidget):
     # page that is being set.  This is to prevent it from being handled.
     self.loading = False
 
-  def initialize(self, db):
+    self.lastClickedPage = None
+
+    self.setContextMenuPolicy(QtGui.Qt.ContextMenuPolicy.CustomContextMenu)
+    self.setAcceptDrops(True)
+    self.setDragEnabled(True)
+    self.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.InternalMove)
+
+  def initialize(self, db: Database):
     self.db = db
     self.setConnections()
+    self.initMenus()
 
   def setConnections(self):
     # TODO: Set signal/slot connections
@@ -77,6 +91,12 @@ class CPageTree(QtWidgets.QTreeWidget):
     self.itemChanged.connect(self.onItemChanged)
     self.itemExpanded.connect(self.onItemExpanded)
     self.itemCollapsed.connect(self.onItemCollapsed)
+
+    self.customContextMenuRequested.connect(self.onContextMenu)
+
+  def initMenus(self):
+    self.pageContextMenu.addAction('Rename Page', self.onRenamePageTriggered)
+    self.pageContextMenu.addAction('Delete Page', self.onDeletePageTriggered)
 
   def itemToCPageWidgetItem(self, item: QtWidgets.QTreeWidgetItem) -> CPageWidgetItem | None:
     if item is not None and type(item) is CPageWidgetItem:
@@ -228,7 +248,7 @@ class CPageTree(QtWidgets.QTreeWidget):
 
     return True
 
-  def findItem(self, pageId) -> CPageWidgetItem | None:
+  def findItem(self, pageId: ENTITY_ID) -> CPageWidgetItem | None:
     if pageId == kInvalidPageId:
       return None
 
@@ -265,6 +285,39 @@ class CPageTree(QtWidgets.QTreeWidget):
       logging.error(f'CPageTree.findItemInSubTree: pageWidgetItem is not a CPageWidgetItem')
       return None
 
+  def removePage(self, pageId: ENTITY_ID):
+    item = self.findItem(pageId)
+
+    if item is not None:
+      # Determine which item to select next
+      #  - First try to select the item below.
+      #  - If that item does not exist, try to select the item above
+      #  - If that item does not exist, try to select the parent
+      newItem = self.itemBelow(item)
+
+      if newItem is None:
+        # Try item above
+        newItem = self.itemAbove(item)
+
+        if newItem is None:
+          # Try parent
+          newItem = item.parent()
+
+      if newItem is not None:
+        self.setCurrentItem(newItem)
+
+      # Remove the item from the tree
+      if item.parent() is not None:
+        item.parent().removeChild(item)
+      else:
+        index = self.indexOfTopLevelItem(item)
+        self.takeTopLevelItem(index)
+
+      self.writePageOrderToDatabase()
+
+      if newItem is not None and type(newItem) is CPageWidgetItem:
+        self.pageSelectedSignal.emit(newItem.pageId)
+
   def getPageOrderString(self) -> str:
     idList = self.getTreeIdList()
     return ','.join(map(str, idList))
@@ -289,6 +342,46 @@ class CPageTree(QtWidgets.QTreeWidget):
           entityList.extend(subList)
 
     return entityList
+
+  def writePageOrderToDatabase(self):
+    pageOrderStr = self.getPageOrderString()
+    if type(self.db) is Database:
+      self.db.setPageOrder(pageOrderStr)
+
+  def deletePage(self, pageId):
+    # Emit message to mainwindow that the page is being deleted.  The mainwindow will reflect
+    # that signal, and the Page Title List and Date Tree will respond to the
+    # reflected signal to change their names.
+    self.PT_PageDeleted.emit(pageId)
+
+  def deleteFolder(self):
+    if self.lastClickedPage is not None and self.lastClickedPage.itemType == PageWidgetItemType.eItemFolder:
+      if self.isFolderEmpty(self.lastClickedPage):
+        self.deletePage(self.lastClickedPage.pageId)
+
+  def isFolderEmpty(self, item: CPageWidgetItem) -> bool:
+    if item is None:
+      return True
+    else:
+      return item.childCount == 0
+
+  def isPointOnPage(self, pt) -> bool:
+    item = self.itemAt(pt)
+
+    if item is not None and type(item) is CPageWidgetItem:
+      return item.itemType == PageWidgetItemType.eItemPage or item.itemType == PageWidgetItemType.eItemToDoList
+
+    return False
+
+  def isPointOnFolder(self, pt) -> bool:
+    item = self.itemAt(pt)
+    if item is not None and type(item) is CPageWidgetItem:
+      return item.itemType == PageWidgetItemType.eItemFolder
+
+    return False
+
+  def constructFolderSubmenu(self):
+    pass
 
 
 # *************************** SLOTS ***************************
@@ -317,3 +410,33 @@ class CPageTree(QtWidgets.QTreeWidget):
   def onItemCollapsed(self, item):
     if type(item) is CPageWidgetItem:
       item.UpdateIcon()
+
+  def onContextMenu(self, pos):
+    item = self.itemAt(pos)
+
+    if item is not None:
+      if type(item) is CPageWidgetItem:
+        self.lastClickedPage = item
+
+        if self.isPointOnPage(pos):
+          self.pageContextMenu.popup(self.mapToGlobal(pos))
+        else:
+          #For now, deleting non-empty folders is not supported.  So,
+          # check if the folder is empty, and if not, hide the "Delete Empty Folder"
+          # menu item.
+          self.constructFolderSubmenu()
+    else:
+      # User clicked on white space
+      self.blankAreaContextMenu.popup(self.mapToGlobal(pos))
+
+  def onRenamePageTriggered(self):
+    # TODO: Implement
+    print('onRenamePageTriggered triggered')
+
+  def onDeletePageTriggered(self):
+    if self.lastClickedPage is not None:
+      message = f'Do you want to delete the page {self.lastClickedPage.text(0)}'
+
+      if QtWidgets.QMessageBox.question(self, 'NoteBook - Delete Page', message) == QtWidgets.QMessageBox.StandardButton.Yes:
+        self.deletePage(self.lastClickedPage.pageId)
+

@@ -574,3 +574,21 @@ class Database:
     else:
       self.reportError(f'nextPageId error: maxpageid was not returned by the query')
       return kInvalidPageId
+
+  def deletePage(self, pageId: ENTITY_ID) -> bool:
+    """ Deletes the requested page. """
+    queryObj = QtSql.QSqlQuery()
+
+    queryObj.prepare("delete from pages where pageid=?")
+    queryObj.addBindValue(pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[deletePage]: {sqlErr.type()}')
+      return False
+
+    return True
