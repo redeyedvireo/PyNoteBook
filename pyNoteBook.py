@@ -102,6 +102,14 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.createNewPage(PAGE_TYPE.kPageTypeUserText, topLevel=True)
 
   @QtCore.Slot()
+  def on_actionNew_Folder_triggered(self):
+    self.createNewPage(PAGE_TYPE.kPageFolder)
+
+  @QtCore.Slot()
+  def on_actionNew_Top_Level_Folder_triggered(self):
+    self.createNewPage(PAGE_TYPE.kPageFolder, topLevel=True)
+
+  @QtCore.Slot()
   def on_actionClose_triggered(self):
     self.closeNotebookFile()
     self.clearAllControls()
@@ -233,16 +241,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     self.clearPageEditControls()
 
-    typeOfItem = PAGE_ADD.kNewPage
-
-    if pageType == PAGE_TYPE.kPageTypeUserText:
-      typeOfItem = PAGE_ADD.kNewPage
-    else:
-      typeOfItem = PAGE_ADD.kNewToDoListPage
-
     pageAddWhere = PAGE_ADD_WHERE.kPageAddTopLevel if topLevel else PAGE_ADD_WHERE.kPageAddDefault
 
-    success, title, parentId = self.ui.pageTree.newItem(newPageId, typeOfItem, pageAddWhere, pageTitle)
+    success, title, parentId = self.ui.pageTree.newItem(newPageId, pageType, pageAddWhere, pageTitle)
 
     if success:
       self.currentPageData.m_parentId = parentId      # This might be kInvalidPageId, which is OK
@@ -262,7 +263,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       # Write the page order to the database.
       pageOrderStr = self.ui.pageTree.getPageOrderString()
       self.db.setPageOrder(pageOrderStr)
-
 
   def displayPage(self, pageData: PageData, imageNames: list[str], isNewPage: bool):
     self.ui.titleLabelWidget.setPageTitleLabel(pageData.m_title)

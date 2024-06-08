@@ -97,7 +97,7 @@ class CPageTree(QtWidgets.QTreeWidget):
     newItem.setText(0, pageTitle)
     self.addTopLevelItem(newItem)
 
-  def newItem(self, pageId: ENTITY_ID, pageAdd: PAGE_ADD, pageAddWhere: PAGE_ADD_WHERE, title: str) -> tuple[bool, str, int]:
+  def newItem(self, pageId: ENTITY_ID, pageType: PAGE_TYPE, pageAddWhere: PAGE_ADD_WHERE, title: str) -> tuple[bool, str, int]:
     """ Adds a new item to the tree.  If title is empty, the user will be given the chance to enter a title.
         Returns:
         - success
@@ -105,19 +105,16 @@ class CPageTree(QtWidgets.QTreeWidget):
         - parent ID, or kInvalidPageId if it is a top-level item
     """
     newPageId = pageId
-
-    newItemType = PageWidgetItemType.eItemPage
-
     parentId = kInvalidPageId
 
-    match pageAdd:
-      case PAGE_ADD.kNewPage:
+    match pageType:
+      case PAGE_TYPE.kPageTypeUserText:
         newItemType = PageWidgetItemType.eItemPage
 
-      case PAGE_ADD.kNewFolder:
+      case PAGE_TYPE.kPageFolder:
         newItemType = PageWidgetItemType.eItemFolder
 
-      case PAGE_ADD.kNewToDoListPage:
+      case PAGE_TYPE.kPageTypeToDoList:
         newItemType = PageWidgetItemType.eItemToDoList
 
       case _:
@@ -153,7 +150,7 @@ class CPageTree(QtWidgets.QTreeWidget):
           # TODO: Currently, the new page is placed at the end of the folder items.  Maybe it should go after the current one?
           currentItem.addChild(newItem)
           currentItem.setExpanded(True)
-          parentId = self.getParentId(currentItem)
+          parentId = currentItem.pageId
       else:
         # Error - all items in the tree should be of type CPageWidgetItem
         logging.error(f'CPageTree.newItem: currentItem is not a CPageWidgetItem')
