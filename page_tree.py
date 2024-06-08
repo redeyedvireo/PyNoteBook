@@ -23,12 +23,26 @@ class CPageWidgetItem(QtWidgets.QTreeWidgetItem):
     self.setText(0, 'Untitled Page')
     self.setFlags(self.flags() | QtCore.Qt.ItemFlag.ItemIsEditable)
 
+    # Set icon based on item type
+    match self.itemType:
+      case PageWidgetItemType.eItemPage:
+        self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/Page.png'))
+
+      case PageWidgetItemType.eItemFolder:
+        self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/Folder Closed.png'))
+
+      case PageWidgetItemType.eItemToDoList:
+        self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/ToDoList.png'))
+
   def SetPageId(self, pageId):
     self.pageId = pageId
 
 	#*	Updates the icon depending on whether it is expanded or collapsed.
   def UpdateIcon(self):
-    pass
+    if self.isExpanded():
+      self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/Folder Open.png'))
+    else:
+      self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/Folder Closed.png'))
 
 
 #************************************************************************
@@ -61,6 +75,8 @@ class CPageTree(QtWidgets.QTreeWidget):
     # TODO: Set signal/slot connections
     self.itemClicked.connect(self.onItemClicked)
     self.itemChanged.connect(self.onItemChanged)
+    self.itemExpanded.connect(self.onItemExpanded)
+    self.itemCollapsed.connect(self.onItemCollapsed)
 
   def itemToCPageWidgetItem(self, item: QtWidgets.QTreeWidgetItem) -> CPageWidgetItem | None:
     if item is not None and type(item) is CPageWidgetItem:
@@ -296,3 +312,11 @@ class CPageTree(QtWidgets.QTreeWidget):
 
     # Reset this flag.
     self.newPageBeingCreated = False
+
+  def onItemExpanded(self, item):
+    if type(item) is CPageWidgetItem:
+      item.UpdateIcon()
+
+  def onItemCollapsed(self, item):
+    if type(item) is CPageWidgetItem:
+      item.UpdateIcon()
