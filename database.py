@@ -467,7 +467,7 @@ class Database:
     queryObj.addBindValue(pageData.m_createdDateTime.timestamp())
     queryObj.addBindValue(pageData.m_modifiedDateTime.timestamp())		# Last modified date and time is same as created date/time for a new page
     queryObj.addBindValue(numModifications)
-    queryObj.addBindValue(pageData.m_pageType)
+    queryObj.addBindValue(pageData.m_pageType.value)
     queryObj.addBindValue(titleData)
 
     queryObj.exec_()
