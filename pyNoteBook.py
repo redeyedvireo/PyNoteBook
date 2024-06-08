@@ -31,6 +31,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui = Ui_PyNoteBookWindow()
     self.ui.setupUi(self)
 
+    self.currentPageId = kInvalidPageId
     self.currentPageData = None
     self.tagsModified = False
 
@@ -95,6 +96,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   @QtCore.Slot()
   def on_actionNew_Page_triggered(self):
     self.createNewPage(PAGE_TYPE.kPageTypeUserText)
+
+  @QtCore.Slot()
+  def on_actionNew_Top_Level_Page_triggered(self):
+    self.createNewPage(PAGE_TYPE.kPageTypeUserText, topLevel=True)
 
   @QtCore.Slot()
   def on_actionClose_triggered(self):
@@ -209,10 +214,13 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTextEdit.enableEditing(enable)
     self.ui.tagsEdit.setEnabled(enable)
 
-  def createNewPage(self, pageType: PAGE_TYPE, pageTitle = ''):
-    """ Creates a new page.
-     @param pageTitle Title of the new page.  If this is not specified, the item will be editable in
-                      the Page tree so the user can enter a title.
+  def createNewPage(self, pageType: PAGE_TYPE, pageTitle = '', topLevel = False):
+    """Creates a new Notebook page.
+
+    Args:
+        pageType (PAGE_TYPE): Type of page to create (ie, user text, folder, todo)
+        pageTitle (str, optional): Title of page. Defaults to ''.
+        topLevel (bool, optional): Whether this should be a top-level page. Defaults to False.
     """
     self.checkSavePage()      # Check if the current page is unsaved
 
@@ -232,7 +240,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     else:
       typeOfItem = PAGE_ADD.kNewToDoListPage
 
-    success, title, parentId = self.ui.pageTree.newItem(newPageId, typeOfItem, PAGE_ADD_WHERE.kPageAddDefault, pageTitle)
+    pageAddWhere = PAGE_ADD_WHERE.kPageAddTopLevel if topLevel else PAGE_ADD_WHERE.kPageAddDefault
+
+    success, title, parentId = self.ui.pageTree.newItem(newPageId, typeOfItem, pageAddWhere, pageTitle)
 
     if success:
       self.currentPageData.m_parentId = parentId      # This might be kInvalidPageId, which is OK
