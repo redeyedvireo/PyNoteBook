@@ -46,6 +46,9 @@ class CPageWidgetItem(QtWidgets.QTreeWidgetItem):
       self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/Folder Closed.png'))
 
 
+# Alias for a list of CPageWidgetItems
+PageItemList = list[CPageWidgetItem]
+
 #************************************************************************
 #* CPageTree                                                            *
 #************************************************************************
@@ -60,6 +63,7 @@ class CPageTree(QtWidgets.QTreeWidget):
     self.db = None
 
     self.pageContextMenu = QtWidgets.QMenu()
+    self.folderListSubmenu = QtWidgets.QMenu()
     self.folderContextMenu = QtWidgets.QMenu()
     self.blankAreaContextMenu = QtWidgets.QMenu()
 
@@ -95,8 +99,13 @@ class CPageTree(QtWidgets.QTreeWidget):
     self.customContextMenuRequested.connect(self.onContextMenu)
 
   def initMenus(self):
+    # Page context menu
     self.pageContextMenu.addAction('Rename Page', self.onRenamePageTriggered)
     self.pageContextMenu.addAction('Delete Page', self.onDeletePageTriggered)
+    self.pageContextMenu.addSeparator()
+    self.folderListSubmenu.setTitle('Move to Folder')
+    self.pageContextMenu.addMenu(self.folderListSubmenu)
+    self.pageContextMenu.addAction('Move to top-level', self.onMoveToTopLevel)
 
   def itemToCPageWidgetItem(self, item: QtWidgets.QTreeWidgetItem) -> CPageWidgetItem | None:
     if item is not None and type(item) is CPageWidgetItem:
@@ -285,6 +294,49 @@ class CPageTree(QtWidgets.QTreeWidget):
       logging.error(f'CPageTree.findItemInSubTree: pageWidgetItem is not a CPageWidgetItem')
       return None
 
+  def moveItem(self, item: CPageWidgetItem, newParent: CPageWidgetItem) -> bool:
+    """Moves a page to a new parent
+
+    Args:
+        item (CPageWidgetItem): Page to move
+        newParent (CPageWidgetItem): Parent in which to move the item, or None to insert at top-level
+
+    Returns:
+        bool: True if successful, False otherwise.
+    """
+    if item is None:
+      return False
+
+    # Get item's parent
+    parentOfItem = item.parent()
+
+    tempItem = None
+
+    if parentOfItem is not None:
+      childIndex = parentOfItem.indexOfChild(item)
+
+      if childIndex != -1:
+        tempItem = parentOfItem.takeChild(childIndex)
+        # tempItem should be the same as item
+    else:
+      # item is a top-level item
+      index = self.indexOfTopLevelItem(item)
+
+      if index != -1:
+        tempItem = self.takeTopLevelItem(index)
+
+    if tempItem is not None:
+      # Insert at new location
+      if newParent is not None:
+        newParent.addChild(tempItem)
+      else:
+        # If newParent is None, move item to the top-level
+        self.addTopLevelItem(tempItem)
+
+      return True
+    else:
+      return False
+
   def removePage(self, pageId: ENTITY_ID):
     item = self.findItem(pageId)
 
@@ -345,8 +397,45 @@ class CPageTree(QtWidgets.QTreeWidget):
 
   def writePageOrderToDatabase(self):
     pageOrderStr = self.getPageOrderString()
-    if type(self.db) is Database:
+    if self.db is not None:
       self.db.setPageOrder(pageOrderStr)
+
+  def updateParent(self, pageId: ENTITY_ID, newParentId: ENTITY_ID):
+    if self.db is not None:
+      self.db.updatePageParent(pageId, newParentId)
+      self.writePageOrderToDatabase()
+
+  def getFolderList(self) -> PageItemList:
+    """Returns a list of folders in the tree.
+
+    Returns:
+        ENTITY_LIST: List of folders found in the tree.
+    """
+    return self.getFolderListFromSubTree(self.invisibleRootItem())
+
+  def getFolderListFromSubTree(self, root: QtWidgets.QTreeWidgetItem) -> PageItemList:
+    """Returns a list of all folders under the root item.
+
+    Args:
+        root (QtWidgets.QTreeWidgetItem): Element from which to return the child folders
+
+    Returns:
+        PageItemList: List of folders, as a list of CPageWidgetItems.
+    """
+    entityList = []
+
+    numChildren = root.childCount()
+
+    for i in range(numChildren):
+      subPageItem = root.child(i)
+
+      if type(subPageItem) is CPageWidgetItem:
+        if subPageItem.itemType == PageWidgetItemType.eItemFolder:
+          entityList.append(subPageItem)
+          subList = self.getFolderListFromSubTree(subPageItem)
+          entityList.extend(subList)
+
+    return entityList
 
   def deletePage(self, pageId):
     # Emit message to mainwindow that the page is being deleted.  The mainwindow will reflect
@@ -381,7 +470,16 @@ class CPageTree(QtWidgets.QTreeWidget):
     return False
 
   def constructFolderSubmenu(self):
-    pass
+    self.folderListSubmenu.clear()
+
+    pageList = self.getFolderList()
+
+    for item in pageList:
+      newAction = QtGui.QAction(item.text(0), self)
+      newAction.setData(item.pageId)
+      self.folderListSubmenu.addAction(newAction)
+
+      newAction.triggered.connect(self.onMoveFolder)
 
 
 # *************************** SLOTS ***************************
@@ -418,20 +516,22 @@ class CPageTree(QtWidgets.QTreeWidget):
       if type(item) is CPageWidgetItem:
         self.lastClickedPage = item
 
+        self.constructFolderSubmenu()
+
         if self.isPointOnPage(pos):
           self.pageContextMenu.popup(self.mapToGlobal(pos))
         else:
           #For now, deleting non-empty folders is not supported.  So,
           # check if the folder is empty, and if not, hide the "Delete Empty Folder"
           # menu item.
-          self.constructFolderSubmenu()
+          pass
     else:
       # User clicked on white space
       self.blankAreaContextMenu.popup(self.mapToGlobal(pos))
 
   def onRenamePageTriggered(self):
-    # TODO: Implement
-    print('onRenamePageTriggered triggered')
+    if self.lastClickedPage is not None:
+      self.editItem(self.lastClickedPage, 0)
 
   def onDeletePageTriggered(self):
     if self.lastClickedPage is not None:
@@ -439,4 +539,25 @@ class CPageTree(QtWidgets.QTreeWidget):
 
       if QtWidgets.QMessageBox.question(self, 'NoteBook - Delete Page', message) == QtWidgets.QMessageBox.StandardButton.Yes:
         self.deletePage(self.lastClickedPage.pageId)
+
+  def onMoveToTopLevel(self):
+    # TODO: Implement
+    pass
+
+  def onMoveFolder(self):
+    if self.lastClickedPage is not None:
+      sender = self.sender()
+
+      if type(sender) is QtGui.QAction:
+        print(f'Data: {sender.data()}')
+        pageId = sender.data()
+        destinationItem = self.findItem(pageId)
+
+        if destinationItem is not None and type(destinationItem) is CPageWidgetItem:
+          if destinationItem.itemType == PageWidgetItemType.eItemFolder:
+            success = self.moveItem(self.lastClickedPage, destinationItem)
+
+            if success:
+              self.updateParent(self.lastClickedPage.pageId, destinationItem.pageId)
+
 

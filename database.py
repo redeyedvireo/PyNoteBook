@@ -242,6 +242,25 @@ class Database:
     else:
       return None
 
+  def pageExists(self, pageId: ENTITY_ID) -> bool:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select pageid from pages where pageid=?")
+    queryObj.addBindValue(pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[pageExists]: {sqlErr.type()}')
+      return False
+
+    # If queryObj.first() returns False, then the page doesn't exist
+    if not queryObj.first():
+      return False
+    else:
+      return True
 
   def getAllPageIdsAndParents(self) -> tuple[ENTITY_PAIR_LIST, bool]:
     """ Retrieves page IDs and the parent IDs. """
@@ -592,3 +611,26 @@ class Database:
       return False
 
     return True
+
+  def updatePageParent(self, pageId: ENTITY_ID, newParentId: ENTITY_ID) -> bool:
+    if self.pageExists(pageId):
+      queryObj = QtSql.QSqlQuery()
+
+      queryObj.prepare("update pages set parentid=? where pageid=?")
+      queryObj.addBindValue(newParentId)
+      queryObj.addBindValue(pageId)
+
+      queryObj.exec_()
+
+      # Check for errors
+      sqlErr = queryObj.lastError()
+
+      if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+        self.reportError(f'[updatePageParent]: {sqlErr.type()}')
+        return False
+      else:
+        return True
+    else:
+      # The page does not exist
+      return False
+
