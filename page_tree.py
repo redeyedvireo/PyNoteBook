@@ -57,6 +57,8 @@ class CPageTree(QtWidgets.QTreeWidget):
   pageSelectedSignal = QtCore.Signal(ENTITY_ID)
   pageTitleChangedSignal = QtCore.Signal(ENTITY_ID, str, bool)
   PT_PageDeleted = QtCore.Signal(ENTITY_ID)
+  PT_OnCreateNewPage = QtCore.Signal()
+  PT_OnCreateNewFolder = QtCore.Signal()
 
   def __init__(self, parent):
     super(CPageTree, self).__init__(parent)
@@ -106,6 +108,20 @@ class CPageTree(QtWidgets.QTreeWidget):
     self.folderListSubmenu.setTitle('Move to Folder')
     self.pageContextMenu.addMenu(self.folderListSubmenu)
     self.pageContextMenu.addAction('Move to top-level', self.onMoveToTopLevel)
+
+    # Folder context menu
+    self.folderContextMenu.addAction('New Page', self.onAddNewPageTriggered)
+    self.folderContextMenu.addAction('New To Do List', self.onNewToDoListTriggered)
+    self.folderContextMenu.addAction('New Folder', self.onNewFolderTriggered)
+    self.folderContextMenu.addAction('Rename Folder', self.onRenamePageTriggered)
+
+    # For now, deleting non-empty folders is not supported.  This could be a very involved operation, as child pages and folders
+    # will have to be deleted also.  A recursive function will be needed to delete a folder.  The UI should not be
+    # updated until all children of the folder have been deleted.
+    self.folderContextMenu.addAction('Delete Empty Folder', self.onDeleteFolderTriggered)
+    self.folderContextMenu.addSeparator()
+    self.folderContextMenu.addAction('Expand All', self.expandAll)
+    self.folderContextMenu.addAction('Collapse All', self.collapseAll)
 
   def itemToCPageWidgetItem(self, item: QtWidgets.QTreeWidgetItem) -> CPageWidgetItem | None:
     if item is not None and type(item) is CPageWidgetItem:
@@ -521,10 +537,10 @@ class CPageTree(QtWidgets.QTreeWidget):
         if self.isPointOnPage(pos):
           self.pageContextMenu.popup(self.mapToGlobal(pos))
         else:
-          #For now, deleting non-empty folders is not supported.  So,
+          # For now, deleting non-empty folders is not supported.  So,
           # check if the folder is empty, and if not, hide the "Delete Empty Folder"
           # menu item.
-          pass
+          self.folderContextMenu.popup(self.mapToGlobal(pos))
     else:
       # User clicked on white space
       self.blankAreaContextMenu.popup(self.mapToGlobal(pos))
@@ -539,6 +555,10 @@ class CPageTree(QtWidgets.QTreeWidget):
 
       if QtWidgets.QMessageBox.question(self, 'NoteBook - Delete Page', message) == QtWidgets.QMessageBox.StandardButton.Yes:
         self.deletePage(self.lastClickedPage.pageId)
+
+  def onDeleteFolderTriggered(self):
+    # TODO: Implement this
+    pass
 
   def onMoveToTopLevel(self):
     if self.lastClickedPage is not None:
@@ -562,4 +582,13 @@ class CPageTree(QtWidgets.QTreeWidget):
             if success:
               self.updateParent(self.lastClickedPage.pageId, destinationItem.pageId)
 
+  def onAddNewPageTriggered(self):
+    self.PT_OnCreateNewPage.emit()
+
+  def onNewToDoListTriggered(self):
+    # TODO: Implement this
+    pass
+
+  def onNewFolderTriggered(self):
+    self.PT_OnCreateNewFolder.emit()
 

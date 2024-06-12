@@ -57,6 +57,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTree.pageSelectedSignal.connect(self.onPageSelected)
     self.ui.pageTree.pageTitleChangedSignal.connect(self.onPageTitleChanged)
     self.ui.pageTree.PT_PageDeleted.connect(self.onPageDeleted)
+    self.ui.pageTree.PT_OnCreateNewPage.connect(self.on_actionNew_Page_triggered)
+    self.ui.pageTree.PT_OnCreateNewFolder.connect(self.on_actionNew_Folder_triggered)
 
     # Editor signals
     self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
