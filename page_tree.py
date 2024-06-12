@@ -40,10 +40,11 @@ class CPageWidgetItem(QtWidgets.QTreeWidgetItem):
 
 	#*	Updates the icon depending on whether it is expanded or collapsed.
   def UpdateIcon(self):
-    if self.isExpanded():
-      self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/Folder Open.png'))
-    else:
-      self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/Folder Closed.png'))
+    if self.itemType == PageWidgetItemType.eItemFolder:
+      if self.isExpanded():
+        self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/Folder Open.png'))
+      else:
+        self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/Folder Closed.png'))
 
 
 # Alias for a list of CPageWidgetItems
