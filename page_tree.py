@@ -499,6 +499,29 @@ class CPageTree(QtWidgets.QTreeWidget):
       newAction.triggered.connect(self.onMoveFolder)
 
 
+# *************************** EVENTS ***************************
+
+  def mousePressEvent(self, event: QtGui.QMouseEvent):
+    super().mousePressEvent(event)
+    item = self.itemAt(event.pos())
+    if item is not None and type(item) is CPageWidgetItem:
+      self.lastClickedPage = item
+
+  def dragEnterEvent(self, event: QtGui.QDragEnterEvent):
+    super().dragEnterEvent(event)
+    if self.lastClickedPage is not None:
+      event.acceptProposedAction()
+
+  def dragMoveEvent(self, event: QtGui.QDragMoveEvent):
+    super().dragMoveEvent(event)
+    event.accept()
+
+  def dropEvent(self, event: QtGui.QDropEvent):
+    super().dropEvent(event)
+    event.acceptProposedAction()
+    if self.lastClickedPage is not None:
+      self.updateParent(self.lastClickedPage.pageId, self.getParentId(self.lastClickedPage))
+
 # *************************** SLOTS ***************************
 
   def onItemClicked(self, item, column):
