@@ -294,7 +294,7 @@ class CPageTree(QtWidgets.QTreeWidget):
       logging.error(f'CPageTree.findItemInSubTree: pageWidgetItem is not a CPageWidgetItem')
       return None
 
-  def moveItem(self, item: CPageWidgetItem, newParent: CPageWidgetItem) -> bool:
+  def moveItem(self, item: CPageWidgetItem, newParent: CPageWidgetItem | None) -> bool:
     """Moves a page to a new parent
 
     Args:
@@ -541,8 +541,10 @@ class CPageTree(QtWidgets.QTreeWidget):
         self.deletePage(self.lastClickedPage.pageId)
 
   def onMoveToTopLevel(self):
-    # TODO: Implement
-    pass
+    if self.lastClickedPage is not None:
+      success = self.moveItem(self.lastClickedPage, None)
+      if success:
+        self.updateParent(self.lastClickedPage.pageId, kInvalidPageId)
 
   def onMoveFolder(self):
     if self.lastClickedPage is not None:
