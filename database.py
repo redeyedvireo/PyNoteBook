@@ -374,7 +374,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'getPage error: {sqlErr.type()}')
+      self.reportError(f'[Database.getPage] error: {sqlErr.type()}')
       return None
 
     # If queryObj.first() returns False, then the page doesn't exist
@@ -415,7 +415,7 @@ class Database:
     try:
       pageData.m_pageType = PAGE_TYPE(pageType)
     except ValueError:
-      self.reportError(f'getPage: page type is invalid: {pageType}, for page ID {pageId}')
+      self.reportError(f'[Database.getPage]: page type is invalid: {pageType}, for page ID {pageId}')
       pageData.m_pageType = PAGE_TYPE.kPageTypeUserText
 
     pageData.m_parentId = parentId
