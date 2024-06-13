@@ -1,6 +1,8 @@
 import sys
 import os.path
+from pathlib import Path
 import logging
+import platform
 from logging.handlers import RotatingFileHandler
 from PySide6 import QtCore, QtWidgets, QtGui
 from qt_util import loadUi
@@ -9,11 +11,14 @@ from ui_pynotebookwindow import Ui_PyNoteBookWindow
 from database import Database
 from page_data import PageData
 from page_recovery import PageRecovery
+from preferences import Preferences
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 
 kLogFile = 'PyNoteBook.log'
 kAppName = 'PyNoteBook'
+
+from constants import kPrefsFileName
 
 kMaxLogileSize = 1024 * 1024
 
@@ -23,6 +28,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   def __init__(self):
     super(PyNoteBookWindow, self).__init__()
+
+    prefsFilePath = self.getPrefsPath()
+    print(f'Prefs file: {prefsFilePath}')
+    self.prefs = Preferences(prefsFilePath)
 
     self.db = Database()
 
@@ -45,7 +54,17 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
 
   def initialize(self):
-    # TODO: Load settings from INI file
+    self.prefs.readPrefsFile()
+
+    pos = self.prefs.getWindowPos()
+    size = self.prefs.getWindowSize()
+
+    if pos is not None:
+      self.move(pos)
+
+    if size is not None:
+      self.resize(size)
+
     # TODO: From INI file, determine the previously open notebook open (if any) and re-open it.
     self.ui.pageTree.initialize(self.db)
 
@@ -168,6 +187,34 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     # TODO: Rethink this - instead of emitting a signal, just call the page removal member functions of each widget
     self.MW_PageDeleted.emit(pageId)
+
+
+# *************************** SETTINGS ***************************
+
+  def getScriptPath(self):
+    if getattr(sys, 'frozen', False):
+      # If the application is run as a bundle, the PyInstaller bootloader
+      # extends the sys module by a flag frozen=True and sets the app
+      # path into variable _MEIPASS'.
+      application_path, executable = os.path.split(sys.executable)
+    else:
+      application_path = os.path.dirname(os.path.abspath(__file__))
+
+    return application_path
+
+  def getPrefsPath(self) -> str:
+    """ Returns the full path to the prefs file. """
+    if platform.system() == 'Windows':
+      appDataDir = os.getenv('APPDATA', self.getScriptPath())
+      return os.path.normpath(os.path.join(appDataDir, kAppName, kPrefsFileName))
+    elif platform.system() == 'Linux':
+      homeDirObj = Path.home()
+      prefsFileObj = homeDirObj / '.pylogbook' / kPrefsFileName
+      print(f'Prefs path: {prefsFileObj}')
+      return os.fspath(prefsFileObj)
+    else:
+      print('[getPrefsPath] Only Windows and Linux are currently supported')
+      return ''
 
 
 # *************************** FILE ***************************
@@ -368,9 +415,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def closeAppWindow(self):
     logging.info('Closing app window...')
     self.closeNotebookFile()
-    # self.prefs.setWindowPos(self.pos())
-    # self.prefs.setWindowSize(self.size())
-    # self.prefs.writePrefsFile()
+    self.prefs.setWindowPos(self.pos())
+    self.prefs.setWindowSize(self.size())
+    self.prefs.writePrefsFile()
 
 def shutdownApp():
   logging.info("Shutting down...")
