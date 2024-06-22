@@ -18,7 +18,8 @@ from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInva
 kLogFile = 'PyNoteBook.log'
 kAppName = 'PyNoteBook'
 
-from constants import kPrefsFileName
+from constants import kPrefsFileName, \
+                      kStartupLoadPreviousLog
 
 kMaxLogileSize = 1024 * 1024
 
@@ -35,9 +36,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     self.db = Database()
 
-    self.notebookFileName = ''      # TODO: Get most-recently-used name from ini file
-    self.lastUsedDirectory = getScriptPath()    # TODO: First check ini file, and if not there, use getScriptPath()
-    self.currentNoteBookPath = ''   # TODO: Get from ini file
+    self.notebookFileName = ''      # Current notebook file name (name only)
+    self.lastUsedDirectory: str = getScriptPath()
+    self.currentNoteBookPath = ''   # Current notebook path (complete path)
 
     self.ui = Ui_PyNoteBookWindow()
     self.ui.setupUi(self)
@@ -54,10 +55,11 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
 
   def initialize(self):
+    self.ui.pageTree.initialize(self.db)
     self.prefs.readPrefsFile()
 
-    pos = self.prefs.getWindowPos()
-    size = self.prefs.getWindowSize()
+    pos = self.prefs.windowPos
+    size = self.prefs.windowSize
 
     if pos is not None:
       self.move(pos)
@@ -65,8 +67,19 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if size is not None:
       self.resize(size)
 
-    # TODO: From INI file, determine the previously open notebook open (if any) and re-open it.
-    self.ui.pageTree.initialize(self.db)
+    previousFilepath = self.prefs.lastFile
+
+    if previousFilepath is not None and len(previousFilepath) > 0:
+      directory, filename = os.path.split(previousFilepath)
+      self.lastUsedDirectory = directory
+
+      if self.prefs.onStartupLoad == kStartupLoadPreviousLog:
+        # Reopen previously opened notebook.
+        self.notebookFileName = filename
+        self.currentNoteBookPath = previousFilepath
+
+        if not self.OpenNotebookFile():
+          self.checkForMissingPages()
 
 
   # *************************** SLOTS ***************************
@@ -391,16 +404,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def clearPageEditControls(self):
     self.ui.titleLabelWidget.clear()
 
-    fontSize = 12
-    fontFamily = 'Arial'
+    fontSize = self.prefs.editorDefaultFontSize
 
-    # TODO: When prefs are implemented, uncomment this
-    # fontSize = self.prefs.getEditorDefaultFontSize()
+    if fontSize <= 0:
+      fontSize = 10
 
-    # if fontSize < 0:
-    #   fontSize = 10
-
-    # fontFamily = self.prefs.getEditorDefaultFontFamily()
+    fontFamily = self.prefs.editorDefaultFontFamily
 
     self.ui.pageTextEdit.newDocument(fontFamily, fontSize)
 
@@ -414,10 +423,14 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   def closeAppWindow(self):
     logging.info('Closing app window...')
-    self.closeNotebookFile()
-    self.prefs.setWindowPos(self.pos())
-    self.prefs.setWindowSize(self.size())
+
+    self.prefs.windowPos = self.pos()
+    self.prefs.windowSize = self.size()
+    self.prefs.lastFile = self.currentNoteBookPath
+
     self.prefs.writePrefsFile()
+
+    self.closeNotebookFile()
 
 def shutdownApp():
   logging.info("Shutting down...")
