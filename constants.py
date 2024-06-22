@@ -12,3 +12,5 @@ kEditorDefaultFontFamily = 'editor-defaultfontfamily'
 kFilesLastFile = 'files-lastfile'
 kWindowSize = 'window-size'
 kWindowPos = 'window-pos'
+
+kRecentFiles = 'recentfiles'

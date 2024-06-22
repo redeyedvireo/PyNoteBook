@@ -10,6 +10,7 @@ from constants import kStartupLoadPreviousLog, \
                       kEditorDefaultTextSize, \
                       kEditorDefaultFontFamily, \
                       kFilesLastFile, \
+                      kRecentFiles, \
                       kWindowSize, \
                       kWindowPos
 class Preferences():
@@ -22,6 +23,7 @@ class Preferences():
       kEditorDefaultTextSize: 10,
       kEditorDefaultFontFamily: 'Arial',
       kFilesLastFile: '',
+      kRecentFiles: [],
       kWindowSize: '',
       kWindowPos: ''
     }
@@ -44,6 +46,13 @@ class Preferences():
         self.prefsMap[kWindowPos] = configObj.get('window', 'pos', fallback='')
         self.prefsMap[kWindowSize] = configObj.get('window', 'size', fallback='')
 
+        # Read recent files list
+        if configObj.has_section(kRecentFiles):
+          fileList = []
+          for key in configObj[kRecentFiles]:
+            fileList.append(configObj[kRecentFiles][key])
+
+          self.prefsMap[kRecentFiles] = fileList
       except Exception as inst:
         errMsg = "Exception: {}".format(inst)
         print(errMsg)
@@ -54,15 +63,23 @@ class Preferences():
 
     # Set prefs in in-memory prefs object
     for prefKey in self.prefsMap:
-      items = prefKey.split('-')
-      section = items[0]
-      pref = items[1]
+      if prefKey == kRecentFiles:
+        if not configObj.has_section(kRecentFiles):
+          # The section must be created before data can be stored in it
+          configObj[kRecentFiles] = {}
 
-      if not configObj.has_section(section):
-        # The section must be created before data can be stored in it
-        configObj[section] = {}
+        for index, recentFile in enumerate(self.prefsMap[kRecentFiles]):
+          configObj[kRecentFiles][f'file{index}'] = recentFile
+      else:
+        items = prefKey.split('-')
+        section = items[0]
+        pref = items[1]
 
-      configObj[section][pref] = str(self.prefsMap[prefKey])
+        if not configObj.has_section(section):
+          # The section must be created before data can be stored in it
+          configObj[section] = {}
+
+        configObj[section][pref] = str(self.prefsMap[prefKey])
 
     # Write prefs to disk
     try:
@@ -86,7 +103,18 @@ class Preferences():
       logging.error(f'[writePrefsFile] {errMsg}')
 
   def prefsItemExists(self, prefsItem) -> bool:
-    return prefsItem in self.prefsMap and len(self.prefsMap[prefsItem]) > 0
+    if prefsItem in self.prefsMap:
+      match self.prefsMap[prefsItem]:
+        case str():
+          return len(self.prefsMap[prefsItem]) > 0
+
+        case int():
+          return True
+
+        case _:
+          return True
+    else:
+      return False
 
   @property
   def onStartupLoad(self) -> str:
@@ -103,6 +131,14 @@ class Preferences():
   @lastFile.setter
   def lastFile(self, value: str):
     self.prefsMap[kFilesLastFile] = value
+
+  @property
+  def recentFiles(self) -> list[str]:
+    return [] if not self.prefsItemExists(kRecentFiles) else self.prefsMap[kRecentFiles]
+
+  @recentFiles.setter
+  def recentFiles(self, files: list[str]):
+    self.prefsMap[kRecentFiles] = files
 
   @property
   def editorDefaultFontSize(self) -> int:

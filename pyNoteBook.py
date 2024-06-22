@@ -22,6 +22,7 @@ from constants import kPrefsFileName, \
                       kStartupLoadPreviousLog
 
 kMaxLogileSize = 1024 * 1024
+kMaxRecentFiles = 20
 
 # ---------------------------------------------------------------
 class PyNoteBookWindow(QtWidgets.QMainWindow):
@@ -39,6 +40,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.notebookFileName = ''      # Current notebook file name (name only)
     self.lastUsedDirectory: str = getScriptPath()
     self.currentNoteBookPath = ''   # Current notebook path (complete path)
+    self.recentFileList = []        # List of recent files (complete paths)
 
     self.ui = Ui_PyNoteBookWindow()
     self.ui.setupUi(self)
@@ -67,19 +69,17 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if size is not None:
       self.resize(size)
 
+    self.recentFileList = self.prefs.recentFiles
+
+    if len(self.recentFileList) > 0:
+      self.updateRecentFilesMenu()
+
     previousFilepath = self.prefs.lastFile
 
     if previousFilepath is not None and len(previousFilepath) > 0:
-      directory, filename = os.path.split(previousFilepath)
-      self.lastUsedDirectory = directory
-
       if self.prefs.onStartupLoad == kStartupLoadPreviousLog:
         # Reopen previously opened notebook.
-        self.notebookFileName = filename
-        self.currentNoteBookPath = previousFilepath
-
-        if not self.OpenNotebookFile():
-          self.checkForMissingPages()
+        self.OpenNotebookFile(previousFilepath)
 
 
   # *************************** SLOTS ***************************
@@ -106,9 +106,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     if len(tempDbPathname) > 0:
       print(f'DB filename: {tempDbPathname}, selected filter: {selectedFilter}')
-      self.currentNoteBookPath = tempDbPathname
-      self.OpenNotebookFile()
-      self.checkForMissingPages()
+      self.OpenNotebookFile(tempDbPathname)
 
   @QtCore.Slot()
   def on_savePageButton_clicked(self):
@@ -201,6 +199,16 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     # TODO: Rethink this - instead of emitting a signal, just call the page removal member functions of each widget
     self.MW_PageDeleted.emit(pageId)
 
+  def onRecentFileSelected(self):
+    sender = self.sender()
+
+    if type(sender) is QtGui.QAction:
+      print(f'Recent file selected: {sender.text()}')
+
+      self.closeNotebookFile()
+      self.clearAllControls()
+      self.OpenNotebookFile(sender.text())
+
 
 # *************************** SETTINGS ***************************
 
@@ -232,8 +240,13 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
 # *************************** FILE ***************************
 
-  def OpenNotebookFile(self) -> bool:
-    if len(self.currentNoteBookPath) > 0 and os.path.exists(self.currentNoteBookPath):
+  def OpenNotebookFile(self, filepath) -> bool:
+    if len(filepath) > 0 and os.path.exists(filepath):
+      directory, filename = os.path.split(filepath)
+      self.notebookFileName = filename
+      self.lastUsedDirectory = directory
+      self.currentNoteBookPath = filepath
+
       self.db.openDatabase(self.currentNoteBookPath)
 
       # TODO: If the database is password protected, get password from the user
@@ -244,10 +257,42 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       if pageOrderStr is not None:
         print(f'Page order string: {pageOrderStr}')
         self.populateNavigationControls(pageOrderStr)
+
+        # TODO: Display initial page?
+
+        self.addFileToRecentFilesList()
+        self.checkForMissingPages()
       return True
     else:
       logging.error(f'NoteBook {self.currentNoteBookPath} does not exist')
       return False
+
+  def addFileToRecentFilesList(self):
+    if self.currentNoteBookPath in self.recentFileList:
+      # The file is there, so remove it, and add it to the top
+      self.recentFileList.remove(self.currentNoteBookPath)
+
+    if len(self.recentFileList) == kMaxRecentFiles:
+      self.recentFileList.pop()     # Remove last item
+
+    # Add file to the top of the list
+    self.recentFileList.insert(0, self.currentNoteBookPath)
+
+    self.updateRecentFilesMenu()
+
+  def updateRecentFilesMenu(self):
+    recentMenu = self.ui.actionRecent_Notebooks.menu()
+
+    if recentMenu is None:
+      recentMenu = QtWidgets.QMenu()
+
+      self.ui.actionRecent_Notebooks.setMenu(recentMenu)
+
+    if recentMenu is not None and type(recentMenu) is QtWidgets.QMenu:
+      recentMenu.clear()
+
+      for recentFile in self.recentFileList:
+        action = recentMenu.addAction(recentFile, self.onRecentFileSelected)
 
   def closeNotebookFile(self):
     if self.db.isDatabaseOpen():
@@ -418,7 +463,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 # *************************** SHUTDOWN ***************************
 
   def closeEvent(self, event):
-    print('closeEvent called')
     self.closeAppWindow()
 
   def closeAppWindow(self):
@@ -427,6 +471,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.prefs.windowPos = self.pos()
     self.prefs.windowSize = self.size()
     self.prefs.lastFile = self.currentNoteBookPath
+    self.prefs.recentFiles = self.recentFileList
 
     self.prefs.writePrefsFile()
 
