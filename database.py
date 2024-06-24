@@ -231,6 +231,13 @@ class Database:
       atLeastOne = queryObj.next()
       return atLeastOne
 
+  def getPageHistory(self) -> str | None:
+    pageHistory = self.getGlobalValue(kPageHistoryKey)
+    return None if pageHistory is None else str(pageHistory)
+
+  def setPageHistory(self, pageHistoryStr) -> bool:
+    return self.setGlobalValue(kPageHistoryKey, pageHistoryStr)
+
   def setPageOrder(self, pageOrderStr) -> bool:
     return self.setGlobalValue(kPageOrderKey, pageOrderStr)
 
@@ -593,6 +600,29 @@ class Database:
     else:
       self.reportError(f'nextPageId error: maxpageid was not returned by the query')
       return kInvalidPageId
+
+  def getPageTitle(self, pageId: ENTITY_ID) -> str | None:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select pagetitle from pages where pageid=?")
+    queryObj.addBindValue(pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.getPageTitle]: {sqlErr.type()}')
+      return None
+
+    # TODO: If this is an encrypted notebook, must decrypt the title
+
+    if queryObj.first():
+      pageTitleField = queryObj.record().indexOf('pagetitle')
+      titleData = queryObj.value(pageTitleField)
+      return unknownToString(titleData) if titleData != '' else ''
+    else:
+      return None
 
   def deletePage(self, pageId: ENTITY_ID) -> bool:
     """ Deletes the requested page. """

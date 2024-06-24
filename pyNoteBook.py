@@ -58,6 +58,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   def initialize(self):
     self.ui.pageTree.initialize(self.db)
+    self.ui.recentlyViewedList.initialize(self.db)
+
     self.prefs.readPrefsFile()
 
     pos = self.prefs.windowPos
@@ -94,6 +96,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     # Editor signals
     self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
+
+    # Page History Widget
+    self.ui.recentlyViewedList.PHW_PageSelected.connect(self.onPageSelected)
 
   @QtCore.Slot()
   def on_actionOpen_Notebook_triggered(self):
@@ -173,7 +178,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.displayPage(self.currentPageData, imageNames, False)
 
       # Add page to the page history
-      # TODO: Add page to the page history (will eventually be in a menu, not in a widget)
+      self.ui.recentlyViewedList.addHistoryItem(pageId, self.currentPageData.m_title)
     else:
       # Page does not exist.  Blank out editors.
       logging.error(f'[PyNoteBookWindow.onPageSelected] Page ID {pageId} does not exist')
@@ -258,6 +263,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
         print(f'Page order string: {pageOrderStr}')
         self.populateNavigationControls(pageOrderStr)
 
+        # Read page history
+        pageHistoryStr = self.db.getPageHistory()
+
+        if pageHistoryStr is not None:
+          self.ui.recentlyViewedList.setPageHistory(pageHistoryStr)
+
         # TODO: Display initial page?
 
         self.addFileToRecentFilesList()
@@ -298,7 +309,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if self.db.isDatabaseOpen():
       self.checkSavePage()        # check if user wants to save the page if it hasn't been saved
 
-      # TODO: Save page history
+      # Save page history
+      pageHistoryStr = self.ui.recentlyViewedList.getPageHistory()
+      self.db.setPageHistory(pageHistoryStr)
 
       # Save page order
       pageOrderStr = self.ui.pageTree.getPageOrderString()
