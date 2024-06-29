@@ -59,6 +59,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def initialize(self):
     self.ui.pageTree.initialize(self.db)
     self.ui.recentlyViewedList.initialize(self.db)
+    self.ui.favoritesWidget.initialize(self.db)
+    self.ui.titleLabelWidget.initialize()
 
     self.prefs.readPrefsFile()
 
@@ -99,6 +101,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     # Page History Widget
     self.ui.recentlyViewedList.PHW_PageSelected.connect(self.onPageSelected)
+
+    # Favorites Widget
+    self.ui.favoritesWidget.FW_PageSelected.connect(self.onPageSelected)
+    self.ui.favoritesWidget.FW_PageDefavorited.connect(self.onPageDefavorited)
 
   @QtCore.Slot()
   def on_actionOpen_Notebook_triggered(self):
@@ -204,6 +210,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     # TODO: Rethink this - instead of emitting a signal, just call the page removal member functions of each widget
     self.MW_PageDeleted.emit(pageId)
 
+  def onPageDefavorited(self, pageId: ENTITY_ID):
+    self.db.setPageFavoriteStatus(pageId, False)
+
+    if self.currentPageId == pageId:
+      self.ui.titleLabelWidget.setFavoritesIcon(False)
+
   def onRecentFileSelected(self):
     sender = self.sender()
 
@@ -268,6 +280,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
         if pageHistoryStr is not None:
           self.ui.recentlyViewedList.setPageHistory(pageHistoryStr)
+
+        # Read favorites
+        favoritePages = self.db.getFavoritePages()
+        self.ui.favoritesWidget.addPages(favoritePages)
 
         # TODO: Display initial page?
 
@@ -417,6 +433,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.ui.tagsEdit.clear()
     else:
       self.ui.tagsEdit.setText(pageData.m_tags)
+
+    self.ui.titleLabelWidget.setFavoritesIcon(pageData.m_bIsFavorite)
 
     self.setAppTitle()
 

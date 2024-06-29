@@ -7,7 +7,7 @@ from encrypter import Encrypter
 from utility import toQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray, unknownToString
 
 from page_data import PageData, PageDataDict, PageIdDict
-from notebook_types import PAGE_TYPE, ENTITY_ID, ENTITY_LIST, ENTITY_PAIR, ENTITY_PAIR_LIST, kInvalidPageId
+from notebook_types import PAGE_TYPE, ENTITY_ID, ENTITY_LIST, ENTITY_PAIR, ENTITY_PAIR_LIST, ID_TITLE_LIST, kInvalidPageId
 
 # Global value data type constants
 kDataTypeInteger = 0
@@ -78,6 +78,8 @@ class Database:
 
   def getQueryField(self, queryObj, fieldName) -> int | str | bytes | None:
     fieldIndex = queryObj.record().indexOf(fieldName)
+
+    # TODO: Take encryption into account.  Will probably need to pass a parameter to this function indicating whether it should be decrypted.
     return queryObj.value(fieldIndex)
 
   def getGlobalValue(self, key: str) -> int | str | bytes | None:
@@ -260,7 +262,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'[pageExists]: {sqlErr.type()}')
+      self.reportError(f'[pageExists]: {sqlErr.text()}')
       return False
 
     # If queryObj.first() returns False, then the page doesn't exist
@@ -280,7 +282,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'[Database.getAllPageIdsAndParents] error: {sqlErr.type()}')
+      self.reportError(f'[Database.getAllPageIdsAndParents] error: {sqlErr.text()}')
       return ([(kInvalidPageId, kInvalidPageId)], False)
 
     pageList = []
@@ -304,7 +306,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'getPageList error: {sqlErr.type()}')
+      self.reportError(f'getPageList error: {sqlErr.text()}')
       return ({}, False)
 
     pageDict = {}
@@ -341,7 +343,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'getPageList error: {sqlErr.type()}')
+      self.reportError(f'getPageList error: {sqlErr.text()}')
       return ({}, False)
 
     pageIdDict = {}
@@ -369,6 +371,50 @@ class Database:
 
     return (pageIdDict, True)
 
+  def getFavoritePages(self) -> ID_TITLE_LIST:
+    """Returns a list of favorite page IDs and their titles.
+
+    Returns:
+        list[tuple[ENTITY_ID, str]]: List of tuples where each tuple is a page ID and the page title.
+    """
+    resultList = []
+
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select pageid, pagetitle from pages where isfavorite=1")
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.getFavoritePages] error: {sqlErr.text()}')
+      return []
+
+    while queryObj.next():
+      pageId = self.getQueryField(queryObj, 'pageid')
+      pageTitle = self.getQueryField(queryObj, 'pagetitle')
+      resultList.append((pageId, pageTitle))
+
+    return resultList
+
+  def setPageFavoriteStatus(self, pageId: ENTITY_ID, isFavorite: bool) -> bool:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("update pages set isfavorite=? where pageid=?")
+    queryObj.addBindValue(isFavorite)
+    queryObj.addBindValue(pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.setPageFavoriteStatus] error: {sqlErr.text()}')
+      return False
+
+    return True
+
   # TODO: Should return an error message
   def getPage(self, pageId) -> PageData | None:
     queryObj = QtSql.QSqlQuery()
@@ -381,7 +427,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'[Database.getPage] error: {sqlErr.type()}')
+      self.reportError(f'[Database.getPage] error: {sqlErr.text()}')
       return None
 
     # If queryObj.first() returns False, then the page doesn't exist
@@ -467,7 +513,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'updatePage error: {sqlErr.type()}')
+      self.reportError(f'updatePage error: {sqlErr.text()}')
       return False
 
     return True
@@ -502,7 +548,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'addNewBlankPage error: {sqlErr.type()}')
+      self.reportError(f'addNewBlankPage error: {sqlErr.text()}')
       return False
 
     return True
@@ -531,7 +577,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'[Database.changePageTitle]: {sqlErr.type()}')
+      self.reportError(f'[Database.changePageTitle]: {sqlErr.text()}')
       return False
 
     return True
@@ -548,7 +594,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'incrementPageModificationCount error: {sqlErr.type()}')
+      self.reportError(f'incrementPageModificationCount error: {sqlErr.text()}')
       return False
 
     if not queryObj.first():
@@ -589,7 +635,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'nextPageId error: {sqlErr.type()}')
+      self.reportError(f'nextPageId error: {sqlErr.text()}')
       return kInvalidPageId
 
     fieldNum = queryObj.record().indexOf('maxpageid')
@@ -612,7 +658,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'[Database.getPageTitle]: {sqlErr.type()}')
+      self.reportError(f'[Database.getPageTitle]: {sqlErr.text()}')
       return None
 
     # TODO: If this is an encrypted notebook, must decrypt the title
@@ -637,7 +683,7 @@ class Database:
     sqlErr = queryObj.lastError()
 
     if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-      self.reportError(f'[deletePage]: {sqlErr.type()}')
+      self.reportError(f'[deletePage]: {sqlErr.text()}')
       return False
 
     return True
@@ -656,7 +702,7 @@ class Database:
       sqlErr = queryObj.lastError()
 
       if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
-        self.reportError(f'[updatePageParent]: {sqlErr.type()}')
+        self.reportError(f'[updatePageParent]: {sqlErr.text()}')
         return False
       else:
         return True

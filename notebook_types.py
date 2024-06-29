@@ -8,7 +8,8 @@ ENTITY_LIST = list[ENTITY_ID]
 ENTITY_PAIR = tuple[ENTITY_ID, ENTITY_ID]       # Used to indicate a page ID and a parent ID
 ENTITY_PAIR_LIST = list[ENTITY_PAIR]
 TAG_LIST = list[str]
-
+ID_TITLE = tuple[ENTITY_ID, str]                # Page ID and title
+ID_TITLE_LIST = list[ID_TITLE]
 
 # Page type
 class PAGE_TYPE(Enum):

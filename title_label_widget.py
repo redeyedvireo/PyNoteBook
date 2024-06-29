@@ -6,6 +6,10 @@ from ui_title_label_widget import Ui_CTitleLabelWidget
 kLabelPage = 0
 kTitleEditPage = 1
 
+kPageIcon = ":/NoteBook/Resources/Page.png"
+kFolderIcon = ":/NoteBook/Resources/Folder Closed.png"
+kToDoIcon = ":/NoteBook/Resources/ToDoList.png"
+
 class CTitleLabelWidget(QtWidgets.QWidget):
   def __init__(self, parent):
     super(CTitleLabelWidget, self).__init__(parent)
@@ -14,9 +18,19 @@ class CTitleLabelWidget(QtWidgets.QWidget):
 
     self.ui.stackedWidget.setCurrentIndex(kLabelPage)
 
+  def initialize(self):
+    self.ui.stackedWidget.setCurrentIndex(kLabelPage)
+
+    self.ui.favoritesLabel.loadIconForIndex(0, ':/NoteBook/Resources/star-outline.png')
+    self.ui.favoritesLabel.loadIconForIndex(1, ':/NoteBook/Resources/star.png')
+
   def clear(self):
     self.ui.pageTitleLabel.setText('')
     self.ui.stackedWidget.setCurrentIndex(kLabelPage)
+
+  def setFavoritesIcon(self, isFavorite: bool):
+    iconIndex = 1 if isFavorite else 0
+    self.ui.favoritesLabel.setIcon(iconIndex)
 
   def setPageTitleLabel(self, title: str) -> None:
     self.ui.pageTitleLabel.setText(title)
