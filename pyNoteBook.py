@@ -106,6 +106,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.favoritesWidget.FW_PageSelected.connect(self.onPageSelected)
     self.ui.favoritesWidget.FW_PageDefavorited.connect(self.onPageDefavorited)
 
+    # Title Label Widget
+    self.ui.titleLabelWidget.TLW_SetPageAsFavorite.connect(self.onAddPageToFavorites)
+    self.ui.titleLabelWidget.TLW_SetPageAsNonFavorite.connect(self.onRemovePageFromFavorites)
+
   @QtCore.Slot()
   def on_actionOpen_Notebook_triggered(self):
     self.checkSavePage()          # First check if a notebook page is open, and if so, prompt the user to save it.
@@ -215,6 +219,19 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     if self.currentPageId == pageId:
       self.ui.titleLabelWidget.setFavoritesIcon(False)
+
+  def onAddPageToFavorites(self):
+    if self.currentPageIsValid() and self.currentPageData is not None and not self.currentPageData.m_bIsFavorite:
+      self.ui.favoritesWidget.addPage(self.currentPageId, self.currentPageData.m_title)
+      self.db.setPageFavoriteStatus(self.currentPageId, True)
+      self.ui.titleLabelWidget.setFavoritesIcon(True)
+      self.currentPageData.m_bIsFavorite = True
+
+  def onRemovePageFromFavorites(self):
+    if self.currentPageIsValid() and self.currentPageData is not None and self.currentPageData.m_bIsFavorite:
+      self.onPageDefavorited(self.currentPageId)
+      self.ui.favoritesWidget.removePage(self.currentPageId)
+      self.currentPageData.m_bIsFavorite = False
 
   def onRecentFileSelected(self):
     sender = self.sender()
@@ -490,6 +507,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTextEdit.newDocument(fontFamily, fontSize)
 
     self.ui.tagsEdit.clear()
+
+  def currentPageIsValid(self) -> bool:
+    return self.currentPageId != kInvalidPageId
+
 
 # *************************** SHUTDOWN ***************************
 

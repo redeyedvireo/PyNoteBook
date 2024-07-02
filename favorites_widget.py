@@ -29,6 +29,18 @@ class CFavoritesWidget(QtWidgets.QWidget):
   def clear(self):
     self.ui.favoritesListWidget.clear()
 
+  def addPage(self, pageId: ENTITY_ID, pageTitle: str):
+    newItem = QtWidgets.QListWidgetItem(pageTitle)
+    newItem.setData(QtCore.Qt.ItemDataRole.UserRole, pageId)
+    self.ui.favoritesListWidget.addItem(newItem)
+
+  def removePage(self, pageId: ENTITY_ID):
+    foundItem = self.findFavoriteItem(pageId)
+
+    if foundItem is not None:
+      row = self.getItemRow(foundItem)
+      self.ui.favoritesListWidget.takeItem(row)
+
   def addPages(self, pages: ID_TITLE_LIST):
     for page in pages:
       self.addFavoriteItem(page[0], page[1])
@@ -38,9 +50,7 @@ class CFavoritesWidget(QtWidgets.QWidget):
     foundItem = self.findFavoriteItem(pageId)
 
     if foundItem is None:
-      newItem = QtWidgets.QListWidgetItem(pageTitle)
-      newItem.setData(QtCore.Qt.ItemDataRole.UserRole, pageId)
-      self.ui.favoritesListWidget.addItem(newItem)
+      self.addPage(pageId, pageTitle)
 
   def findFavoriteItem(self, pageId: ENTITY_ID) -> QtWidgets.QListWidgetItem | None:
     numItems = self.ui.favoritesListWidget.count()
@@ -69,6 +79,9 @@ class CFavoritesWidget(QtWidgets.QWidget):
   def getItemPageId(self, item: QtWidgets.QListWidgetItem) -> ENTITY_ID:
     return item.data(QtCore.Qt.ItemDataRole.UserRole)
 
+  def getItemRow(self, item: QtWidgets.QListWidgetItem) -> int:
+    return self.ui.favoritesListWidget.row(item)
+
 
 # *************************** SLOTS ***************************
 
@@ -81,14 +94,14 @@ class CFavoritesWidget(QtWidgets.QWidget):
     numItems = self.ui.favoritesListWidget.count()
 
     for i in range(numItems):
-      item = self.ui.favoritesListWidget.item(i)
+      item = self.ui.favoritesListWidget.item(0)    # Always take the first one, as the list will be shrinking
       pageId = self.getItemPageId(item)
-      self.ui.favoritesListWidget.takeItem(self.ui.favoritesListWidget.row(item))
+      self.ui.favoritesListWidget.takeItem(self.getItemRow(item))
       self.FW_PageDefavorited.emit(pageId)
 
   def onRemoveSelectedClicked(self):
     if self.selectedItem is not None:
       pageId = self.getItemPageId(self.selectedItem)
-      self.ui.favoritesListWidget.takeItem(self.ui.favoritesListWidget.row(self.selectedItem))
+      self.ui.favoritesListWidget.takeItem(self.getItemRow(self.selectedItem))
       self.selectedItem = None
       self.FW_PageDefavorited.emit(pageId)

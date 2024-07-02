@@ -393,7 +393,7 @@ class Database:
 
     while queryObj.next():
       pageId = self.getQueryField(queryObj, 'pageid')
-      pageTitle = self.getQueryField(queryObj, 'pagetitle')
+      pageTitle = unknownToString(self.getQueryField(queryObj, 'pagetitle'))
       resultList.append((pageId, pageTitle))
 
     return resultList

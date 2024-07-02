@@ -3,6 +3,9 @@ from PySide6 import QtCore, QtWidgets, QtGui
 ICON_MAP = dict[int, QtGui.QPixmap]
 
 class CClickableLabel(QtWidgets.QLabel):
+  LabelClicked = QtCore.Signal()
+  LabelRightClicked = QtCore.Signal()
+
   def __init__(self, parent):
     super(CClickableLabel, self).__init__(parent)
     self.iconMap: ICON_MAP = {}
@@ -15,3 +18,8 @@ class CClickableLabel(QtWidgets.QLabel):
       pixmap = self.iconMap[index]
       self.setPixmap(pixmap)
 
+  def mousePressEvent(self, event: QtGui.QMouseEvent):
+    if event.button() == QtCore.Qt.MouseButton.LeftButton:
+      self.LabelClicked.emit()
+    elif event.button() == QtCore.Qt.MouseButton.RightButton:
+      self.LabelRightClicked.emit()
