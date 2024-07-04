@@ -710,3 +710,23 @@ class Database:
       # The page does not exist
       return False
 
+  def getFirstPageId(self) -> ENTITY_ID | None:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select pageid from pages order by rowid asc limit 1")
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.getFirstPageId] error: {sqlErr.text()}')
+      return None
+
+    # If queryObj.first() returns False, then the page doesn't exist
+    if not queryObj.first():
+      return None
+    else:
+      val = self.getQueryField(queryObj, 'pageid')
+
+      return val if type(val) == int else None
