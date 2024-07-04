@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 from database import Database
-from notebook_types import ENTITY_ID
+from notebook_types import ENTITY_ID, kInvalidPageId
 
 kDefaultMaxHistory = 20
 
@@ -17,6 +17,12 @@ class CPageHistoryWidget(QtWidgets.QListWidget):
 
     self.setConnections()
 
+  def pageIdForItem(self, item: QtWidgets.QListWidgetItem) -> ENTITY_ID:
+    return item.data(QtCore.Qt.ItemDataRole.UserRole)
+
+  def setPageIdForItem(self, item, pageId):
+    item.setData(QtCore.Qt.ItemDataRole.UserRole, pageId)
+
   def setConnections(self):
     self.itemClicked.connect(self.onItemClicked)
 
@@ -29,6 +35,9 @@ class CPageHistoryWidget(QtWidgets.QListWidget):
         title = self.db.getPageTitle(pageId)
         if title is not None:
           self.addHistoryItem(pageId, title, True)
+
+  def getMostRecentlyViewedPage(self) -> ENTITY_ID:
+    return self.pageIdForItem(self.item(0)) if self.count() > 0 else kInvalidPageId
 
   def addHistoryItem(self, pageId: ENTITY_ID, title: str, addAtEnd: bool = False):
     item = self.findItem(pageId)
@@ -49,7 +58,7 @@ class CPageHistoryWidget(QtWidgets.QListWidget):
       self.takeItem(self.count() - 1)
 
     newItem = QtWidgets.QListWidgetItem(title)
-    newItem.setData(QtCore.Qt.ItemDataRole.UserRole, pageId)
+    self.setPageIdForItem(newItem, pageId)
 
     if addAtEnd:
       self.addItem(newItem)
@@ -60,7 +69,7 @@ class CPageHistoryWidget(QtWidgets.QListWidget):
     for i in range(self.count()):
       item = self.item(i)
 
-      if item.data(QtCore.Qt.ItemDataRole.UserRole) == pageId:
+      if self.pageIdForItem(item) == pageId:
         return item
 
     return None   # Not found
@@ -73,7 +82,7 @@ class CPageHistoryWidget(QtWidgets.QListWidget):
     for i in range(self.count()):
       item = self.item(i)
 
-      pageIdList.append(item.data(QtCore.Qt.ItemDataRole.UserRole))
+      pageIdList.append(self.pageIdForItem(item))
 
     return ','.join(map(str, pageIdList))
 
@@ -81,6 +90,6 @@ class CPageHistoryWidget(QtWidgets.QListWidget):
 # *************************** SLOTS ***************************
 
   def onItemClicked(self, item):
-    pageId = item.data(QtCore.Qt.ItemDataRole.UserRole)
+    pageId = self.pageIdForItem(item)
     self.PHW_PageSelected.emit(pageId)
 

@@ -189,6 +189,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
       # Add page to the page history
       self.ui.recentlyViewedList.addHistoryItem(pageId, self.currentPageData.m_title)
+
+      # TODO: Notify child components that a new page has been selected?
     else:
       # Page does not exist.  Blank out editors.
       logging.error(f'[PyNoteBookWindow.onPageSelected] Page ID {pageId} does not exist')
@@ -302,10 +304,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
         favoritePages = self.db.getFavoritePages()
         self.ui.favoritesWidget.addPages(favoritePages)
 
-        # TODO: Display initial page?
-
         self.addFileToRecentFilesList()
         self.checkForMissingPages()
+
+        self.displayLastEntry()
       return True
     else:
       logging.error(f'NoteBook {self.currentNoteBookPath} does not exist')
@@ -373,6 +375,18 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
 
 # *************************** UI ***************************
+
+  def displayLastEntry(self):
+    """Display the entry that was displayed when the database was last closed
+    """
+    pageId = self.ui.recentlyViewedList.getMostRecentlyViewedPage()
+
+    if pageId == kInvalidPageId:
+      pageId = self.db.getFirstPageId()
+      pageId = pageId if type(pageId) == int else None
+
+    if pageId is not None:
+      self.onPageSelected(pageId)
 
   def populateNavigationControls(self, pageOrderStr: str):
     pageDict, success = self.db.getPageList()   # Retrieve all pages, regardless of whether they appear in the pageOrderStr
