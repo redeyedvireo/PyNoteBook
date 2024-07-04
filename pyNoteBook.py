@@ -1,5 +1,6 @@
 import sys
 import os.path
+import datetime
 from pathlib import Path
 import logging
 import platform
@@ -132,6 +133,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.currentPageData.m_title = self.ui.titleLabelWidget.getPageTitleLabel()
       self.currentPageData.m_tags = self.ui.tagsEdit.text()
       self.currentPageData.m_contentString = self.ui.pageTextEdit.toHtml()
+      self.currentPageData.m_modifiedDateTime = datetime.datetime.now()
 
       success = self.db.updatePage(self.currentPageData)
 
