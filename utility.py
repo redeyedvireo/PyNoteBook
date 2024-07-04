@@ -20,6 +20,9 @@ def dateToJulianDay(inDate: datetime.date) -> int:
 def formatDateTime(inDateTime: datetime.datetime) -> str:
   return inDateTime.strftime("%B %d, %Y %I:%M %p")
 
+def formatDateTimeWithDay(inDateTime: datetime.datetime) -> str:
+  return inDateTime.strftime("%A, %B %d, %Y %I:%M %p")
+
 # Format date
 def formatDate(inDate: datetime.date) -> str:
   return inDate.strftime("%a %b %d %Y")
