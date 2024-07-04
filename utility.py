@@ -9,8 +9,8 @@ from datetime import timezone
 def julianDayToDate(julianDay: int) -> datetime.date:
   """ Returns a Python date corresponding to the given Julian day. """
   qtDate = QtCore.QDate.fromJulianDay(julianDay)
-  date = qtDate.toPyDate()
-  return date
+  date = qtDate.toPython()
+  return date     # I think this is a datetime.date, but the documentation doesn't say
 
 def dateToJulianDay(inDate: datetime.date) -> int:
   """ Returns a Julian day for the given Python date. """
