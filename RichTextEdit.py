@@ -138,7 +138,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     self.ui.textEdit.setHtml(contents)      # The C++ version uses insertHtml()
 
-    self.setDocumentModified(True)
+    self.setDocumentModified(False)
 
   def setGlobalFont(self, fontFamily, fontSize):
     selectionCursor = self.ui.textEdit.textCursor()

@@ -487,8 +487,16 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.favoritesWidget.clear()
 
   def checkSavePage(self):
-    # TODO: Implement checkSavePage
-    pass
+    if self.pageModified():
+      result = QtWidgets.QMessageBox.question(self, "PyNoteBook - Save Entry?", \
+                                              'The current page has not been saved.  Would you like to save it?',\
+                                                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+
+      if result == QtWidgets.QMessageBox.StandardButton.Yes:
+        self.on_savePageButton_clicked()
+
+  def pageModified(self) -> bool:
+    return self.ui.pageTextEdit.isModified() or self.tagsModified
 
   def onPageModified(self):
     self.setAppTitle()
@@ -500,15 +508,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if len(self.notebookFileName) > 0:
       windowTitle = f'Notebook - {self.currentNoteBookPath}'
 
-      if self.pageIsModified():
+      if self.pageModified():
         windowTitle += '*'
     else:
       windowTitle = 'Notebook'
 
     self.setWindowTitle(windowTitle)
-
-  def pageIsModified(self) -> bool:
-    return self.ui.pageTextEdit.isModified()
 
   def clearPageEditControls(self):
     self.ui.titleLabelWidget.clear()
