@@ -4,7 +4,7 @@
 kPrefsFileName = 'PyNoteBook.ini'
 
 kStartupEmptyWorkspace = 'empty'
-kStartupLoadPreviousLog = 'loadprevious'        # Load previous log file when starting up
+kStartupLoadPreviousNoteBook = 'loadprevious'        # Load previous NoteBook file when starting up
 
 kGeneralStartupLoad = 'general-startupload'
 kEditorDefaultTextSize = 'editor-defaulttextsize'
