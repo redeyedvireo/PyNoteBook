@@ -54,7 +54,7 @@ class Ui_RichTextEditWidget(object):
         self.leftAlignButton = QToolButton(RichTextEditWidget)
         self.leftAlignButton.setObjectName(u"leftAlignButton")
         icon = QIcon()
-        icon.addFile(u":/PyLogBook/Resources/Left.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/PyNoteBook/Resources/Left.png", QSize(), QIcon.Normal, QIcon.Off)
         self.leftAlignButton.setIcon(icon)
         self.leftAlignButton.setIconSize(QSize(16, 16))
         self.leftAlignButton.setCheckable(True)
@@ -65,7 +65,7 @@ class Ui_RichTextEditWidget(object):
         self.centerAlignButton = QToolButton(RichTextEditWidget)
         self.centerAlignButton.setObjectName(u"centerAlignButton")
         icon1 = QIcon()
-        icon1.addFile(u":/PyLogBook/Resources/Center.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/PyNoteBook/Resources/Center.png", QSize(), QIcon.Normal, QIcon.Off)
         self.centerAlignButton.setIcon(icon1)
         self.centerAlignButton.setIconSize(QSize(16, 16))
         self.centerAlignButton.setCheckable(True)
@@ -76,7 +76,7 @@ class Ui_RichTextEditWidget(object):
         self.rightAlignButton = QToolButton(RichTextEditWidget)
         self.rightAlignButton.setObjectName(u"rightAlignButton")
         icon2 = QIcon()
-        icon2.addFile(u":/PyLogBook/Resources/Right.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon2.addFile(u":/PyNoteBook/Resources/Right.png", QSize(), QIcon.Normal, QIcon.Off)
         self.rightAlignButton.setIcon(icon2)
         self.rightAlignButton.setIconSize(QSize(16, 16))
         self.rightAlignButton.setCheckable(True)
@@ -90,7 +90,7 @@ class Ui_RichTextEditWidget(object):
         font.setBold(True)
         self.boldButton.setFont(font)
         icon3 = QIcon()
-        icon3.addFile(u":/PyLogBook/Resources/Bold.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon3.addFile(u":/PyNoteBook/Resources/Bold.png", QSize(), QIcon.Normal, QIcon.Off)
         self.boldButton.setIcon(icon3)
         self.boldButton.setIconSize(QSize(16, 16))
         self.boldButton.setCheckable(True)
@@ -103,7 +103,7 @@ class Ui_RichTextEditWidget(object):
         font1.setItalic(True)
         self.italicButton.setFont(font1)
         icon4 = QIcon()
-        icon4.addFile(u":/PyLogBook/Resources/Italic.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon4.addFile(u":/PyNoteBook/Resources/Italic.png", QSize(), QIcon.Normal, QIcon.Off)
         self.italicButton.setIcon(icon4)
         self.italicButton.setCheckable(True)
 
@@ -115,7 +115,7 @@ class Ui_RichTextEditWidget(object):
         font2.setUnderline(True)
         self.underlineButton.setFont(font2)
         icon5 = QIcon()
-        icon5.addFile(u":/PyLogBook/Resources/Underline.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon5.addFile(u":/PyNoteBook/Resources/Underline.png", QSize(), QIcon.Normal, QIcon.Off)
         self.underlineButton.setIcon(icon5)
         self.underlineButton.setCheckable(True)
 
@@ -124,7 +124,7 @@ class Ui_RichTextEditWidget(object):
         self.bulletTableInsertButton = QToolButton(RichTextEditWidget)
         self.bulletTableInsertButton.setObjectName(u"bulletTableInsertButton")
         icon6 = QIcon()
-        icon6.addFile(u":/PyLogBook/Resources/Bullet Table.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon6.addFile(u":/PyNoteBook/Resources/Bullet Table.png", QSize(), QIcon.Normal, QIcon.Off)
         self.bulletTableInsertButton.setIcon(icon6)
 
         self.horizontalLayout_2.addWidget(self.bulletTableInsertButton)
@@ -132,7 +132,7 @@ class Ui_RichTextEditWidget(object):
         self.numberTableInsertButton = QToolButton(RichTextEditWidget)
         self.numberTableInsertButton.setObjectName(u"numberTableInsertButton")
         icon7 = QIcon()
-        icon7.addFile(u":/PyLogBook/Resources/Number Table.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon7.addFile(u":/PyNoteBook/Resources/Number Table.png", QSize(), QIcon.Normal, QIcon.Off)
         self.numberTableInsertButton.setIcon(icon7)
 
         self.horizontalLayout_2.addWidget(self.numberTableInsertButton)
@@ -155,7 +155,7 @@ class Ui_RichTextEditWidget(object):
         self.textColorButton = CColorButton(RichTextEditWidget)
         self.textColorButton.setObjectName(u"textColorButton")
         icon8 = QIcon()
-        icon8.addFile(u":/PyLogBook/Resources/Text Foreground.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon8.addFile(u":/PyNoteBook/Resources/Text Foreground.png", QSize(), QIcon.Normal, QIcon.Off)
         self.textColorButton.setIcon(icon8)
         self.textColorButton.setIconSize(QSize(16, 16))
 
@@ -168,7 +168,7 @@ class Ui_RichTextEditWidget(object):
         self.textBackgroundButton = CColorButton(RichTextEditWidget)
         self.textBackgroundButton.setObjectName(u"textBackgroundButton")
         icon9 = QIcon()
-        icon9.addFile(u":/PyLogBook/Resources/Text Background.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon9.addFile(u":/PyNoteBook/Resources/Text Background.png", QSize(), QIcon.Normal, QIcon.Off)
         self.textBackgroundButton.setIcon(icon9)
         self.textBackgroundButton.setIconSize(QSize(16, 16))
 
@@ -183,6 +183,7 @@ class Ui_RichTextEditWidget(object):
 
         self.textEdit = QTextEdit(RichTextEditWidget)
         self.textEdit.setObjectName(u"textEdit")
+        self.textEdit.setStyleSheet(u"background-color: white")
 
         self.verticalLayout.addWidget(self.textEdit)
 

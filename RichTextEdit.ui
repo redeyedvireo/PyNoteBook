@@ -72,8 +72,8 @@
         <string>Left</string>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Left.png</normaloff>:/PyLogBook/Resources/Left.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Left.png</normaloff>:/PyNoteBook/Resources/Left.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -98,8 +98,8 @@
         <string>Center</string>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Center.png</normaloff>:/PyLogBook/Resources/Center.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Center.png</normaloff>:/PyNoteBook/Resources/Center.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -124,8 +124,8 @@
         <string>Right</string>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Right.png</normaloff>:/PyLogBook/Resources/Right.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Right.png</normaloff>:/PyNoteBook/Resources/Right.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -156,8 +156,8 @@
         <string>B</string>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Bold.png</normaloff>:/PyLogBook/Resources/Bold.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Bold.png</normaloff>:/PyNoteBook/Resources/Bold.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -184,8 +184,8 @@
         <string>I</string>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Italic.png</normaloff>:/PyLogBook/Resources/Italic.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Italic.png</normaloff>:/PyNoteBook/Resources/Italic.png</iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -206,8 +206,8 @@
         <string>u</string>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Underline.png</normaloff>:/PyLogBook/Resources/Underline.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Underline.png</normaloff>:/PyNoteBook/Resources/Underline.png</iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -223,8 +223,8 @@
         <string>Table</string>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Bullet Table.png</normaloff>:/PyLogBook/Resources/Bullet Table.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Bullet Table.png</normaloff>:/PyNoteBook/Resources/Bullet Table.png</iconset>
        </property>
       </widget>
      </item>
@@ -237,8 +237,8 @@
         <string>.</string>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Number Table.png</normaloff>:/PyLogBook/Resources/Number Table.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Number Table.png</normaloff>:/PyNoteBook/Resources/Number Table.png</iconset>
        </property>
       </widget>
      </item>
@@ -284,8 +284,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Text Foreground.png</normaloff>:/PyLogBook/Resources/Text Foreground.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Text Foreground.png</normaloff>:/PyNoteBook/Resources/Text Foreground.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -320,8 +320,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Text Background.png</normaloff>:/PyLogBook/Resources/Text Background.png</iconset>
+        <iconset>
+         <normaloff>:/PyNoteBook/Resources/Text Background.png</normaloff>:/PyNoteBook/Resources/Text Background.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -347,7 +347,11 @@
     </layout>
    </item>
    <item>
-    <widget class="QTextEdit" name="textEdit"/>
+    <widget class="QTextEdit" name="textEdit">
+     <property name="styleSheet">
+      <string notr="true">background-color: white</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

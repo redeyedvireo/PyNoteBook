@@ -117,13 +117,6 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.setEnabled(enableFlag)
     self.setEnabled(enableFlag)
 
-    if enableFlag:
-      # Not sure why, but even when enabled, the background color for the text edit windows stays gray.  We override
-      # this here, but we shouldn't have to.
-      # TODO: Figure out why setting a style sheet is needed here (the background should be set to white automatically,
-      #       when the text edit widget is enabled.)
-      self.ui.textEdit.setStyleSheet('{ background-color: white; }')
-
   def setDocumentModified(self, modified):
     doc = self.ui.textEdit.document()
     doc.setModified(modified)
