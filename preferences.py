@@ -4,7 +4,7 @@ import os.path
 from pathlib import Path
 from PySide6 import QtCore
 
-from constants import kStartupLoadPreviousLog, \
+from constants import kStartupLoadPreviousNoteBook, \
                       kStartupEmptyWorkspace, \
                       kGeneralStartupLoad, \
                       kEditorDefaultTextSize, \
@@ -19,7 +19,7 @@ class Preferences():
 
     # Default prefs
     self.prefsMap = {
-      kGeneralStartupLoad: kStartupLoadPreviousLog,
+      kGeneralStartupLoad: kStartupLoadPreviousNoteBook,
       kEditorDefaultTextSize: 10,
       kEditorDefaultFontFamily: 'Arial',
       kFilesLastFile: '',

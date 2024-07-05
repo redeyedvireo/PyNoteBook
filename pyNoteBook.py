@@ -14,6 +14,7 @@ from page_data import PageData
 from page_recovery import PageRecovery
 from preferences import Preferences
 from page_info_dlg import CPageInfoDlg
+from prefs_dialog import PrefsDialog
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 
@@ -21,7 +22,7 @@ kLogFile = 'PyNoteBook.log'
 kAppName = 'PyNoteBook'
 
 from constants import kPrefsFileName, \
-                      kStartupLoadPreviousLog
+                      kStartupLoadPreviousNoteBook
 
 kMaxLogileSize = 1024 * 1024
 kMaxRecentFiles = 20
@@ -83,7 +84,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     previousFilepath = self.prefs.lastFile
 
     if previousFilepath is not None and len(previousFilepath) > 0:
-      if self.prefs.onStartupLoad == kStartupLoadPreviousLog:
+      if self.prefs.onStartupLoad == kStartupLoadPreviousNoteBook:
         # Reopen previously opened notebook.
         self.OpenNotebookFile(previousFilepath)
 
@@ -180,6 +181,15 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if self.currentPageData is not None:
       dlg = CPageInfoDlg(self, self.currentPageData)
       dlg.exec_()
+
+  @QtCore.Slot()
+  def on_actionSettings_triggered(self):
+    dlg = PrefsDialog(self.prefs, self)
+    result = dlg.exec_()
+
+    if result == QtWidgets.QDialog.DialogCode.Accepted:
+      self.prefs = dlg.preferences
+      self.prefs.writePrefsFile()
 
   def onPageSelected(self, pageId: ENTITY_ID):
     self.checkSavePage()        # Check if the current page is unsaved, and if so, ask user if he wants to save it.
