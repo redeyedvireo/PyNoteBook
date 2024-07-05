@@ -7,3 +7,4 @@ pyside6-uic title_label_widget.ui -o ui_title_label_widget.py
 pyside6-uic favorites_widget.ui -o ui_favorites_widget.py
 pyside6-uic page_info_dlg.ui -o ui_page_info_dlg.py
 pyside6-uic prefs_dialog.ui -o ui_prefs_dialog.py
+pyside6-uic about_dialog.ui -o ui_about_dialog.py

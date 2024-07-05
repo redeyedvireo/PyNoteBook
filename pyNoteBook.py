@@ -15,6 +15,7 @@ from page_recovery import PageRecovery
 from preferences import Preferences
 from page_info_dlg import CPageInfoDlg
 from prefs_dialog import PrefsDialog
+from about_dlg import AboutDialog
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 
@@ -190,6 +191,11 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if result == QtWidgets.QDialog.DialogCode.Accepted:
       self.prefs = dlg.preferences
       self.prefs.writePrefsFile()
+
+  @QtCore.Slot()
+  def on_actionAbout_NoteBook_triggered(self):
+    dlg = AboutDialog(self)
+    dlg.exec_()
 
   def onPageSelected(self, pageId: ENTITY_ID):
     self.checkSavePage()        # Check if the current page is unsaved, and if so, ask user if he wants to save it.
