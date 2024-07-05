@@ -197,6 +197,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     dlg = AboutDialog(self)
     dlg.exec_()
 
+  @QtCore.Slot()
+  def on_actionAbout_Qt_triggered(self):
+    app = QtWidgets.QApplication.instance()
+    if type(app) is QtWidgets.QApplication:
+      app.aboutQt()
+
   def onPageSelected(self, pageId: ENTITY_ID):
     self.checkSavePage()        # Check if the current page is unsaved, and if so, ask user if he wants to save it.
 
