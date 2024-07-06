@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="NoteBook">
+    <file>Resources/NewPage.png</file>
     <file>Resources/clear-formatting.png</file>
     <file>Resources/ToDoList.png</file>
     <file>Resources/Strikethrough.png</file>
