@@ -16,6 +16,7 @@ from preferences import Preferences
 from page_info_dlg import CPageInfoDlg
 from prefs_dialog import PrefsDialog
 from about_dlg import AboutDialog
+from favorites_manager import FavoritesManager
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 
@@ -57,13 +58,13 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.savePageButton.setEnabled(False)
     self.ui.editorStackedWidget.setEnabled(True)
 
-    self.setConnections()
+    self.favoritesManager = FavoritesManager()
 
+    self.setConnections()
 
   def initialize(self):
     self.ui.pageTree.initialize(self.db)
     self.ui.recentlyViewedList.initialize(self.db)
-    self.ui.favoritesWidget.initialize(self.db)
     self.ui.titleLabelWidget.initialize()
 
     self.prefs.readPrefsFile()
@@ -105,10 +106,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     # Page History Widget
     self.ui.recentlyViewedList.PHW_PageSelected.connect(self.onPageSelected)
-
-    # Favorites Widget
-    self.ui.favoritesWidget.FW_PageSelected.connect(self.onPageSelected)
-    self.ui.favoritesWidget.FW_PageDefavorited.connect(self.onPageDefavorited)
 
     # Title Label Widget
     self.ui.titleLabelWidget.TLW_SetPageAsFavorite.connect(self.onAddPageToFavorites)
@@ -203,6 +200,14 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if type(app) is QtWidgets.QApplication:
       app.aboutQt()
 
+  def onFavoriteSelected(self):
+    sender = self.sender()
+
+    if type(sender) is QtGui.QAction:
+      pageId = sender.data()
+      if pageId != kInvalidPageId:
+        self.onPageSelected(pageId)
+
   def onPageSelected(self, pageId: ENTITY_ID):
     self.checkSavePage()        # Check if the current page is unsaved, and if so, ask user if he wants to save it.
 
@@ -255,7 +260,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   def onAddPageToFavorites(self):
     if self.currentPageIsValid() and self.currentPageData is not None and not self.currentPageData.m_bIsFavorite:
-      self.ui.favoritesWidget.addPage(self.currentPageId, self.currentPageData.m_title)
+      self.favoritesManager.addFavoriteItem(self.currentPageId, self.currentPageData.m_title)
+      self.rebuildFavoritesMenu()
       self.db.setPageFavoriteStatus(self.currentPageId, True)
       self.ui.titleLabelWidget.setFavoritesIcon(True)
       self.currentPageData.m_bIsFavorite = True
@@ -263,7 +269,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def onRemovePageFromFavorites(self):
     if self.currentPageIsValid() and self.currentPageData is not None and self.currentPageData.m_bIsFavorite:
       self.onPageDefavorited(self.currentPageId)
-      self.ui.favoritesWidget.removePage(self.currentPageId)
+      self.favoritesManager.removeFavoriteItem(self.currentPageId)
+      self.rebuildFavoritesMenu()
       self.currentPageData.m_bIsFavorite = False
 
   def onRecentFileSelected(self):
@@ -331,9 +338,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
         if pageHistoryStr is not None:
           self.ui.recentlyViewedList.setPageHistory(pageHistoryStr)
 
-        # Read favorites
-        favoritePages = self.db.getFavoritePages()
-        self.ui.favoritesWidget.addPages(favoritePages)
+        self.addFavoritesToFavoritesMenu()
 
         self.addFileToRecentFilesList()
         self.checkForMissingPages()
@@ -343,6 +348,41 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     else:
       logging.error(f'NoteBook {self.currentNoteBookPath} does not exist')
       return False
+
+  def addFavoritesToFavoritesMenu(self):
+    favoritePages = self.db.getFavoritePages()
+    self.favoritesManager.setFavoriteItems(favoritePages)
+
+    self.rebuildFavoritesMenu()
+
+  def rebuildFavoritesMenu(self):
+    """ Rebuilds the favorites menu from the contents of the favorites Manager. """
+    self.removeExistingFavorites()
+    favoritesSubmenu = self.getFavoritesSubmenu()
+
+    for page in self.favoritesManager.favoritesList:
+      action = QtGui.QAction(page[1], self)
+      action.setData(page[0])     # Set pageId as the data element
+      favoritesSubmenu.addAction(action)
+      action.triggered.connect(self.onFavoriteSelected)
+
+  def removeExistingFavorites(self):
+    favoritesSubmenu = self.getFavoritesSubmenu()
+    favoritesSubmenu.clear()
+
+  def getFavoritesSubmenu(self) -> QtWidgets.QMenu:
+    favoritesSubmenu = self.ui.actionFavorites.menu()
+
+    if favoritesSubmenu is None:
+      favoritesSubmenu = QtWidgets.QMenu()
+      self.ui.actionFavorites.setMenu(favoritesSubmenu)
+
+    if favoritesSubmenu is not None and type(favoritesSubmenu) is QtWidgets.QMenu:
+      return favoritesSubmenu
+    else:
+      # Should never get here
+      logging.error(f'[MainWindow.getFavoritesSubmenu] Returning a detached empty menu')
+      return QtWidgets.QMenu()
 
   def addFileToRecentFilesList(self):
     if self.currentNoteBookPath in self.recentFileList:
@@ -382,6 +422,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       # Save page order
       pageOrderStr = self.ui.pageTree.getPageOrderString()
       self.db.setPageOrder(pageOrderStr)
+
+      self.favoritesManager.clear()
+      self.rebuildFavoritesMenu()
 
       self.db.closeDatabase()
 
@@ -513,7 +556,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.tagList.clear()
     self.ui.recentlyViewedList.clear()
     self.ui.searchWidget.clear()
-    self.ui.favoritesWidget.clear()
+    self.favoritesManager.clear()
 
   def checkSavePage(self):
     if self.pageModified():

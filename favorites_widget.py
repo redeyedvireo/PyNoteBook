@@ -1,3 +1,5 @@
+# NOTE: This widget is not used any more.  Favorites are now being held in the Favorites menu.
+
 from PySide6 import QtCore, QtWidgets, QtGui
 from database import Database
 from notebook_types import ENTITY_ID, ID_TITLE_LIST
