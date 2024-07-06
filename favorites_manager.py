@@ -14,7 +14,7 @@ class FavoritesManager:
     self.favoritesList = favoritePages
 
   def addFavoriteItem(self, pageId: ENTITY_ID, pageTitle: str):
-    if self.pageExistsInList(pageId):
+    if not self.pageExistsInList(pageId):
       self.favoritesList.append((pageId, pageTitle))
 
   def removeFavoriteItem(self, pageId: ENTITY_ID):
@@ -30,3 +30,25 @@ class FavoritesManager:
         return True
 
     return False   # Not found
+
+  def getRemovedItems(self, newFavoritesList: ID_TITLE_LIST) -> list[ENTITY_ID]:
+    """Returns the list of all page IDs that have been removed.  That is, returns a list
+       of all page IDs that exist in self.favoritesList that do not exist in newFavoritesList.
+
+    Args:
+        newFavoritesList (ID_TITLE_LIST): New, updated favorites list
+
+    Returns:
+        list[ENTITY_ID]: List of page IDs contained in self.favoritesList that
+                          don't exist in newFavoritesList.
+    """
+    removedIds = []
+
+    newPageIds = [ item[0] for item in newFavoritesList ]
+    existingPageIds = [ item[0] for item in self.favoritesList ]
+
+    for pageId in existingPageIds:
+      if pageId not in newPageIds:
+        removedIds.append(pageId)
+
+    return removedIds

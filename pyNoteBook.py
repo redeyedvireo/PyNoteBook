@@ -16,6 +16,7 @@ from preferences import Preferences
 from page_info_dlg import CPageInfoDlg
 from prefs_dialog import PrefsDialog
 from about_dlg import AboutDialog
+from favorites_dialog import FavoritesDialog
 from favorites_manager import FavoritesManager
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
@@ -173,6 +174,22 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.closeNotebookFile()
     self.clearAllControls()
     self.enableDataEntry(False)
+
+  @QtCore.Slot()
+  def on_actionManage_Favorites_triggered(self):
+    dlg = FavoritesDialog(self.favoritesManager.favoritesList, self)
+    result = dlg.exec_()
+
+    if result == QtWidgets.QDialog.DialogCode.Accepted:
+      newFavoritesList = dlg.favoritesList
+      removedPageIds = self.favoritesManager.getRemovedItems(newFavoritesList)
+
+      # Update all removed pages to have their favorite flag turned off
+      for pageId in removedPageIds:
+        self.db.setPageFavoriteStatus(pageId, False)
+
+      self.favoritesManager.setFavoriteItems(newFavoritesList)
+      self.rebuildFavoritesMenu()
 
   @QtCore.Slot()
   def on_actionPage_Info_triggered(self):
