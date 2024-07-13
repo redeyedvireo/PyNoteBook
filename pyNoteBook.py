@@ -18,6 +18,7 @@ from prefs_dialog import PrefsDialog
 from about_dlg import AboutDialog
 from favorites_dialog import FavoritesDialog
 from favorites_manager import FavoritesManager
+from search_dialog import SearchDialog
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 
@@ -174,6 +175,13 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.closeNotebookFile()
     self.clearAllControls()
     self.enableDataEntry(False)
+
+  @QtCore.Slot()
+  def on_actionSearch_triggered(self):
+    dlg = SearchDialog(self.db, self.ui.pageTree, self)
+    dlg.show()
+
+    dlg.pageSelectedSignal.connect(self.onPageSelected)
 
   @QtCore.Slot()
   def on_actionManage_Favorites_triggered(self):
@@ -572,7 +580,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.dateTree.clear()
     self.ui.tagList.clear()
     self.ui.recentlyViewedList.clear()
-    self.ui.searchWidget.clear()
     self.favoritesManager.clear()
 
   def checkSavePage(self):

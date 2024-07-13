@@ -27,7 +27,6 @@ from date_tree import CDateTree
 from page_history_widget import CPageHistoryWidget
 from page_title_list import CPageTitleList
 from page_tree import CPageTree
-from search_widget import CSearchWidget
 from tag_list import CTagList
 from title_label_widget import CTitleLabelWidget
 import pynotebook_rc
@@ -36,7 +35,7 @@ class Ui_PyNoteBookWindow(object):
     def setupUi(self, PyNoteBookWindow):
         if not PyNoteBookWindow.objectName():
             PyNoteBookWindow.setObjectName(u"PyNoteBookWindow")
-        PyNoteBookWindow.resize(855, 768)
+        PyNoteBookWindow.resize(909, 768)
         icon = QIcon()
         icon.addFile(u":/NoteBook/NoteBook.ico", QSize(), QIcon.Normal, QIcon.Off)
         PyNoteBookWindow.setWindowIcon(icon)
@@ -91,6 +90,11 @@ class Ui_PyNoteBookWindow(object):
         self.actionManage_Favorites.setObjectName(u"actionManage_Favorites")
         self.actionFavorites = QAction(PyNoteBookWindow)
         self.actionFavorites.setObjectName(u"actionFavorites")
+        self.actionSearch = QAction(PyNoteBookWindow)
+        self.actionSearch.setObjectName(u"actionSearch")
+        icon2 = QIcon()
+        icon2.addFile(u":/NoteBook/Resources/Search.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionSearch.setIcon(icon2)
         self.centralWidget = QWidget(PyNoteBookWindow)
         self.centralWidget.setObjectName(u"centralWidget")
         self.verticalLayout = QVBoxLayout(self.centralWidget)
@@ -155,7 +159,7 @@ class Ui_PyNoteBookWindow(object):
         PyNoteBookWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QMenuBar(PyNoteBookWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 855, 21))
+        self.menuBar.setGeometry(QRect(0, 0, 909, 21))
         self.menuFile = QMenu(self.menuBar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuImport = QMenu(self.menuFile)
@@ -170,6 +174,8 @@ class Ui_PyNoteBookWindow(object):
         self.menuHelp.setObjectName(u"menuHelp")
         self.menuPage = QMenu(self.menuBar)
         self.menuPage.setObjectName(u"menuPage")
+        self.menuSearch = QMenu(self.menuBar)
+        self.menuSearch.setObjectName(u"menuSearch")
         PyNoteBookWindow.setMenuBar(self.menuBar)
         self.statusBar = QStatusBar(PyNoteBookWindow)
         self.statusBar.setObjectName(u"statusBar")
@@ -181,7 +187,7 @@ class Ui_PyNoteBookWindow(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.navigationDockWidget.sizePolicy().hasHeightForWidth())
         self.navigationDockWidget.setSizePolicy(sizePolicy1)
-        self.navigationDockWidget.setMinimumSize(QSize(280, 144))
+        self.navigationDockWidget.setMinimumSize(QSize(280, 158))
         self.dockWidgetContents = QWidget()
         self.dockWidgetContents.setObjectName(u"dockWidgetContents")
         self.verticalLayout_3 = QVBoxLayout(self.dockWidgetContents)
@@ -250,55 +256,24 @@ class Ui_PyNoteBookWindow(object):
         self.verticalLayout_7.addWidget(self.tagList)
 
         self.navigationTabWidget.addTab(self.tagsTab, "")
+        self.historyTab = QWidget()
+        self.historyTab.setObjectName(u"historyTab")
+        self.verticalLayout_10 = QVBoxLayout(self.historyTab)
+        self.verticalLayout_10.setSpacing(0)
+        self.verticalLayout_10.setContentsMargins(11, 11, 11, 11)
+        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
+        self.recentlyViewedList = CPageHistoryWidget(self.historyTab)
+        self.recentlyViewedList.setObjectName(u"recentlyViewedList")
+
+        self.verticalLayout_10.addWidget(self.recentlyViewedList)
+
+        self.navigationTabWidget.addTab(self.historyTab, "")
 
         self.verticalLayout_3.addWidget(self.navigationTabWidget)
 
         self.navigationDockWidget.setWidget(self.dockWidgetContents)
         PyNoteBookWindow.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.navigationDockWidget)
-        self.recentlyViewedDockWidget = QDockWidget(PyNoteBookWindow)
-        self.recentlyViewedDockWidget.setObjectName(u"recentlyViewedDockWidget")
-        self.recentlyViewedDockWidget.setMinimumSize(QSize(294, 146))
-        self.dockWidgetContents_3 = QWidget()
-        self.dockWidgetContents_3.setObjectName(u"dockWidgetContents_3")
-        self.verticalLayout_2 = QVBoxLayout(self.dockWidgetContents_3)
-        self.verticalLayout_2.setSpacing(6)
-        self.verticalLayout_2.setContentsMargins(11, 11, 11, 11)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.auxNavigationTabWidget = QTabWidget(self.dockWidgetContents_3)
-        self.auxNavigationTabWidget.setObjectName(u"auxNavigationTabWidget")
-        self.auxNavigationTabWidget.setMinimumSize(QSize(0, 0))
-        self.auxNavigationTabWidget.setTabPosition(QTabWidget.South)
-        self.pageHistoryTab = QWidget()
-        self.pageHistoryTab.setObjectName(u"pageHistoryTab")
-        self.verticalLayout_8 = QVBoxLayout(self.pageHistoryTab)
-        self.verticalLayout_8.setSpacing(1)
-        self.verticalLayout_8.setContentsMargins(11, 11, 11, 11)
-        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.verticalLayout_8.setContentsMargins(1, 1, 1, 1)
-        self.recentlyViewedList = CPageHistoryWidget(self.pageHistoryTab)
-        self.recentlyViewedList.setObjectName(u"recentlyViewedList")
-
-        self.verticalLayout_8.addWidget(self.recentlyViewedList)
-
-        self.auxNavigationTabWidget.addTab(self.pageHistoryTab, "")
-        self.searchTab = QWidget()
-        self.searchTab.setObjectName(u"searchTab")
-        self.verticalLayout_9 = QVBoxLayout(self.searchTab)
-        self.verticalLayout_9.setSpacing(1)
-        self.verticalLayout_9.setContentsMargins(11, 11, 11, 11)
-        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
-        self.verticalLayout_9.setContentsMargins(1, 1, 1, 1)
-        self.searchWidget = CSearchWidget(self.searchTab)
-        self.searchWidget.setObjectName(u"searchWidget")
-
-        self.verticalLayout_9.addWidget(self.searchWidget)
-
-        self.auxNavigationTabWidget.addTab(self.searchTab, "")
-
-        self.verticalLayout_2.addWidget(self.auxNavigationTabWidget)
-
-        self.recentlyViewedDockWidget.setWidget(self.dockWidgetContents_3)
-        PyNoteBookWindow.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.recentlyViewedDockWidget)
         self.toolBar = QToolBar(PyNoteBookWindow)
         self.toolBar.setObjectName(u"toolBar")
         self.toolBar.setMovable(False)
@@ -308,6 +283,7 @@ class Ui_PyNoteBookWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuEdit.menuAction())
         self.menuBar.addAction(self.menuPage.menuAction())
+        self.menuBar.addAction(self.menuSearch.menuAction())
         self.menuBar.addAction(self.menuFavorites.menuAction())
         self.menuBar.addAction(self.menuSettings.menuAction())
         self.menuBar.addAction(self.menuHelp.menuAction())
@@ -334,6 +310,7 @@ class Ui_PyNoteBookWindow(object):
         self.menuPage.addAction(self.actionNew_Page)
         self.menuPage.addSeparator()
         self.menuPage.addAction(self.actionPage_Info)
+        self.menuSearch.addAction(self.actionSearch)
         self.toolBar.addAction(self.actionNew_Page)
         self.toolBar.addAction(self.actionNew_To_Do_List)
         self.toolBar.addAction(self.actionNew_Top_Level_Page)
@@ -344,8 +321,7 @@ class Ui_PyNoteBookWindow(object):
         self.actionExit.triggered.connect(PyNoteBookWindow.close)
 
         self.editorStackedWidget.setCurrentIndex(0)
-        self.navigationTabWidget.setCurrentIndex(0)
-        self.auxNavigationTabWidget.setCurrentIndex(1)
+        self.navigationTabWidget.setCurrentIndex(4)
 
 
         QMetaObject.connectSlotsByName(PyNoteBookWindow)
@@ -380,6 +356,7 @@ class Ui_PyNoteBookWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.actionManage_Favorites.setText(QCoreApplication.translate("PyNoteBookWindow", u"Manage Favorites", None))
         self.actionFavorites.setText(QCoreApplication.translate("PyNoteBookWindow", u"Favorites", None))
+        self.actionSearch.setText(QCoreApplication.translate("PyNoteBookWindow", u"Search", None))
         self.label_5.setText(QCoreApplication.translate("PyNoteBookWindow", u"Tags", None))
         self.messageLabel.setText("")
 #if QT_CONFIG(tooltip)
@@ -396,6 +373,7 @@ class Ui_PyNoteBookWindow(object):
         self.menuFavorites.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Favorites", None))
         self.menuHelp.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Help", None))
         self.menuPage.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Page", None))
+        self.menuSearch.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Search", None))
         self.navigationDockWidget.setWindowTitle(QCoreApplication.translate("PyNoteBookWindow", u"Navigation", None))
         ___qtreewidgetitem = self.pageTree.headerItem()
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Page Title", None));
@@ -405,9 +383,7 @@ class Ui_PyNoteBookWindow(object):
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Date", None));
         self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.dateTab), QCoreApplication.translate("PyNoteBookWindow", u"Date", None))
         self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.tagsTab), QCoreApplication.translate("PyNoteBookWindow", u"Tags", None))
-        self.recentlyViewedDockWidget.setWindowTitle("")
-        self.auxNavigationTabWidget.setTabText(self.auxNavigationTabWidget.indexOf(self.pageHistoryTab), QCoreApplication.translate("PyNoteBookWindow", u"Recently Viewed", None))
-        self.auxNavigationTabWidget.setTabText(self.auxNavigationTabWidget.indexOf(self.searchTab), QCoreApplication.translate("PyNoteBookWindow", u"Search", None))
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.historyTab), QCoreApplication.translate("PyNoteBookWindow", u"Recently Viewed", None))
         self.toolBar.setWindowTitle(QCoreApplication.translate("PyNoteBookWindow", u"toolBar", None))
     # retranslateUi
 

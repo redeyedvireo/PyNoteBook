@@ -487,6 +487,41 @@ class Database:
 
     return pageData
 
+  def getPageTextItems(self, pageId: ENTITY_ID) -> tuple[str, str, str] | None:
+    """Gets all text items from a page.  This includes the title, contents, and tags.
+
+    Args:
+        pageId (ENTITY_ID): Page ID of page to query
+
+    Returns:
+        tuple[str] | None: List of text from the page: [title, contents, tags] or None
+        if an error occurred.
+    """
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare("select pagetitle, contents, tags from pages where pageid=?")
+    queryObj.bindValue(0, pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.getPageTextItems] error: {sqlErr.text()}')
+      return None
+
+    # If queryObj.first() returns False, then the page doesn't exist
+    if not queryObj.first():
+      return None
+
+    pageTitle = unknownToString(self.getQueryField(queryObj, 'pagetitle'))
+    pageContents = unknownToString(self.getQueryField(queryObj, 'contents'))
+    tags = unknownToString(self.getQueryField(queryObj, 'tags'))
+
+    # TODO: Check for encryption, and if encrypted, decrypt
+
+    return (pageTitle, pageContents, tags)
+
   # TODO: Should return an error message
   def saveNewPage(self, pageData: PageData) -> bool:
     return True
