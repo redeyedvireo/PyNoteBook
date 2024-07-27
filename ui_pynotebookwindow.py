@@ -16,11 +16,11 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QDockWidget, QHBoxLayout, QHeaderView,
-    QLabel, QLineEdit, QListWidgetItem, QMainWindow,
-    QMenu, QMenuBar, QPushButton, QSizePolicy,
-    QStackedWidget, QStatusBar, QTabWidget, QToolBar,
-    QTreeWidgetItem, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QLabel,
+    QLineEdit, QListWidgetItem, QMainWindow, QMenu,
+    QMenuBar, QPushButton, QSizePolicy, QStackedWidget,
+    QStatusBar, QTabWidget, QToolBar, QTreeWidgetItem,
+    QVBoxLayout, QWidget)
 
 from RichTextEdit import RichTextEditWidget
 from date_tree import CDateTree
@@ -35,7 +35,7 @@ class Ui_PyNoteBookWindow(object):
     def setupUi(self, PyNoteBookWindow):
         if not PyNoteBookWindow.objectName():
             PyNoteBookWindow.setObjectName(u"PyNoteBookWindow")
-        PyNoteBookWindow.resize(909, 768)
+        PyNoteBookWindow.resize(1076, 768)
         icon = QIcon()
         icon.addFile(u":/NoteBook/NoteBook.ico", QSize(), QIcon.Normal, QIcon.Off)
         PyNoteBookWindow.setWindowIcon(icon)
@@ -97,110 +97,19 @@ class Ui_PyNoteBookWindow(object):
         self.actionSearch.setIcon(icon2)
         self.centralWidget = QWidget(PyNoteBookWindow)
         self.centralWidget.setObjectName(u"centralWidget")
-        self.verticalLayout = QVBoxLayout(self.centralWidget)
-        self.verticalLayout.setSpacing(6)
-        self.verticalLayout.setContentsMargins(11, 11, 11, 11)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.titleLabelWidget = CTitleLabelWidget(self.centralWidget)
-        self.titleLabelWidget.setObjectName(u"titleLabelWidget")
-
-        self.verticalLayout.addWidget(self.titleLabelWidget)
-
-        self.editorStackedWidget = QStackedWidget(self.centralWidget)
-        self.editorStackedWidget.setObjectName(u"editorStackedWidget")
-        self.editorStackedWidget.setSizeIncrement(QSize(0, 1))
-        self.pageTextEdit = RichTextEditWidget()
-        self.pageTextEdit.setObjectName(u"pageTextEdit")
-        self.horizontalLayout_3 = QHBoxLayout(self.pageTextEdit)
-        self.horizontalLayout_3.setSpacing(6)
-        self.horizontalLayout_3.setContentsMargins(11, 11, 11, 11)
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.editorStackedWidget.addWidget(self.pageTextEdit)
-
-        self.verticalLayout.addWidget(self.editorStackedWidget)
-
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setSpacing(6)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.label_5 = QLabel(self.centralWidget)
-        self.label_5.setObjectName(u"label_5")
-
-        self.horizontalLayout.addWidget(self.label_5)
-
-        self.tagsEdit = QLineEdit(self.centralWidget)
-        self.tagsEdit.setObjectName(u"tagsEdit")
-
-        self.horizontalLayout.addWidget(self.tagsEdit)
-
-
-        self.verticalLayout.addLayout(self.horizontalLayout)
-
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setSpacing(6)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.messageLabel = QLabel(self.centralWidget)
-        self.messageLabel.setObjectName(u"messageLabel")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.messageLabel.sizePolicy().hasHeightForWidth())
-        self.messageLabel.setSizePolicy(sizePolicy)
-
-        self.horizontalLayout_2.addWidget(self.messageLabel)
-
-        self.savePageButton = QPushButton(self.centralWidget)
-        self.savePageButton.setObjectName(u"savePageButton")
-
-        self.horizontalLayout_2.addWidget(self.savePageButton)
-
-
-        self.verticalLayout.addLayout(self.horizontalLayout_2)
-
-        PyNoteBookWindow.setCentralWidget(self.centralWidget)
-        self.menuBar = QMenuBar(PyNoteBookWindow)
-        self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 909, 21))
-        self.menuFile = QMenu(self.menuBar)
-        self.menuFile.setObjectName(u"menuFile")
-        self.menuImport = QMenu(self.menuFile)
-        self.menuImport.setObjectName(u"menuImport")
-        self.menuEdit = QMenu(self.menuBar)
-        self.menuEdit.setObjectName(u"menuEdit")
-        self.menuSettings = QMenu(self.menuBar)
-        self.menuSettings.setObjectName(u"menuSettings")
-        self.menuFavorites = QMenu(self.menuBar)
-        self.menuFavorites.setObjectName(u"menuFavorites")
-        self.menuHelp = QMenu(self.menuBar)
-        self.menuHelp.setObjectName(u"menuHelp")
-        self.menuPage = QMenu(self.menuBar)
-        self.menuPage.setObjectName(u"menuPage")
-        self.menuSearch = QMenu(self.menuBar)
-        self.menuSearch.setObjectName(u"menuSearch")
-        PyNoteBookWindow.setMenuBar(self.menuBar)
-        self.statusBar = QStatusBar(PyNoteBookWindow)
-        self.statusBar.setObjectName(u"statusBar")
-        PyNoteBookWindow.setStatusBar(self.statusBar)
-        self.navigationDockWidget = QDockWidget(PyNoteBookWindow)
-        self.navigationDockWidget.setObjectName(u"navigationDockWidget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.navigationDockWidget.sizePolicy().hasHeightForWidth())
-        self.navigationDockWidget.setSizePolicy(sizePolicy1)
-        self.navigationDockWidget.setMinimumSize(QSize(280, 158))
-        self.dockWidgetContents = QWidget()
-        self.dockWidgetContents.setObjectName(u"dockWidgetContents")
-        self.verticalLayout_3 = QVBoxLayout(self.dockWidgetContents)
-        self.verticalLayout_3.setSpacing(6)
-        self.verticalLayout_3.setContentsMargins(11, 11, 11, 11)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.navigationTabWidget = QTabWidget(self.dockWidgetContents)
+        self.horizontalLayout_4 = QHBoxLayout(self.centralWidget)
+        self.horizontalLayout_4.setSpacing(4)
+        self.horizontalLayout_4.setContentsMargins(11, 11, 11, 11)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(4, 4, 4, 4)
+        self.navigationTabWidget = QTabWidget(self.centralWidget)
         self.navigationTabWidget.setObjectName(u"navigationTabWidget")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(1)
-        sizePolicy2.setHeightForWidth(self.navigationTabWidget.sizePolicy().hasHeightForWidth())
-        self.navigationTabWidget.setSizePolicy(sizePolicy2)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setHeightForWidth(self.navigationTabWidget.sizePolicy().hasHeightForWidth())
+        self.navigationTabWidget.setSizePolicy(sizePolicy)
+        self.navigationTabWidget.setMinimumSize(QSize(300, 0))
         self.treeTab = QWidget()
         self.treeTab.setObjectName(u"treeTab")
         self.verticalLayout_4 = QVBoxLayout(self.treeTab)
@@ -270,10 +179,100 @@ class Ui_PyNoteBookWindow(object):
 
         self.navigationTabWidget.addTab(self.historyTab, "")
 
-        self.verticalLayout_3.addWidget(self.navigationTabWidget)
+        self.horizontalLayout_4.addWidget(self.navigationTabWidget)
 
-        self.navigationDockWidget.setWidget(self.dockWidgetContents)
-        PyNoteBookWindow.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.navigationDockWidget)
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setSpacing(6)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.titleLabelWidget = CTitleLabelWidget(self.centralWidget)
+        self.titleLabelWidget.setObjectName(u"titleLabelWidget")
+
+        self.verticalLayout.addWidget(self.titleLabelWidget)
+
+        self.editorStackedWidget = QStackedWidget(self.centralWidget)
+        self.editorStackedWidget.setObjectName(u"editorStackedWidget")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.editorStackedWidget.sizePolicy().hasHeightForWidth())
+        self.editorStackedWidget.setSizePolicy(sizePolicy1)
+        self.editorStackedWidget.setSizeIncrement(QSize(0, 1))
+        self.pageTextEdit = RichTextEditWidget()
+        self.pageTextEdit.setObjectName(u"pageTextEdit")
+        sizePolicy1.setHeightForWidth(self.pageTextEdit.sizePolicy().hasHeightForWidth())
+        self.pageTextEdit.setSizePolicy(sizePolicy1)
+        self.horizontalLayout_3 = QHBoxLayout(self.pageTextEdit)
+        self.horizontalLayout_3.setSpacing(6)
+        self.horizontalLayout_3.setContentsMargins(11, 11, 11, 11)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.editorStackedWidget.addWidget(self.pageTextEdit)
+
+        self.verticalLayout.addWidget(self.editorStackedWidget)
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setSpacing(6)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.label_5 = QLabel(self.centralWidget)
+        self.label_5.setObjectName(u"label_5")
+
+        self.horizontalLayout.addWidget(self.label_5)
+
+        self.tagsEdit = QLineEdit(self.centralWidget)
+        self.tagsEdit.setObjectName(u"tagsEdit")
+
+        self.horizontalLayout.addWidget(self.tagsEdit)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout)
+
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setSpacing(6)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.messageLabel = QLabel(self.centralWidget)
+        self.messageLabel.setObjectName(u"messageLabel")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        sizePolicy2.setHorizontalStretch(1)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.messageLabel.sizePolicy().hasHeightForWidth())
+        self.messageLabel.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_2.addWidget(self.messageLabel)
+
+        self.savePageButton = QPushButton(self.centralWidget)
+        self.savePageButton.setObjectName(u"savePageButton")
+
+        self.horizontalLayout_2.addWidget(self.savePageButton)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+
+
+        self.horizontalLayout_4.addLayout(self.verticalLayout)
+
+        PyNoteBookWindow.setCentralWidget(self.centralWidget)
+        self.menuBar = QMenuBar(PyNoteBookWindow)
+        self.menuBar.setObjectName(u"menuBar")
+        self.menuBar.setGeometry(QRect(0, 0, 1076, 21))
+        self.menuFile = QMenu(self.menuBar)
+        self.menuFile.setObjectName(u"menuFile")
+        self.menuImport = QMenu(self.menuFile)
+        self.menuImport.setObjectName(u"menuImport")
+        self.menuEdit = QMenu(self.menuBar)
+        self.menuEdit.setObjectName(u"menuEdit")
+        self.menuSettings = QMenu(self.menuBar)
+        self.menuSettings.setObjectName(u"menuSettings")
+        self.menuFavorites = QMenu(self.menuBar)
+        self.menuFavorites.setObjectName(u"menuFavorites")
+        self.menuHelp = QMenu(self.menuBar)
+        self.menuHelp.setObjectName(u"menuHelp")
+        self.menuPage = QMenu(self.menuBar)
+        self.menuPage.setObjectName(u"menuPage")
+        self.menuSearch = QMenu(self.menuBar)
+        self.menuSearch.setObjectName(u"menuSearch")
+        PyNoteBookWindow.setMenuBar(self.menuBar)
+        self.statusBar = QStatusBar(PyNoteBookWindow)
+        self.statusBar.setObjectName(u"statusBar")
+        PyNoteBookWindow.setStatusBar(self.statusBar)
         self.toolBar = QToolBar(PyNoteBookWindow)
         self.toolBar.setObjectName(u"toolBar")
         self.toolBar.setMovable(False)
@@ -320,8 +319,8 @@ class Ui_PyNoteBookWindow(object):
         self.retranslateUi(PyNoteBookWindow)
         self.actionExit.triggered.connect(PyNoteBookWindow.close)
 
-        self.editorStackedWidget.setCurrentIndex(0)
         self.navigationTabWidget.setCurrentIndex(4)
+        self.editorStackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(PyNoteBookWindow)
@@ -357,6 +356,15 @@ class Ui_PyNoteBookWindow(object):
         self.actionManage_Favorites.setText(QCoreApplication.translate("PyNoteBookWindow", u"Manage Favorites", None))
         self.actionFavorites.setText(QCoreApplication.translate("PyNoteBookWindow", u"Favorites", None))
         self.actionSearch.setText(QCoreApplication.translate("PyNoteBookWindow", u"Search", None))
+        ___qtreewidgetitem = self.pageTree.headerItem()
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Page Title", None));
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.treeTab), QCoreApplication.translate("PyNoteBookWindow", u"Tree", None))
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.listTab), QCoreApplication.translate("PyNoteBookWindow", u"List", None))
+        ___qtreewidgetitem1 = self.dateTree.headerItem()
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Date", None));
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.dateTab), QCoreApplication.translate("PyNoteBookWindow", u"Date", None))
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.tagsTab), QCoreApplication.translate("PyNoteBookWindow", u"Tags", None))
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.historyTab), QCoreApplication.translate("PyNoteBookWindow", u"Recently Viewed", None))
         self.label_5.setText(QCoreApplication.translate("PyNoteBookWindow", u"Tags", None))
         self.messageLabel.setText("")
 #if QT_CONFIG(tooltip)
@@ -374,16 +382,6 @@ class Ui_PyNoteBookWindow(object):
         self.menuHelp.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Help", None))
         self.menuPage.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Page", None))
         self.menuSearch.setTitle(QCoreApplication.translate("PyNoteBookWindow", u"Search", None))
-        self.navigationDockWidget.setWindowTitle(QCoreApplication.translate("PyNoteBookWindow", u"Navigation", None))
-        ___qtreewidgetitem = self.pageTree.headerItem()
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Page Title", None));
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.treeTab), QCoreApplication.translate("PyNoteBookWindow", u"Tree", None))
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.listTab), QCoreApplication.translate("PyNoteBookWindow", u"List", None))
-        ___qtreewidgetitem1 = self.dateTree.headerItem()
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Date", None));
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.dateTab), QCoreApplication.translate("PyNoteBookWindow", u"Date", None))
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.tagsTab), QCoreApplication.translate("PyNoteBookWindow", u"Tags", None))
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.historyTab), QCoreApplication.translate("PyNoteBookWindow", u"Recently Viewed", None))
         self.toolBar.setWindowTitle(QCoreApplication.translate("PyNoteBookWindow", u"toolBar", None))
     # retranslateUi
 
