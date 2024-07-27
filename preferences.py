@@ -12,7 +12,8 @@ from constants import kStartupLoadPreviousNoteBook, \
                       kFilesLastFile, \
                       kRecentFiles, \
                       kWindowSize, \
-                      kWindowPos
+                      kWindowPos, \
+                      kNavigationTab
 class Preferences():
   def __init__(self, prefsFilePath) -> None:
     self.prefsFilePath = prefsFilePath
@@ -25,7 +26,8 @@ class Preferences():
       kFilesLastFile: '',
       kRecentFiles: [],
       kWindowSize: '',
-      kWindowPos: ''
+      kWindowPos: '',
+      kNavigationTab: 0
     }
 
   def readPrefsFile(self):
@@ -45,6 +47,7 @@ class Preferences():
         self.prefsMap[kFilesLastFile] = configObj.get('files', 'lastfile', fallback='')
         self.prefsMap[kWindowPos] = configObj.get('window', 'pos', fallback='')
         self.prefsMap[kWindowSize] = configObj.get('window', 'size', fallback='')
+        self.prefsMap[kNavigationTab] = configObj.get('navigation', 'tab', fallback=0)
 
         # Read recent files list
         if configObj.has_section(kRecentFiles):
@@ -123,6 +126,14 @@ class Preferences():
   @onStartupLoad.setter
   def onStartupLoad(self, value: str):
     self.prefsMap[kGeneralStartupLoad] = value
+
+  @property
+  def selectedNavigationTab(self) -> int:
+    return int(self.prefsMap[kNavigationTab])
+
+  @selectedNavigationTab.setter
+  def selectedNavigationTab(self, value: int):
+    self.prefsMap[kNavigationTab] = value
 
   @property
   def lastFile(self) -> str:

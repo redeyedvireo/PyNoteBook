@@ -87,6 +87,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     previousFilepath = self.prefs.lastFile
 
+    self.ui.navigationTabWidget.setCurrentIndex(self.prefs.selectedNavigationTab)
+
     if previousFilepath is not None and len(previousFilepath) > 0:
       if self.prefs.onStartupLoad == kStartupLoadPreviousNoteBook:
         # Reopen previously opened notebook.
@@ -641,6 +643,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.prefs.windowSize = self.size()
     self.prefs.lastFile = self.currentNoteBookPath
     self.prefs.recentFiles = self.recentFileList
+    self.prefs.selectedNavigationTab = self.ui.navigationTabWidget.currentIndex()
 
     self.prefs.writePrefsFile()
 
