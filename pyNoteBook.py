@@ -218,7 +218,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   @QtCore.Slot()
   def on_actionAbout_NoteBook_triggered(self):
     dlg = AboutDialog(self.getAppDataDir(), self)
-    dlg.exec_()
+    dlg.exec()
 
   @QtCore.Slot()
   def on_actionAbout_Qt_triggered(self):
