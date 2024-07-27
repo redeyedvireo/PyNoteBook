@@ -19,6 +19,7 @@ from about_dlg import AboutDialog
 from favorites_dialog import FavoritesDialog
 from favorites_manager import FavoritesManager
 from search_dialog import SearchDialog
+from style_manager import StyleManager
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 
@@ -26,6 +27,7 @@ kLogFile = 'PyNoteBook.log'
 kAppName = 'PyNoteBook'
 
 from constants import kPrefsFileName, \
+                      kStyleDefsFileName, \
                       kStartupLoadPreviousNoteBook
 
 kMaxLogileSize = 1024 * 1024
@@ -60,6 +62,11 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.editorStackedWidget.setEnabled(True)
 
     self.favoritesManager = FavoritesManager()
+
+    self.styleManager = StyleManager()
+    self.styleManager.loadStyleDefs(self.getStyleDefsPath())
+
+    self.ui.pageTextEdit.initialize(self.styleManager)
 
     self.setConnections()
 
@@ -348,6 +355,16 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     prefsPath = os.path.normpath(os.path.join(appDataDir, kAppName, kPrefsFileName))
     print(f'Prefs path: {prefsPath}')
     return prefsPath
+
+  def getStyleDefsPath(self) -> str:
+    """ Returns the full path to the style defs file.
+        For now, this will be in the same directory as the prefs file (ie, the app data directory), but
+        eventually, this will be user locatable, so that other apps (such as PyLogBook) can use the same styles.
+    """
+    appDataDir = self.getAppDataDir()
+    styleDefsPath = os.path.normpath(os.path.join(appDataDir, kAppName, kStyleDefsFileName))
+    print(f'Style defs path: {styleDefsPath}')
+    return styleDefsPath
 
 
 # *************************** FILE ***************************

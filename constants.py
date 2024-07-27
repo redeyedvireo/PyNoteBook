@@ -2,6 +2,7 @@
 
 # Prefs constants
 kPrefsFileName = 'PyNoteBook.ini'
+kStyleDefsFileName = 'Styles.xml'
 
 kStartupEmptyWorkspace = 'empty'
 kStartupLoadPreviousNoteBook = 'loadprevious'        # Load previous NoteBook file when starting up

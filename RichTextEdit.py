@@ -16,7 +16,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui = Ui_RichTextEditWidget()
     self.ui.setupUi(self)
 
-    self.styleManager = StyleManager()
+    self.styleManager = None
 
     # Load icons explicityly, as they don't want to load automatically
     self.ui.leftAlignButton.setIcon(QtGui.QIcon('Resources/Left.png'))
@@ -42,6 +42,9 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     # Connect signals
     self.setConnections()
+
+  def initialize(self, styleManager: StyleManager):
+    self.styleManager = styleManager
 
   def setConnections(self):
     self.ui.textColorButton.colorChangedSignal.connect(self.onTextColorChanged)
@@ -424,10 +427,11 @@ class RichTextEditWidget(QtWidgets.QWidget):
   @QtCore.Slot()
   def on_styleButton_clicked(self):
     print('Style button clicked')
-    styleDlg = SelectStyleDialog(self, self.styleManager)
-    if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-      styleId = styleDlg.getSelectedStyle()
+    if self.styleManager is not None:
+      styleDlg = SelectStyleDialog(self, self.styleManager)
+      if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
+        styleId = styleDlg.getSelectedStyle()
 
-      if styleId is not None:
-        self.styleManager.applyStyle(self.ui.textEdit, styleId)
-        self.initStyleButton()
+        if styleId is not None:
+          self.styleManager.applyStyle(self.ui.textEdit, styleId)
+          self.initStyleButton()

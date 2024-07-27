@@ -1,5 +1,6 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from typing import TypedDict
+import xml.etree.ElementTree as ET
 
 from styleDef import FormatFlag, StyleDef
 
@@ -80,9 +81,51 @@ class StyleManager:
     self.styles[newId] = styleDef
     return newId
 
-  def setStyle(self, styleDef: StyleDef, styleId: int):
+  def setStyle(self, styleId: int, styleDef: StyleDef):
     self.styles[styleId] = styleDef
 
   def deleteStyle(self, styleId: int):
     if self.isValidStyleId(styleId):
       del self.styles[styleId]
+
+  def loadStyleDefs(self, styleDefFilePath: str) -> bool:
+    """Loads the styles from a file.  This is an XML file.
+
+    Returns:
+        boolean: Truu if successful, False otherwise
+    """
+    tree = ET.parse(styleDefFilePath)
+    root = tree.getroot()
+
+    for child in root:
+      styleId, styleDef = self.parseStyle(child)
+      self.setStyle(styleId, styleDef)
+
+    return True
+
+  def parseStyle(self, styleNode):
+    # print(styleNode.tag, styleNode.attrib)
+    # for child in styleNode.iter():
+    #   print(f'{child.tag}: {child.get('value')}')
+
+    styleId = styleNode.get('id')
+    styleDef = StyleDef()
+
+    styleDef.fontFamily = styleNode.find('fontfamily')
+    styleDef.fontPointSize = styleNode.find('pointsize')
+    styleDef.noForegroundColor = styleNode.find('fgcolornone')
+    styleDef.fgColor = styleNode.find('fgcolor')
+    styleDef.noBackgroundColor = styleNode.find('bgcolornone')
+    styleDef.isBold = styleNode.find('bold')
+    styleDef.isItalic = styleNode.find('italic')
+    styleDef.isUnderline = styleNode.find('underline')
+    styleDef.isStrikeout = styleNode.find('strikeout')
+
+    return (styleId, styleDef)
+
+  def getChildNodeValue(self, parentNode, childName):
+    node = parentNode.find(childName)
+    if node is not None:
+      return node.get('value')
+    else:
+      return None
