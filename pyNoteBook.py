@@ -39,7 +39,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     super(PyNoteBookWindow, self).__init__()
 
     prefsFilePath = self.getPrefsPath()
-    print(f'Prefs file: {prefsFilePath}')
     self.prefs = Preferences(prefsFilePath)
 
     self.db = Database()
@@ -218,7 +217,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   @QtCore.Slot()
   def on_actionAbout_NoteBook_triggered(self):
-    dlg = AboutDialog(self)
+    dlg = AboutDialog(self.getAppDataDir(), self)
     dlg.exec_()
 
   @QtCore.Slot()
@@ -324,19 +323,31 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     return application_path
 
+  def getAppDataDir(self) -> str:
+    """Returns the directory used for app data.  The prefs file and styles def file are stored here.
+
+    Returns:
+        str: App data directory.
+    """
+    if platform.system() == 'Windows':
+      # This attempts to use whatever directory is in the APPDATA environment variable, if it exists.
+      # If the APPDATA environment variable doesn't exist, the application directory is used.
+      return os.getenv('APPDATA', self.getScriptPath())
+    elif platform.system() == 'Linux':
+      # On Linux, use "~/.pylogbook"
+      homeDirObj = Path.home()
+      appDataDir = homeDirObj / '.pylogbook'
+      return os.fspath(appDataDir)
+    else:
+      print('The application data directory is currently only supported on Windows and Linux')
+      return ''
+
   def getPrefsPath(self) -> str:
     """ Returns the full path to the prefs file. """
-    if platform.system() == 'Windows':
-      appDataDir = os.getenv('APPDATA', self.getScriptPath())
-      return os.path.normpath(os.path.join(appDataDir, kAppName, kPrefsFileName))
-    elif platform.system() == 'Linux':
-      homeDirObj = Path.home()
-      prefsFileObj = homeDirObj / '.pylogbook' / kPrefsFileName
-      print(f'Prefs path: {prefsFileObj}')
-      return os.fspath(prefsFileObj)
-    else:
-      print('[getPrefsPath] Only Windows and Linux are currently supported')
-      return ''
+    appDataDir = self.getAppDataDir()
+    prefsPath = os.path.normpath(os.path.join(appDataDir, kAppName, kPrefsFileName))
+    print(f'Prefs path: {prefsPath}')
+    return prefsPath
 
 
 # *************************** FILE ***************************
