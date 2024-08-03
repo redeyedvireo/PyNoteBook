@@ -64,6 +64,9 @@ class StyleDef:
   # case the value of the property will be returned.
   # When setting a property, if the value is set to None, the corresponding format flag will be removed; in this case,
   # this property no longer is affected by this style.
+  #
+  # Addendum: It occurred to me that instead of this complicated system, all that really needs to be done is to store
+  # None in any property that is not affected by the style.
 
   @property
   def fontFamily(self) -> str | None:
