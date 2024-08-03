@@ -104,26 +104,25 @@ class StyleManager:
     return True
 
   def parseStyle(self, styleNode):
-    # print(styleNode.tag, styleNode.attrib)
-    # for child in styleNode.iter():
-    #   print(f'{child.tag}: {child.get('value')}')
-
     styleId = styleNode.get('id')
     styleDef = StyleDef()
+    styleDef.strName = styleNode.get('name')
+    styleDef.strDescription = styleNode.get('description')
 
-    styleDef.fontFamily = styleNode.find('fontfamily')
-    styleDef.fontPointSize = styleNode.find('pointsize')
-    styleDef.noForegroundColor = styleNode.find('fgcolornone')
-    styleDef.fgColor = styleNode.find('fgcolor')
-    styleDef.noBackgroundColor = styleNode.find('bgcolornone')
-    styleDef.isBold = styleNode.find('bold')
-    styleDef.isItalic = styleNode.find('italic')
-    styleDef.isUnderline = styleNode.find('underline')
-    styleDef.isStrikeout = styleNode.find('strikeout')
+    styleDef.fontFamily = self.getChildNodeValue(styleNode, 'fontfamily')
+    styleDef.pointSize = self.getChildNodeValue(styleNode, 'pointsize')
+    styleDef.noForegroundColor = self.getChildNodeValue(styleNode, 'fgcolornone')
+    styleDef.fgColor = self.getChildNodeValue(styleNode, 'fgcolor')
+    styleDef.noBackgroundColor = self.getChildNodeValue(styleNode, 'bgcolornone')
+    styleDef.bgColor = self.getChildNodeValue(styleNode, 'bgcolor')
+    styleDef.isBold = self.getChildNodeValue(styleNode, 'bold')
+    styleDef.isItalic = self.getChildNodeValue(styleNode, 'italic')
+    styleDef.isUnderline = self.getChildNodeValue(styleNode, 'underline')
+    styleDef.isStrikeout = self.getChildNodeValue(styleNode, 'strikeout')
 
     return (styleId, styleDef)
 
-  def getChildNodeValue(self, parentNode, childName):
+  def getChildNodeValue(self, parentNode, childName) -> str | None:
     node = parentNode.find(childName)
     if node is not None:
       return node.get('value')

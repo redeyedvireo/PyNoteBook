@@ -38,13 +38,12 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     self.styleMenu = QtWidgets.QMenu()
 
-    self.initStyleButton()
-
     # Connect signals
     self.setConnections()
 
   def initialize(self, styleManager: StyleManager):
     self.styleManager = styleManager
+    self.initStyleButton()
 
   def setConnections(self):
     self.ui.textColorButton.colorChangedSignal.connect(self.onTextColorChanged)
@@ -75,29 +74,19 @@ class RichTextEditWidget(QtWidgets.QWidget):
       self.ui.sizeCombo.addItem(fontSizeString)
 
   def initStyleButton(self):
-    # TODO: Need to get the settings from the user's prefs file.  This will
-    # probably be read at startup.
-
     # TODO: Should add a way for the user to import/export the style settings.
     self.styleMenu.clear()
 
-    # Add some hard-coded styles for debugging, but eventually, all styles will come from the styles.xml file.
-    # NEW! The action will have the style ID stored as its data item.  (In the C++ version, a signal mapper was used,
-    #      but the Qt docs say that signal mapper is obsolete.)
+    # The action will have the style ID stored as its data item.
+    if self.styleManager is not None:
+      for style in self.styleManager.styles.items():
+        styleName = style[1].strName
+        styleId = style[0]
 
-    debugStyles = [ ('Style #1', 11),
-                    ('Style Two', 23),
-                    ('Style The Third', 88)
-                  ]
+        action = self.styleMenu.addAction(styleName)
+        action.setData(styleId)
 
-    for styleTuple in debugStyles:
-      styleName = styleTuple[0]
-      styleId = styleTuple[1]
-
-      action = self.styleMenu.addAction(styleName)
-      action.setData(styleId)
-
-    self.ui.styleButton.setMenu(self.styleMenu)
+      self.ui.styleButton.setMenu(self.styleMenu)
 
   def clear(self):
     self.ui.textEdit.clear()
@@ -310,7 +299,8 @@ class RichTextEditWidget(QtWidgets.QWidget):
     """ A 'triggered' event happens when the user changes
         the current item in the style button. """
     styleId = action.data()
-    print(f'Style button triggered.  Style: {styleId}')
+    if self.styleManager:
+      self.styleManager.applyStyle(self.ui.textEdit, styleId)
 
   @QtCore.Slot()
   def onBoldButtonClicked(self):

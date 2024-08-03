@@ -31,7 +31,8 @@ class FormatFlags:
     self.formatFlags.add(flagToAdd)
 
   def removeFlag(self, flagToRemove: FormatFlag):
-    self.formatFlags.remove(flagToRemove)
+    if self.hasFlag(flagToRemove):
+      self.formatFlags.remove(flagToRemove)
 
 class StyleDef:
   def __init__(self) -> None:
@@ -80,6 +81,7 @@ class StyleDef:
     else:
       self.strFontFamily = value
       self.formatFlags.addFlag(FormatFlag.FontFamily)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
 
   @property
   def pointSize(self) -> int | None:
@@ -92,6 +94,7 @@ class StyleDef:
       self.fontPointSize = 0
     else:
       self.formatFlags.addFlag(FormatFlag.FontSize)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.fontPointSize = int(value)
 
   @property
@@ -105,11 +108,13 @@ class StyleDef:
     elif type(value) is str:
       if value == 'yes':
         self.formatFlags.addFlag(FormatFlag.FGColorNone)
+        self.formatFlags.removeFlag(FormatFlag.NoFormat)
       else:
         self.formatFlags.removeFlag(FormatFlag.FGColorNone)
     elif type(value) is bool:
       if value:
         self.formatFlags.addFlag(FormatFlag.FGColorNone)
+        self.formatFlags.removeFlag(FormatFlag.NoFormat)
       else:
         self.formatFlags.removeFlag(FormatFlag.FGColorNone)
     else:
@@ -126,9 +131,11 @@ class StyleDef:
       self.formatFlags.removeFlag(FormatFlag.FGColor)
     elif type(value) is QtGui.QColor:
       self.formatFlags.addFlag(FormatFlag.FGColor)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.textColor = value
     elif type(value) is str:
       self.formatFlags.addFlag(FormatFlag.FGColor)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.textColor.setNamedColor(value)
     else:
       # Unknown type - do nothing
@@ -145,11 +152,13 @@ class StyleDef:
     elif type(value) is str:
       if value == 'yes':
         self.formatFlags.addFlag(FormatFlag.BGColorNone)
+        self.formatFlags.removeFlag(FormatFlag.NoFormat)
       else:
         self.formatFlags.removeFlag(FormatFlag.BGColorNone)
     elif type(value) is bool:
       if value:
         self.formatFlags.addFlag(FormatFlag.BGColorNone)
+        self.formatFlags.removeFlag(FormatFlag.NoFormat)
       else:
         self.formatFlags.removeFlag(FormatFlag.BGColorNone)
     else:
@@ -166,9 +175,11 @@ class StyleDef:
       self.formatFlags.removeFlag(FormatFlag.BGColor)
     elif type(value) is QtGui.QColor:
       self.formatFlags.addFlag(FormatFlag.BGColor)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.backgroundColor = value
     elif type(value) is str:
       self.formatFlags.addFlag(FormatFlag.BGColor)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.backgroundColor.setNamedColor(value)
     else:
       # Unknown type - do nothing
@@ -184,9 +195,11 @@ class StyleDef:
       self.formatFlags.removeFlag(FormatFlag.Bold)
     elif type(value) is str:
       self.formatFlags.addFlag(FormatFlag.Bold)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.bIsBold = (value == 'yes')
     elif type(value) is bool:
       self.formatFlags.addFlag(FormatFlag.Bold)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.bIsBold = value
     else:
       # Unknown type - do nothing
@@ -202,9 +215,11 @@ class StyleDef:
       self.formatFlags.removeFlag(FormatFlag.Italic)
     elif type(value) is str:
       self.formatFlags.addFlag(FormatFlag.Italic)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.bIsItalic = (value == 'yes')
     elif type(value) is bool:
       self.formatFlags.addFlag(FormatFlag.Italic)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.bIsItalic = value
     else:
       # Unknown type - do nothing
@@ -220,9 +235,11 @@ class StyleDef:
       self.formatFlags.removeFlag(FormatFlag.Underline)
     elif type(value) is str:
       self.formatFlags.addFlag(FormatFlag.Underline)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.bIsUnderline = (value == 'yes')
     elif type(value) is bool:
       self.formatFlags.addFlag(FormatFlag.Underline)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.bIsUnderline = value
     else:
       # Unknown type - do nothing
@@ -238,9 +255,11 @@ class StyleDef:
       self.formatFlags.removeFlag(FormatFlag.Strikeout)
     elif type(value) is str:
       self.formatFlags.addFlag(FormatFlag.Strikeout)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.bIsStrikeout = (value == 'yes')
     elif type(value) is bool:
       self.formatFlags.addFlag(FormatFlag.Strikeout)
+      self.formatFlags.removeFlag(FormatFlag.NoFormat)
       self.bIsStrikeout = value
     else:
       # Unknown type - do nothing
