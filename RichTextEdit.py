@@ -34,22 +34,9 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.initStyleButton()
 
   def setConnections(self):
-    self.ui.textColorButton.colorChangedSignal.connect(self.onTextColorChanged)
-    self.ui.textColorButton.noColorSignal.connect(self.onTextColorNoColor)
-    self.ui.textBackgroundButton.colorChangedSignal.connect(self.onTextBackgroundChanged)
-    self.ui.textBackgroundButton.noColorSignal.connect(self.onBackgroundNoColor)
     self.ui.textEdit.selectionChanged.connect(self.onSelectionChanged)
     self.ui.textEdit.textChanged.connect(self.onTextChanged)
     self.ui.textEdit.cursorPositionChanged.connect(self.onCursorPositionChanged)
-    self.ui.styleButton.triggered.connect(self.onStyleButtonTriggered)
-    self.ui.boldButton.clicked.connect(self.onBoldButtonClicked)
-    self.ui.italicButton.clicked.connect(self.onItalicButtonClicked)
-    self.ui.underlineButton.clicked.connect(self.onUnderlineButtonClicked)
-    self.ui.leftAlignButton.clicked.connect(self.onLeftAlignButtonClicked)
-    self.ui.centerAlignButton.clicked.connect(self.onCenterAlignButtonClicked)
-    self.ui.rightAlignButton.clicked.connect(self.onRightAlignButtonClicked)
-    self.ui.bulletTableInsertButton.clicked.connect(self.onBulletTableInsertButtonClicked)
-    self.ui.numberTableInsertButton.clicked.connect(self.onNumberTableInsertButtonClicked)
 
   def populatePointSizesCombo(self):
     fontDatabase = QtGui.QFontDatabase()
@@ -233,7 +220,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.updateControls()
 
   @QtCore.Slot(QtGui.QColor)
-  def onTextColorChanged(self, color):
+  def on_textColorButton_colorChangedSignal(self, color):
     selectionCursor = self.ui.textEdit.textCursor()
 
     tempCharFormat = QtGui.QTextCharFormat()
@@ -242,7 +229,8 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     self.ui.textEdit.setTextCursor(selectionCursor)
 
-  def onTextColorNoColor(self):
+  @QtCore.Slot()
+  def on_textColorButton_noColorSignal(self):
     selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
 
     # NOTE: This approach will cause all text in the selection to take on
@@ -255,7 +243,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.setTextCursor(selectionCursor)
 
   @QtCore.Slot(QtGui.QColor)
-  def onTextBackgroundChanged(self, color):
+  def on_textBackgroundButton_colorChangedSignal(self, color):
     selectionCursor = self.ui.textEdit.textCursor()
 
     tempCharFormat = QtGui.QTextCharFormat()
@@ -265,7 +253,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.setTextCursor(selectionCursor)
 
   @QtCore.Slot()
-  def onBackgroundNoColor(self):
+  def on_textBackgroundButton_noColorSignal(self):
     selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
 
     # NOTE: This approach will cause all text in the selection to take on
@@ -283,7 +271,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.styleButton.setEnabled(selectionCursor.hasSelection())
 
   @QtCore.Slot(QtGui.QAction)
-  def onStyleButtonTriggered(self, action):
+  def on_styleButton_triggered(self, action):
     """ A 'triggered' event happens when the user changes
         the current item in the style button. """
     styleId = action.data()
@@ -291,7 +279,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
       self.styleManager.applyStyle(self.ui.textEdit, styleId)
 
   @QtCore.Slot()
-  def onBoldButtonClicked(self):
+  def on_boldButton_clicked(self):
     selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
 
     tempCharFormat = QtGui.QTextCharFormat()
@@ -305,7 +293,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.setTextCursor(selectionCursor)
 
   @QtCore.Slot()
-  def onItalicButtonClicked(self):
+  def on_italicButton_clicked(self):
     selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
 
     tempCharFormat = QtGui.QTextCharFormat()
@@ -315,7 +303,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.setTextCursor(selectionCursor)
 
   @QtCore.Slot()
-  def onUnderlineButtonClicked(self):
+  def on_underlineButton_clicked(self):
     selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
 
     tempCharFormat = QtGui.QTextCharFormat()
@@ -325,7 +313,17 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.setTextCursor(selectionCursor)
 
   @QtCore.Slot()
-  def onLeftAlignButtonClicked(self):
+  def on_strikethroughButton_clicked(self):
+    selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
+
+    tempCharFormat = QtGui.QTextCharFormat()
+    tempCharFormat.setFontStrikeOut(not selectionFormat.fontStrikeOut())
+    selectionCursor.mergeCharFormat(tempCharFormat)
+
+    self.ui.textEdit.setTextCursor(selectionCursor)
+
+  @QtCore.Slot()
+  def on_leftAlignButton_clicked(self):
     selectionCursor, blockFormat = self.getCursorAndBlockFormat()
 
     blockFormat.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
@@ -334,7 +332,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.setTextCursor(selectionCursor)
 
   @QtCore.Slot()
-  def onCenterAlignButtonClicked(self):
+  def on_centerAlignButton_clicked(self):
     selectionCursor, blockFormat = self.getCursorAndBlockFormat()
 
     blockFormat.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -343,7 +341,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.setTextCursor(selectionCursor)
 
   @QtCore.Slot()
-  def onRightAlignButtonClicked(self):
+  def on_rightAlignButton_clicked(self):
     selectionCursor, blockFormat = self.getCursorAndBlockFormat()
 
     blockFormat.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
@@ -352,7 +350,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.setTextCursor(selectionCursor)
 
   @QtCore.Slot()
-  def onBulletTableInsertButtonClicked(self):
+  def on_bulletTableInsertButton_clicked(self):
     selectionCursor = self.ui.textEdit.textCursor()
 
     newListFormat = QtGui.QTextListFormat()
@@ -362,7 +360,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     selectionCursor.createList(newListFormat)
 
   @QtCore.Slot()
-  def onNumberTableInsertButtonClicked(self):
+  def on_numberTableInsertButton_clicked(self):
     selectionCursor = self.ui.textEdit.textCursor()
 
     newListFormat = QtGui.QTextListFormat()
