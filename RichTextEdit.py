@@ -18,18 +18,6 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     self.styleManager = None
 
-    # Load icons explicityly, as they don't want to load automatically
-    self.ui.leftAlignButton.setIcon(QtGui.QIcon('Resources/Left.png'))
-    self.ui.rightAlignButton.setIcon(QtGui.QIcon('Resources/Right.png'))
-    self.ui.centerAlignButton.setIcon(QtGui.QIcon('Resources/Center.png'))
-    self.ui.boldButton.setIcon(QtGui.QIcon('Resources/Bold.png'))
-    self.ui.italicButton.setIcon(QtGui.QIcon('Resources/Italic.png'))
-    self.ui.underlineButton.setIcon(QtGui.QIcon('Resources/Underline.png'))
-    self.ui.bulletTableInsertButton.setIcon(QtGui.QIcon('Resources/Bullet Table.png'))
-    self.ui.numberTableInsertButton.setIcon(QtGui.QIcon('Resources/Number Table.png'))
-    self.ui.textColorButton.setIcon(QtGui.QIcon('Resources/Text Foreground.png'))
-    self.ui.textBackgroundButton.setIcon(QtGui.QIcon('Resources/Text Background.png'))
-
     self.populatePointSizesCombo()
     self.ui.textColorButton.setColor(QtGui.QColor('Black'))
 
