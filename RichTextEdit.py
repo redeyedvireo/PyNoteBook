@@ -4,6 +4,7 @@ import datetime
 from select_style_dlg import SelectStyleDialog
 from style_manager import StyleManager
 from utility import formatDateTime
+from textformatter import TextFormatter, TextInserter
 
 from ui_RichTextEdit import Ui_RichTextEditWidget
 class RichTextEditWidget(QtWidgets.QWidget):
@@ -280,94 +281,39 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
   @QtCore.Slot()
   def on_boldButton_clicked(self):
-    selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
-
-    tempCharFormat = QtGui.QTextCharFormat()
-    if selectionFormat.fontWeight() != QtGui.QFont.Weight.Bold:
-      tempCharFormat.setFontWeight(QtGui.QFont.Weight.Bold)
-    else:
-      tempCharFormat.setFontWeight(QtGui.QFont.Weight.Normal)
-
-    selectionCursor.mergeCharFormat(tempCharFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.toggleBold(self.ui.textEdit)
 
   @QtCore.Slot()
   def on_italicButton_clicked(self):
-    selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
-
-    tempCharFormat = QtGui.QTextCharFormat()
-    tempCharFormat.setFontItalic(not selectionFormat.fontItalic())
-    selectionCursor.mergeCharFormat(tempCharFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.toggleItalic(self.ui.textEdit)
 
   @QtCore.Slot()
   def on_underlineButton_clicked(self):
-    selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
-
-    tempCharFormat = QtGui.QTextCharFormat()
-    tempCharFormat.setFontUnderline(not selectionFormat.fontUnderline())
-    selectionCursor.mergeCharFormat(tempCharFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.toggleUnderline(self.ui.textEdit)
 
   @QtCore.Slot()
   def on_strikethroughButton_clicked(self):
-    selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
-
-    tempCharFormat = QtGui.QTextCharFormat()
-    tempCharFormat.setFontStrikeOut(not selectionFormat.fontStrikeOut())
-    selectionCursor.mergeCharFormat(tempCharFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.toggleStrikethrough(self.ui.textEdit)
 
   @QtCore.Slot()
   def on_leftAlignButton_clicked(self):
-    selectionCursor, blockFormat = self.getCursorAndBlockFormat()
-
-    blockFormat.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
-    selectionCursor.setBlockFormat(blockFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.leftAlign(self.ui.textEdit)
 
   @QtCore.Slot()
   def on_centerAlignButton_clicked(self):
-    selectionCursor, blockFormat = self.getCursorAndBlockFormat()
-
-    blockFormat.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-    selectionCursor.setBlockFormat(blockFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.centerAlign(self.ui.textEdit)
 
   @QtCore.Slot()
   def on_rightAlignButton_clicked(self):
-    selectionCursor, blockFormat = self.getCursorAndBlockFormat()
-
-    blockFormat.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
-    selectionCursor.setBlockFormat(blockFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.rightAlign(self.ui.textEdit)
 
   @QtCore.Slot()
   def on_bulletTableInsertButton_clicked(self):
-    selectionCursor = self.ui.textEdit.textCursor()
-
-    newListFormat = QtGui.QTextListFormat()
-    newListFormat.setIndent(1)
-    newListFormat.setStyle(QtGui.QTextListFormat.Style.ListDisc)
-
-    selectionCursor.createList(newListFormat)
+    TextInserter.insertBullet(self.ui.textEdit)
 
   @QtCore.Slot()
   def on_numberTableInsertButton_clicked(self):
-    selectionCursor = self.ui.textEdit.textCursor()
-
-    newListFormat = QtGui.QTextListFormat()
-    newListFormat.setIndent(1)
-    newListFormat.setStyle(QtGui.QTextListFormat.Style.ListDecimal)
-
-    selectionCursor.createList(newListFormat)
+    TextInserter.insertNumberList(self.ui.textEdit)
 
   @QtCore.Slot(int)
   def on_fontCombo_activated(self, index):
