@@ -221,50 +221,20 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.updateControls()
 
   @QtCore.Slot(QtGui.QColor)
-  def on_textColorButton_colorChangedSignal(self, color):
-    selectionCursor = self.ui.textEdit.textCursor()
-
-    tempCharFormat = QtGui.QTextCharFormat()
-    tempCharFormat.setForeground(QtGui.QBrush(color))
-    selectionCursor.mergeCharFormat(tempCharFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+  def on_textColorButton_colorChangedSignal(self, color: QtGui.QColor):
+    TextFormatter.setTextColor(self.ui.textEdit, color)
 
   @QtCore.Slot()
   def on_textColorButton_noColorSignal(self):
-    selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
-
-    # NOTE: This approach will cause all text in the selection to take on
-    # all characteristics of the selectionFormat.  It has the effect of
-    # removing formatting changes within the block.  Unfortunately,
-    # mergeCharFormat does not work when clearing a property.
-    selectionFormat.clearForeground()
-    selectionCursor.setCharFormat(selectionFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.noTextColor(self.ui.textEdit)
 
   @QtCore.Slot(QtGui.QColor)
-  def on_textBackgroundButton_colorChangedSignal(self, color):
-    selectionCursor = self.ui.textEdit.textCursor()
-
-    tempCharFormat = QtGui.QTextCharFormat()
-    tempCharFormat.setBackground(QtGui.QBrush(color))
-    selectionCursor.mergeCharFormat(tempCharFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+  def on_textBackgroundButton_colorChangedSignal(self, color: QtGui.QColor):
+    TextFormatter.setBackgroundColor(self.ui.textEdit, color)
 
   @QtCore.Slot()
   def on_textBackgroundButton_noColorSignal(self):
-    selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
-
-    # NOTE: This approach will cause all text in the selection to take on
-    # all characteristics of the selectionFormat.  It has the effect of
-    # removing formatting changes within the block.  Unfortunately,
-    # mergeCharFormat does not work when clearing a property.
-    selectionFormat.clearBackground()
-    selectionCursor.setCharFormat(selectionFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.noBackgroundColor(self.ui.textEdit)
 
   @QtCore.Slot()
   def onSelectionChanged(self):
@@ -324,14 +294,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     selectionFormat = selectionCursor.charFormat()
 
     text = self.ui.fontCombo.itemText(index)
-    selectionFormat.setFontFamily(text)
-    selectionCursor.setCharFormat(selectionFormat)
-
-    # tempCharFormat = QtGui.QTextCharFormat()
-    # tempCharFormat.setFontFamily(text)
-    # selectionCursor.mergeCharFormat(tempCharFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.setFont(self.ui.textEdit, text)
 
   @QtCore.Slot(int)
   def on_sizeCombo_activated(self, index):
@@ -340,11 +303,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     text = self.ui.sizeCombo.itemText(index)
     newFontSize = int(text)
 
-    tempCharFormat = QtGui.QTextCharFormat()
-    tempCharFormat.setFontPointSize(newFontSize)
-    selectionCursor.mergeCharFormat(tempCharFormat)
-
-    self.ui.textEdit.setTextCursor(selectionCursor)
+    TextFormatter.setFontSize(self.ui.textEdit, newFontSize)
 
   @QtCore.Slot()
   def on_styleButton_clicked(self):

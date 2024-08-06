@@ -49,6 +49,46 @@ class TextFormatter:
     self.selectionCursor.setBlockFormat(self.blockFormat)
     self.textEdit.setTextCursor(self.selectionCursor)
 
+  def _setTextColor(self, color: QtGui.QColor):
+    self.tempCharFormat = QtGui.QTextCharFormat()
+    self.tempCharFormat.setForeground(QtGui.QBrush(color))
+    self.selectionCursor.mergeCharFormat(self.tempCharFormat)
+    self.textEdit.setTextCursor(self.selectionCursor)
+
+  def _noTextColor(self):
+    # NOTE: This approach will cause all text in the selection to take on
+    # all characteristics of the selectionFormat.  It has the effect of
+    # removing formatting changes within the block.  Unfortunately,
+    # mergeCharFormat does not work when clearing a property.
+    self.selectionFormat.clearForeground()
+    self.selectionCursor.setCharFormat(self.selectionFormat)
+    self.textEdit.setTextCursor(self.selectionCursor)
+
+  def _setBackgroundColor(self, color: QtGui.QColor):
+    self.tempCharFormat = QtGui.QTextCharFormat()
+    self.tempCharFormat.setBackground(QtGui.QBrush(color))
+    self.selectionCursor.mergeCharFormat(self.tempCharFormat)
+    self.textEdit.setTextCursor(self.selectionCursor)
+
+  def _noBackgroundColor(self):
+    # NOTE: This approach will cause all text in the selection to take on
+    # all characteristics of the selectionFormat.  It has the effect of
+    # removing formatting changes within the block.  Unfortunately,
+    # mergeCharFormat does not work when clearing a property.
+    self.selectionFormat.clearBackground()
+    self.selectionCursor.setCharFormat(self.selectionFormat)
+    self.textEdit.setTextCursor(self.selectionCursor)
+
+  def _setFont(self, fontFamily: str):
+    self.selectionFormat.setFontFamily(fontFamily)
+    self.selectionCursor.setCharFormat(self.selectionFormat)
+    self.textEdit.setTextCursor(self.selectionCursor)
+
+  def _setFontSize(self, fontSize: int):
+    self.tempCharFormat.setFontPointSize(fontSize)
+    self.selectionCursor.mergeCharFormat(self.tempCharFormat)
+    self.textEdit.setTextCursor(self.selectionCursor)
+
   @staticmethod
   def toggleStrikethrough(textEdit: QtWidgets.QTextEdit):
     TextFormatter(textEdit)._toggleStrikethrough()
@@ -76,6 +116,30 @@ class TextFormatter:
   @staticmethod
   def rightAlign(textEdit: QtWidgets.QTextEdit):
     TextFormatter(textEdit)._rightAlign()
+
+  @staticmethod
+  def setTextColor(textEdit: QtWidgets.QTextEdit, color: QtGui.QColor):
+    TextFormatter(textEdit)._setTextColor(color)
+
+  @staticmethod
+  def noTextColor(textEdit: QtWidgets.QTextEdit):
+    TextFormatter(textEdit)._noTextColor()
+
+  @staticmethod
+  def setBackgroundColor(textEdit: QtWidgets.QTextEdit, color: QtGui.QColor):
+    TextFormatter(textEdit)._setBackgroundColor(color)
+
+  @staticmethod
+  def noBackgroundColor(textEdit: QtWidgets.QTextEdit):
+    TextFormatter(textEdit)._noBackgroundColor()
+
+  @staticmethod
+  def setFont(textEdit: QtWidgets.QTextEdit, fontFamily: str):
+    TextFormatter(textEdit)._setFont(fontFamily)
+
+  @staticmethod
+  def setFontSize(textEdit: QtWidgets.QTextEdit, fontSize: int):
+    TextFormatter(textEdit)._setFontSize(fontSize)
 
 class TextInserter:
   def __init__(self, textEdit: QtWidgets.QTextEdit) -> None:
