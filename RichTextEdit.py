@@ -197,11 +197,6 @@ class RichTextEditWidget(QtWidgets.QWidget):
     selectionFormat = selectionCursor.charFormat()
     return (selectionCursor, selectionFormat)
 
-  def getCursorAndBlockFormat(self) -> tuple[QtGui.QTextCursor, QtGui.QTextBlockFormat]:
-    selectionCursor = self.ui.textEdit.textCursor()
-    blockFormat = selectionCursor.blockFormat()
-    return (selectionCursor, blockFormat)
-
   def addAddendum(self):
     textCursor = self.ui.textEdit.textCursor()
 
@@ -289,17 +284,11 @@ class RichTextEditWidget(QtWidgets.QWidget):
   def on_fontCombo_activated(self, index):
     self.populatePointSizesCombo()
 
-    # selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
-    selectionCursor = self.ui.textEdit.textCursor()
-    selectionFormat = selectionCursor.charFormat()
-
     text = self.ui.fontCombo.itemText(index)
     TextFormatter.setFont(self.ui.textEdit, text)
 
   @QtCore.Slot(int)
   def on_sizeCombo_activated(self, index):
-    selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
-
     text = self.ui.sizeCombo.itemText(index)
     newFontSize = int(text)
 
