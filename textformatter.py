@@ -157,6 +157,14 @@ class TextInserter:
 
     self.selectionCursor.createList(newListFormat)
 
+  def _setBulletStyle(self, bulletStyle: QtGui.QTextListFormat.Style):
+    list = self.selectionCursor.currentList()
+
+    if list is not None:
+      listFormat = list.format()
+      listFormat.setStyle(bulletStyle)
+      list.setFormat(listFormat)
+
   @staticmethod
   def insertBullet(textEdit: QtWidgets.QTextEdit):
     TextInserter(textEdit)._insertBullet()
@@ -164,3 +172,7 @@ class TextInserter:
   @staticmethod
   def insertNumberList(textEdit: QtWidgets.QTextEdit):
     TextInserter(textEdit)._insertNumberList()
+
+  @staticmethod
+  def setBulletStyle(textEdit: QtWidgets.QTextEdit, bulletStyle: QtGui.QTextListFormat.Style):
+    TextInserter(textEdit)._setBulletStyle(bulletStyle)

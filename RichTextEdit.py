@@ -18,8 +18,9 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.setupUi(self)
 
     self.styleManager = None
+    self.bulletStyleMenu = QtWidgets.QMenu()
+    self.numberStyleMenu = QtWidgets.QMenu()
 
-    self.populatePointSizesCombo()
     self.ui.textColorButton.setColor(QtGui.QColor('Black'))
 
     # Disable style button at first.  It will be enabled whenever there is a selection.
@@ -33,6 +34,9 @@ class RichTextEditWidget(QtWidgets.QWidget):
   def initialize(self, styleManager: StyleManager):
     self.styleManager = styleManager
     self.initStyleButton()
+    self.populatePointSizesCombo()
+    self.initBulletStyleButton()
+    self.initNumberStyleButton()
 
   def setConnections(self):
     self.ui.textEdit.selectionChanged.connect(self.onSelectionChanged)
@@ -63,6 +67,24 @@ class RichTextEditWidget(QtWidgets.QWidget):
         action.setData(styleId)
 
       self.ui.styleButton.setMenu(self.styleMenu)
+
+  def initBulletStyleButton(self):
+    self.bulletStyleMenu.clear()
+    self.bulletStyleMenu.addAction('Solid circle', self.onSolidCircleTriggered)
+    self.bulletStyleMenu.addAction('Hollow circle', self.onHollowCircleTriggered)
+    self.bulletStyleMenu.addAction('Solid square', self.onSolidSquareTriggered)
+
+    self.ui.bulletTableInsertButton.setMenu(self.bulletStyleMenu)
+
+  def initNumberStyleButton(self):
+    self.numberStyleMenu.clear()
+    self.numberStyleMenu.addAction('Decimal numbers', self.onDecimalNumbersTriggered)
+    self.numberStyleMenu.addAction('Lower-case Latin characters', self.onLowerCaseLatinCharactersTriggered)
+    self.numberStyleMenu.addAction('Upper-case Latic characters', self.onUpperCaseLatinCharactersTriggered)
+    self.numberStyleMenu.addAction('Lower-case Roman numerals', self.onLowerCaseRomanNumeralsTriggered)
+    self.numberStyleMenu.addAction('Upper-case Roman numerals', self.onUpperCaseRomanNumeralsTriggered)
+
+    self.ui.numberTableInsertButton.setMenu(self.numberStyleMenu)
 
   def clear(self):
     self.ui.textEdit.clear()
@@ -305,3 +327,35 @@ class RichTextEditWidget(QtWidgets.QWidget):
         if styleId is not None:
           self.styleManager.applyStyle(self.ui.textEdit, styleId)
           self.initStyleButton()
+
+  @QtCore.Slot()
+  def onSolidCircleTriggered(self):
+    TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListDisc)
+
+  @QtCore.Slot()
+  def onHollowCircleTriggered(self):
+    TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListCircle)
+
+  @QtCore.Slot()
+  def onSolidSquareTriggered(self):
+    TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListSquare)
+
+  @QtCore.Slot()
+  def onDecimalNumbersTriggered(self):
+    TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListDecimal)
+
+  @QtCore.Slot()
+  def onLowerCaseLatinCharactersTriggered(self):
+    TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListLowerAlpha)
+
+  @QtCore.Slot()
+  def onUpperCaseLatinCharactersTriggered(self):
+    TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListUpperAlpha)
+
+  @QtCore.Slot()
+  def onLowerCaseRomanNumeralsTriggered(self):
+    TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListLowerRoman)
+
+  @QtCore.Slot()
+  def onUpperCaseRomanNumeralsTriggered(self):
+    TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListUpperRoman)
