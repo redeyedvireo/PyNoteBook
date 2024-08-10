@@ -15,13 +15,17 @@ class CColorButton(QtWidgets.QToolButton):
     self.m_noColorAction = QtGui.QAction()
     self.m_noColorAction.setText('No Color')
 
+    # If this is true, the color rectangle will fill the entire button (aside
+    #	from a small bit of padding around the edges.)
+    self.m_bColorRectFillsButton = False
+
     self.m_menu = QtWidgets.QMenu()
     self.m_menu.clear()
     self.m_menu.addAction(self.m_noColorAction)
 
     self.setMenu(self.m_menu)
 
-    self.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
+    self.setPopupMode(QtWidgets.QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
     self.clicked.connect(self.showColorDialog)
     self.m_noColorAction.triggered.connect(self.onNoColorActionTriggered)
@@ -69,3 +73,6 @@ class CColorButton(QtWidgets.QToolButton):
     self.update()
 
     self.noColorSignal.emit()
+
+  def setColorSwatchFillsButton(self, fills = True):
+    self.m_bColorRectFillsButton = fills

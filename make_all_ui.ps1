@@ -10,3 +10,4 @@ pyside6-uic prefs_dialog.ui -o ui_prefs_dialog.py
 pyside6-uic about_dialog.ui -o ui_about_dialog.py
 pyside6-uic favorites_dialog.ui -o ui_favorites_dialog.py
 pyside6-uic search_dialog.ui -o ui_search_dialog.py
+pyside6-uic table_format_dlg.ui -o ui_table_format_dlg.py

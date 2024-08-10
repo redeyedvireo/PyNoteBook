@@ -2,7 +2,9 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import datetime
 
 from select_style_dlg import SelectStyleDialog
+from table_format_dlg import TableFormatDialog
 from style_manager import StyleManager
+from text_table import TextTable
 from utility import formatDateTime
 from textformatter import TextFormatter, TextInserter
 
@@ -315,6 +317,57 @@ class RichTextEditWidget(QtWidgets.QWidget):
     newFontSize = int(text)
 
     TextFormatter.setFontSize(self.ui.textEdit, newFontSize)
+
+  @QtCore.Slot()
+  def on_tableButton_clicked(self):
+    selectionCursor = self.ui.textEdit.textCursor()
+    dlg = TableFormatDialog(self)
+    textTable = None
+
+    if TextTable.isCursorInTable(selectionCursor):
+      textTable = TextTable.fromCursor(selectionCursor)
+      if textTable is not None:
+        tableFormat = textTable.textTableFormat()
+
+        # Initialize dialog controls with data from the table
+        frameFormat = textTable.textFrameFormat()
+        tableWidth = frameFormat.width()
+
+        # Header color
+        bgBrush = textTable.background()
+
+        dlg.setBackgroundColor(bgBrush.color())
+
+    else:
+      # The cursor is not in a table
+      if selectionCursor.hasSelection():
+        # Convert the selected text to a table
+        TextTable.selectionToTable(selectionCursor)
+        return
+
+      else:
+        # New Table
+        dlg.setBackgroundColor(QtGui.QColor('white'))
+
+    dlg.setTable(textTable)
+    result = dlg.exec()
+
+    if result == QtWidgets.QDialog.DialogCode.Accepted:
+      rows = dlg.rows()
+      columns = dlg.columns()
+      bgColor = dlg.backgroundColor()
+
+      if textTable is None:
+        # The cursor is not within a table - insert a new one
+        textTable = TextTable.createAtCursor(selectionCursor, rows, columns)
+      else:
+        # The cursor is within a table - allow the user to change its formatting
+        if rows != textTable.rows() or columns != textTable.columns():
+          textTable.resize(rows, columns)
+
+      columnConstraints = dlg.getColumnConstraints()
+      textTable.setColumnConstraints(columnConstraints)
+      textTable.setBackground(QtGui.QBrush(bgColor))
 
   @QtCore.Slot()
   def on_styleButton_clicked(self):
