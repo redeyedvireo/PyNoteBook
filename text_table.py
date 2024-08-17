@@ -38,6 +38,105 @@ class TextTable:
       return None
 
   @staticmethod
+  def currentTableRow(cursor: QtGui.QTextCursor) -> int:
+    """Returns the row of the table that the cursor is currently occupying
+
+    Args:
+        cursor (QtGui.QTextCursor): _description_
+
+    Returns:
+        int: Row number
+    """
+    table = cursor.currentTable()
+
+    if table is not None:
+      curCell = table.cellAt(cursor)
+      return curCell.row()
+    else:
+      return -1
+
+  @staticmethod
+  def insertRow(cursor: QtGui.QTextCursor, above: bool):
+    """Inserts a row in the table containing the cursor.
+
+    Args:
+        cursor (QtGui.QTextCursor): _description_
+        above (bool): True for above, False for below
+    """
+    table = cursor.currentTable()
+
+    if table is not None:
+      curCell = table.cellAt(cursor)
+
+      if above:
+        table.insertRows(curCell.row(), 1)
+      else:
+        # Below
+        if curCell.row() == table.rows() - 1:
+          # This is the last row.  Use appendRows to add a row at the end.
+          table.appendRows(1)
+        else:
+          table.insertRows(curCell.row() + 1, 1)
+
+  @staticmethod
+  def deleteRowAtCursor(cursor: QtGui.QTextCursor):
+    """Deletes the row in which the cursor currently resides.
+
+    Args:
+        cursor (QtGui.QTextCursor): _description_
+    """
+    table = cursor.currentTable()
+
+    if table is not None:
+      table.removeRows(table.cellAt(cursor).row(), 1)
+
+  @staticmethod
+  def copyRow(cursor: QtGui.QTextCursor, sourceRow: int):
+    """Copies source row to the row containing the cursor.  Table's size remains the same.
+
+    Args:
+        cursor (QtGui.QTextCursor): _description_
+        sourceRow (int): _description_
+    """
+    table = cursor.currentTable()
+
+    if table is not None:
+      destRow = table.cellAt(cursor).row()
+
+      # Copy the contents of each column from sourceRow to this row
+      numColumns = table.columns()
+
+      for columnNum in range(numColumns):
+        TextTable.copyCell(table, sourceRow, columnNum, destRow, columnNum)
+
+  @staticmethod
+  def copyCell(table: QtGui.QTextTable, sourceRow: int, sourceColumn: int, destRow: int, destColumn: int):
+    """Copies a cell.
+
+    Args:
+        table (QtGui.QTextTable): _description_
+        sourceRow (int): _description_
+        sourceColumn (int): _description_
+        destRow (int): _description_
+        destColumn (int): _description_
+    """
+    sourceCell = table.cellAt(sourceRow, sourceColumn)
+    destCell = table.cellAt(destRow, destColumn)
+
+    # Select the contents of the source cell
+    sourceCellStart = sourceCell.firstCursorPosition()
+    sourceCellEnd = sourceCell.lastCursorPosition()
+
+    sourceCellStart.setPosition(sourceCellEnd.position(), QtGui.QTextCursor.MoveMode.KeepAnchor)
+
+    # The source cell should now be selected
+    textFragment = sourceCellStart.selection()
+
+    # Copy to destination
+    destCellStart = destCell.firstCursorPosition()
+    destCellStart.insertFragment(textFragment)
+
+  @staticmethod
   def selectionToTable(selectionCursor: QtGui.QTextCursor):
     """Converts a selection to a QTextTable.
 

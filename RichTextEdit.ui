@@ -466,7 +466,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QTextEdit" name="textEdit"/>
+    <widget class="CustomTextEdit" name="textEdit"/>
    </item>
    <item>
     <widget class="QWidget" name="richTextEditSearchWidget" native="true">
@@ -539,6 +539,11 @@
    <class>CColorButton</class>
    <extends>QToolButton</extends>
    <header>ColorButton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>custom_text_edit</header>
   </customwidget>
  </customwidgets>
  <resources>

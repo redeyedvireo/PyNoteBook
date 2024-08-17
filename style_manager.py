@@ -11,6 +11,9 @@ class StyleManager:
   def __init__(self) -> None:
     self.styles: dict[int, StyleDef] = { }     # This is a Python dictionary
 
+  def numStyles(self) -> int:
+    return len(self.styles)
+
   def isValidStyleId(self, styleId: int) -> int:
     return styleId in self.styles
 

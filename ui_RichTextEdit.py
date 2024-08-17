@@ -17,9 +17,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QFontComboBox, QHBoxLayout,
     QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
-    QTextEdit, QToolButton, QVBoxLayout, QWidget)
+    QToolButton, QVBoxLayout, QWidget)
 
 from ColorButton import CColorButton
+from custom_text_edit import CustomTextEdit
 import pynotebook_rc
 
 class Ui_RichTextEditWidget(object):
@@ -240,7 +241,7 @@ class Ui_RichTextEditWidget(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.textEdit = QTextEdit(RichTextEditWidget)
+        self.textEdit = CustomTextEdit(RichTextEditWidget)
         self.textEdit.setObjectName(u"textEdit")
 
         self.verticalLayout.addWidget(self.textEdit)
