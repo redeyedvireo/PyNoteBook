@@ -163,8 +163,7 @@ class CustomTextEdit(QtWidgets.QTextEdit):
 
   @QtCore.Slot()
   def onConvertSelectionToTable(self):
-    # TODO: Implement
-    print('Implement onConvertSelectionToTable')
+    TextTable.selectionToTable(self.textCursor())
 
   @QtCore.Slot()
   def onUrlifySelection(self):

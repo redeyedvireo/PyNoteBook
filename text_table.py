@@ -211,21 +211,24 @@ class TextTable:
     # Determine the column delimiter.  The default will be a space, but it might be a
     # tab character.  If a tab character is found in the selected text, we'll assume
     # the fields are tab-delimited.
-    columnDelimiter = '\\s'
+    columnDelimiter = ' '
 
-    if '\\t' in allText:
-      columnDelimiter = '\\t'
+    if '\t' in allText:
+      columnDelimiter = '\t'
 
-    allText.replace('\u8233', '\\n')    # Replace Unicode paragraph separators with \n
-    lines = allText.split('\\n')
+    # allText.replace(u"\u2029", '\n')    # Replace Unicode paragraph separators with \n
+    allText = allText.translate(allText.maketrans({'\u2029': '\n'}))    # Replace Unicode paragraph separators with \n
+    lines = allText.split('\n')
 
     numRows = 0
     numColumns = 0
 
-    # Determine the number of rows and columns in the table
+    tableRows = []      # List of rows, where each row is a list of columns
+
+    # Extract text data from the table
     for line in lines:
       tempLine = ''
-      if columnDelimiter == '\\s':
+      if columnDelimiter == ' ':
         tempLine = line.strip()   # Remove whitespace at the beginning and end of line
         tempLine = re.sub(' +', ' ', tempLine)    # Replace multiple spaces with a single space
       else:
@@ -234,6 +237,7 @@ class TextTable:
       if len(tempLine) > 0:
         numRows += 1
         lineElements = tempLine.split(columnDelimiter)
+        tableRows.append(lineElements)
         numColumns = max(numColumns, len(lineElements))
 
     # Remove the text from the document
@@ -243,25 +247,11 @@ class TextTable:
     table = selectionCursor.insertTable(numRows, numColumns)
 
     # Add the text
-    curRow = 0
-    for line in lines:
-      tempLine = ''
-      if columnDelimiter == '\\s':
-        tempLine = line.strip()   # Remove whitespace at the beginning and end of line
-        tempLine = re.sub(' +', ' ', tempLine)    # Replace multiple spaces with a single space
-      else:
-        tempLine = line.strip()
-
-      if len(tempLine) > 0:
-        curCol = 0
-        lineElements = tempLine.split(columnDelimiter)
-
-        for cellText in lineElements:
-          cell = table.cellAt(curRow, curCol)
-          cursor = cell.firstCursorPosition()
-          cursor.insertText(cellText)
-
-        curCol += 1
+    for rowNum, tableRow in enumerate(tableRows):
+      for colNum, columnText in enumerate(tableRow):
+        cell = table.cellAt(rowNum, colNum)
+        cursor = cell.firstCursorPosition()
+        cursor.insertText(columnText)
 
     # Set some formatting parameters
     tableFormat = table.format()
