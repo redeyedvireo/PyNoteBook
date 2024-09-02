@@ -291,6 +291,58 @@ class TextTable:
     textTable.textTable = cursor.insertTable(rows, columns)
     return textTable
 
+  @staticmethod
+  def tableToText(cursorInTable: QtGui.QTextCursor):
+    table = cursorInTable.currentTable()
+
+    if table is not None:
+      numRows = table.rows()
+      numColumns = table.columns()
+      lines = []
+
+      for row in range(numRows):
+        rowItems = []
+
+        for col in range(numColumns):
+          text = TextTable.getTableCellText(table, row, col)
+          rowItems.append(text)
+
+        lines.append(' '.join(rowItems))
+
+      combinedText = '\n'.join(lines)
+
+      # Add an additional line break to keep the table text separated from the line below it
+      combinedText += '\n'
+
+      # Remove the table
+      tableStartCursor = table.cellAt(0, 0).firstCursorPosition()
+      tableEndCursor = table.cellAt(numRows - 1, numColumns - 1).lastCursorPosition()
+
+      # To remove the entire table, and not just its text, it is necessary to go up a line to start the selection
+      tableStartCursor.movePosition(QtGui.QTextCursor.MoveOperation.Up)
+
+      tableStartCursor.setPosition(tableEndCursor.position(), QtGui.QTextCursor.MoveMode.KeepAnchor)
+
+      # Similarly, we must move one line below the bottom row of the table
+      tableStartCursor.movePosition(QtGui.QTextCursor.MoveOperation.Down, QtGui.QTextCursor.MoveMode.KeepAnchor)
+
+      # Now we can delete
+      tableStartCursor.removeSelectedText()
+
+      cursorInTable.insertText(combinedText)
+
+  @staticmethod
+  def getTableCellText(table: QtGui.QTextTable, row: int, column: int):
+    cell = table.cellAt(row, column)
+
+    # Get the cell's text
+    sourceCellStart = cell.firstCursorPosition()
+    sourceCellEnd = cell.lastCursorPosition()
+
+    sourceCellStart.setPosition(sourceCellEnd.position(), QtGui.QTextCursor.MoveMode.KeepAnchor)
+
+    return sourceCellStart.selectedText()
+
   def rows(self) -> int:
     if self.textTable is not None:
       return self.textTable.rows()

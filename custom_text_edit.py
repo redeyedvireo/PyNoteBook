@@ -144,8 +144,7 @@ class CustomTextEdit(QtWidgets.QTextEdit):
 
   @QtCore.Slot()
   def onConvertTableToText(self):
-    # TODO: Implement
-    print('Implement onConvertTableToText')
+    TextTable.tableToText(self.textCursor())
 
   @QtCore.Slot()
   def onTableFormat(self):
