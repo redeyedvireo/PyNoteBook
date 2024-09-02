@@ -56,6 +56,24 @@ class TextTable:
       return -1
 
   @staticmethod
+  def currentTableColumn(cursor: QtGui.QTextCursor) -> int:
+    """Returns the column of the table that the cursor is currently occupying
+
+    Args:
+        cursor (QtGui.QTextCursor): _description_
+
+    Returns:
+        int: Column number
+    """
+    table = cursor.currentTable()
+
+    if table is not None:
+      curCell = table.cellAt(cursor)
+      return curCell.column()
+    else:
+      return -1
+
+  @staticmethod
   def insertRow(cursor: QtGui.QTextCursor, above: bool):
     """Inserts a row in the table containing the cursor.
 
@@ -91,6 +109,13 @@ class TextTable:
       table.removeRows(table.cellAt(cursor).row(), 1)
 
   @staticmethod
+  def deleteColumnAtCursor(cursor: QtGui.QTextCursor):
+    table = cursor.currentTable()
+
+    if table is not None:
+      table.removeColumns(table.cellAt(cursor).column(), 1)
+
+  @staticmethod
   def copyRow(cursor: QtGui.QTextCursor, sourceRow: int):
     """Copies source row to the row containing the cursor.  Table's size remains the same.
 
@@ -108,6 +133,19 @@ class TextTable:
 
       for columnNum in range(numColumns):
         TextTable.copyCell(table, sourceRow, columnNum, destRow, columnNum)
+
+  @staticmethod
+  def copyColumn(cursor: QtGui.QTextCursor, sourceColumn: int):
+    table = cursor.currentTable()
+
+    if table is not None:
+      destCol = table.cellAt(cursor).column()
+
+      # Copy the contents of each row from sourceColumn to this row
+      numRows = table.rows()
+
+      for rowNum in range(numRows):
+        TextTable.copyCell(table, rowNum, sourceColumn, rowNum, destCol)
 
   @staticmethod
   def copyCell(table: QtGui.QTextTable, sourceRow: int, sourceColumn: int, destRow: int, destColumn: int):
@@ -135,6 +173,28 @@ class TextTable:
     # Copy to destination
     destCellStart = destCell.firstCursorPosition()
     destCellStart.insertFragment(textFragment)
+
+  @staticmethod
+  def insertColumn(cursor: QtGui.QTextCursor, left: bool):
+    """Inserts a column in the table containing the cursor.
+
+    Args:
+        cursor (QtGui.QTextCursor): _description_
+        left (bool): If True, insert the column to the left of the current column; otherwise, insert to the right
+    """
+    table = cursor.currentTable()
+
+    if table is not None:
+      curCell = table.cellAt(cursor)
+
+      if left:
+        table.insertColumns(curCell.column(), 1)
+      else:
+        if curCell.column() == table.columns() - 1:
+          # This is the last column.  Use appendColumns to add a column at the end
+          table.appendColumns(1)
+        else:
+          table.insertColumns(curCell.column() + 1, 1)
 
   @staticmethod
   def selectionToTable(selectionCursor: QtGui.QTextCursor):

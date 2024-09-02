@@ -121,28 +121,26 @@ class CustomTextEdit(QtWidgets.QTextEdit):
 
   @QtCore.Slot()
   def onInsertTableColumnLeft(self):
-    # TODO: Implement
-    print('Implement onInsertTableColumnLeft')
+    TextTable.insertColumn(self.textCursor(), True)
+    self.copiedColumn = -1  # Inserting a new column will throw off the row numbering
 
   @QtCore.Slot()
   def onInsertTableColumnRight(self):
-    # TODO: Implement
-    print('Implement onInsertTableColumnRight')
+    TextTable.insertColumn(self.textCursor(), False)
+    self.copiedColumn = -1  # Inserting a new column will throw off the row numbering
 
   @QtCore.Slot()
   def onCopyTableColumn(self):
-    # TODO: Implement
-    print('Implement onCopyTableColumn')
+    self.copiedColumn = TextTable.currentTableColumn(self.textCursor())
 
   @QtCore.Slot()
   def onPasteTableColumn(self):
-    # TODO: Implement
-    print('Implement onPasteTableColumn')
+    TextTable.copyColumn(self.textCursor(), self.copiedColumn)
 
   @QtCore.Slot()
   def onDeleteTableColumn(self):
-    # TODO: Implement
-    print('Implement onDeleteTableColumn')
+    TextTable.deleteColumnAtCursor(self.textCursor())
+    self.copiedColumn = -1  # Deleting a column will throw off the column numbering
 
   @QtCore.Slot()
   def onConvertTableToText(self):
