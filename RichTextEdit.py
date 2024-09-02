@@ -370,8 +370,24 @@ class RichTextEditWidget(QtWidgets.QWidget):
       textTable.setBackground(QtGui.QBrush(bgColor))
 
   @QtCore.Slot()
+  def on_insertHLineButton_clicked(self):
+    # Note: Inserting a horizontal line is apparently a very tricky operation.  It's not as simple as just
+    # inserting a line and advancing the cursor position.  Here's an answer on Stack Overflow that alludes
+    # to the complexity of performing this operation:
+    # https://stackoverflow.com/questions/76710833/how-do-i-add-a-full-width-horizontal-line-in-qtextedit
+    #
+    # For now, an acceptable solution is the following.  The problem with this approach is that it inserts a
+    # blank line before inserting the horizontal line, but at least it allows the cursor to be advanced afterwards.
+    selectionCursor = self.ui.textEdit.textCursor()
+    curBlockFormat = selectionCursor.blockFormat()      # Get current block format, before inserting the line
+    selectionCursor.insertHtml('<hr />')
+
+    # Advance cursor to after the line
+    selectionCursor.insertBlock(curBlockFormat)         # Create a new block, with the previous block's format (ie, without the line)
+    self.ui.textEdit.setTextCursor(selectionCursor)
+
+  @QtCore.Slot()
   def on_styleButton_clicked(self):
-    print('Style button clicked')
     if self.styleManager is not None:
       styleDlg = SelectStyleDialog(self, self.styleManager)
       if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
