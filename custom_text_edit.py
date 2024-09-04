@@ -5,6 +5,8 @@ from style_manager import StyleManager
 from styleDef import StyleDef
 
 class CustomTextEdit(QtWidgets.QTextEdit):
+  CTE_TableFormat = QtCore.Signal()
+
   def __init__(self, parent):
     super(CustomTextEdit, self).__init__(parent)
 
@@ -148,8 +150,7 @@ class CustomTextEdit(QtWidgets.QTextEdit):
 
   @QtCore.Slot()
   def onTableFormat(self):
-    # TODO: Implement
-    print('Implement onTableFormat')
+    self.CTE_TableFormat.emit()
 
   @QtCore.Slot()
   def onInsertPageLinkDlg(self):

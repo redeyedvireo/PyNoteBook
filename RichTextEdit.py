@@ -44,6 +44,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.selectionChanged.connect(self.onSelectionChanged)
     self.ui.textEdit.textChanged.connect(self.onTextChanged)
     self.ui.textEdit.cursorPositionChanged.connect(self.onCursorPositionChanged)
+    self.ui.textEdit.CTE_TableFormat.connect(self.on_tableButton_clicked)
 
   def populatePointSizesCombo(self):
     fontDatabase = QtGui.QFontDatabase()
