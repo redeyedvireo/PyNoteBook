@@ -66,7 +66,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.styleManager = StyleManager()
     self.styleManager.loadStyleDefs(self.getStyleDefsPath())
 
-    self.ui.pageTextEdit.initialize(self.styleManager)
+    self.ui.pageTextEdit.initialize(self.styleManager, self.ui.messageLabel, self.db)
 
     self.setConnections()
 
@@ -113,6 +113,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     # Editor signals
     self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
+    self.ui.pageTextEdit.newPageSelected.connect(self.onPageSelected)
 
     # Page History Widget
     self.ui.recentlyViewedList.PHW_PageSelected.connect(self.onPageSelected)

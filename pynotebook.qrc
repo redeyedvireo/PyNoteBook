@@ -30,5 +30,6 @@
     <file>Resources/Right.png</file>
     <file>Resources/Center.png</file>
     <file>Resources/Left.png</file>
+    <file>Resources/RedX.png</file>
   </qresource>
 </RCC>

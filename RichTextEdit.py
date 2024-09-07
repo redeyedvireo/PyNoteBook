@@ -7,19 +7,23 @@ from style_manager import StyleManager
 from text_table import TextTable
 from utility import formatDateTime
 from textformatter import TextFormatter, TextInserter
+from database import Database
 
 from ui_RichTextEdit import Ui_RichTextEditWidget
+
+from notebook_types import ENTITY_ID
+
 class RichTextEditWidget(QtWidgets.QWidget):
   editorTextChangedSignal = QtCore.Signal()
+  newPageSelected = QtCore.Signal(ENTITY_ID)
 
-  # def __init__(self, parent):
   def __init__(self):
-
     super(RichTextEditWidget, self).__init__()
     self.ui = Ui_RichTextEditWidget()
     self.ui.setupUi(self)
 
     self.styleManager = None
+    self.db = None
     self.bulletStyleMenu = QtWidgets.QMenu()
     self.numberStyleMenu = QtWidgets.QMenu()
 
@@ -33,8 +37,11 @@ class RichTextEditWidget(QtWidgets.QWidget):
     # Connect signals
     self.setConnections()
 
-  def initialize(self, styleManager: StyleManager):
+  def initialize(self, styleManager: StyleManager, messageLabel: QtWidgets.QLabel, database: Database):
     self.styleManager = styleManager
+    self.db = database
+    self.messageLabel = messageLabel
+    self.ui.textEdit.initialize(self.styleManager, messageLabel, self.db)
     self.initStyleButton()
     self.populatePointSizesCombo()
     self.initBulletStyleButton()
@@ -45,6 +52,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.textChanged.connect(self.onTextChanged)
     self.ui.textEdit.cursorPositionChanged.connect(self.onCursorPositionChanged)
     self.ui.textEdit.CTE_TableFormat.connect(self.on_tableButton_clicked)
+    self.ui.textEdit.CTE_GotoPage.connect(lambda pageId: self.newPageSelected.emit(pageId))
 
   def populatePointSizesCombo(self):
     fontDatabase = QtGui.QFontDatabase()
