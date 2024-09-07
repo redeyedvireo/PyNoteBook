@@ -308,8 +308,11 @@ class CustomTextEdit(QtWidgets.QTextEdit):
 
   @QtCore.Slot()
   def onUrlifySelection(self):
-    # TODO: Implement
-    print('Implement onUrlifySelection')
+    selectionCursor = self.textCursor()
+    selectedText = selectionCursor.selectedText()
+
+    selectionCursor.removeSelectedText()
+    self.insertWebLink(selectedText, selectedText, False)
 
   @QtCore.Slot()
   def onMergeListWithPrevious(self):
