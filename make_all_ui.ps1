@@ -12,3 +12,4 @@ pyside6-uic favorites_dialog.ui -o ui_favorites_dialog.py
 pyside6-uic search_dialog.ui -o ui_search_dialog.py
 pyside6-uic table_format_dlg.ui -o ui_table_format_dlg.py
 pyside6-uic choose_page_to_link_dlg.ui -o ui_choose_page_to_link_dlg.py
+pyside6-uic add_web_link_dlg.ui -o ui_add_web_link_dlg.py

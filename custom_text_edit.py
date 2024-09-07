@@ -7,6 +7,7 @@ from styleDef import StyleDef
 from database import Database
 
 from choose_page_to_link_dlg import ChoosePageToLinkDlg
+from add_web_link_dlg import AddWebLinkDlg
 
 from notebook_types import kInvalidPageId, ENTITY_ID
 
@@ -274,10 +275,32 @@ class CustomTextEdit(QtWidgets.QTextEdit):
       # is within a link, and to move it out of the link.
       self.insertHtml(f'<a href=\"NB://page={pageId}\">[{pageTitle}]</a><br>')
 
+  def insertWebLink(self, url: str, description: str, withBrackets: bool):
+    webUrlStr = url
+
+    if not (url.startswith(WEBURLTAG) or url.startswith(WEBURLTAGS)):
+      # Add "http://" header
+      webUrlStr = f'{WEBURLTAG}{url}'
+
+    # Note the terminating <br>.  This is being added as a way of providing separation
+    # from the link tag.  Without this, if the user were to move the cursor past the link
+    # and begin typing, the text he/she types would end up being part of the link.  By
+    # adding the <br>, the user is able to type beyond the link.  More research is needed
+    # to allow the OnCursorPositionChanged() function to be able to identify that the cursor
+    # is within a link, and to move it out of the link.
+
+    webLinkStr = f'<a href=\"{webUrlStr}\">[{description}]</a><br>' if withBrackets else f'<a href=\"{webUrlStr}\">{description}</a><br>'
+
+    self.insertHtml(webLinkStr)
+
   @QtCore.Slot()
   def onInsertWebLink(self):
-    # TODO: Implement
-    print('Implement onInsertWebLink')
+    dlg = AddWebLinkDlg(self)
+    result = dlg.exec()
+
+    if result == QtWidgets.QDialog.DialogCode.Accepted:
+      url, description = dlg.getLink()
+      self.insertWebLink(url, description, True)
 
   @QtCore.Slot()
   def onConvertSelectionToTable(self):
