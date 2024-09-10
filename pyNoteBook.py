@@ -676,6 +676,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     self.prefs.writePrefsFile()
 
+    # Save style defs
+    self.styleManager.saveStyleDefs(self.getStyleDefsPath())
+
     self.closeNotebookFile()
 
 def shutdownApp():

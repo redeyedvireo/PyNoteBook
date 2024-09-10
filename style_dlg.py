@@ -96,20 +96,20 @@ class StyleDlg(QtWidgets.QDialog):
         self.currentFont.setStrikeOut(styleDef.bIsStrikeout)
 
       if styleDef.formatFlags.hasFlag(FormatFlag.FGColorNone):
-        self.fgColorToolButton.setNoColor()
+        self.ui.fgColorToolButton.setNoColor()
 
       if styleDef.formatFlags.hasFlag(FormatFlag.FGColor):
-        self.fgColorToolButton.setColor(styleDef.textColor)
+        self.ui.fgColorToolButton.setColor(styleDef.textColor)
 
       if styleDef.formatFlags.hasFlag(FormatFlag.BGColorNone):
-        self.bgColorToolButton.setNoColor()
+        self.ui.bgColorToolButton.setNoColor()
 
       if styleDef.formatFlags.hasFlag(FormatFlag.BGColor):
-        self.bgColorToolButton.setColor(styleDef.backgroundColor)
+        self.ui.bgColorToolButton.setColor(styleDef.backgroundColor)
 
   @QtCore.Slot()
   def on_fontButton_clicked(self):
-    font, okClicked = QtWidgets.QFontDialog.getFont(self.currentFont, self, 'Select Font')
+    okClicked, font = QtWidgets.QFontDialog.getFont(self.currentFont, self, 'Select Font')
 
     if okClicked:
       self.currentFont = font
@@ -140,7 +140,7 @@ class StyleDlg(QtWidgets.QDialog):
 
     styleDescription = ', '.join(styleItemList)
 
-    self.fontLabel.setText(styleDescription)
+    self.ui.fontLabel.setText(styleDescription)
 
   def updateResultLabel(self):
     styleElementList: list[str] = []
@@ -159,10 +159,10 @@ class StyleDlg(QtWidgets.QDialog):
       fontStr += ' strikeout'
 
     if self.ui.bgColorToolButton.hasColor():
-      styleElementList.append(f'background-color: {self.bgColorToolButton.getColor().name()}')
+      styleElementList.append(f'background-color: {self.ui.bgColorToolButton.getColor().name()}')
 
     if self.ui.fgColorToolButton.hasColor():
-      styleElementList.append(f'color: {self.fgColorToolButton.getColor().name()}')
+      styleElementList.append(f'color: {self.ui.fgColorToolButton.getColor().name()}')
 
     styleElementList.append(f'font {fontStr} "{self.currentFont.family()}"')
     styleElementList.append(f'font-size: {self.currentFont.pointSize()}px')
@@ -177,4 +177,4 @@ class StyleDlg(QtWidgets.QDialog):
     self.updateResultLabel()
 
   def updateOkButton(self):
-    self.ui.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setEnabled(len(self.styleNameEdit.text()) > 0)
+    self.ui.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setEnabled(len(self.ui.styleNameEdit.text()) > 0)

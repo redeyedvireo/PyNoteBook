@@ -46,8 +46,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="PyLogBook.qrc">
-           <normaloff>:/PyLogBook/Resources/plus.png</normaloff>:/PyLogBook/Resources/plus.png</iconset>
+          <iconset resource="pynotebook.qrc">
+           <normaloff>:/NoteBook/Resources/plus.png</normaloff>:/NoteBook/Resources/plus.png</iconset>
          </property>
         </widget>
        </item>
@@ -57,8 +57,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="PyLogBook.qrc">
-           <normaloff>:/PyLogBook/Resources/minus.png</normaloff>:/PyLogBook/Resources/minus.png</iconset>
+          <iconset resource="pynotebook.qrc">
+           <normaloff>:/NoteBook/Resources/minus.png</normaloff>:/NoteBook/Resources/minus.png</iconset>
          </property>
         </widget>
        </item>
@@ -68,8 +68,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="PyLogBook.qrc">
-           <normaloff>:/PyLogBook/Resources/pencil.png</normaloff>:/PyLogBook/Resources/pencil.png</iconset>
+          <iconset resource="pynotebook.qrc">
+           <normaloff>:/NoteBook/Resources/pencil.png</normaloff>:/NoteBook/Resources/pencil.png</iconset>
          </property>
         </widget>
        </item>

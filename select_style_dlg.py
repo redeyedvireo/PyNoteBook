@@ -13,11 +13,6 @@ class SelectStyleDialog(QtWidgets.QDialog):
     self.ui = Ui_SelectStyleDlg()
     self.ui.setupUi(self)
 
-    # Load icons explicityly, as they don't load automatically (PyQt bug?)
-    self.ui.newButton.setIcon(QtGui.QIcon('Resources/plus.png'))
-    self.ui.deleteButton.setIcon(QtGui.QIcon('Resources/minus.png'))
-    self.ui.editButton.setIcon(QtGui.QIcon('Resources/pencil.png'))
-
     self.styleManager = styleManager
     self.loadStyles()
 
@@ -41,6 +36,10 @@ class SelectStyleDialog(QtWidgets.QDialog):
     itemVar = item.data(QtCore.Qt.ItemDataRole.UserRole)
 
     return int(itemVar)
+
+  def getStyleNameForRow(self, row: int) -> str:
+    item = self.ui.styleList.item(row)
+    return item.text() if item is not None else ''
 
   def getSelectedStyle(self) -> int | None:
     curRow = self.ui.styleList.currentRow()
@@ -71,7 +70,7 @@ class SelectStyleDialog(QtWidgets.QDialog):
 
     dlg = StyleDlg(self, styleDef)
 
-    if dlg.exec() == QtWidgets.QDialog.Accepted:
+    if dlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
       styleDef = dlg.getStyle()
       styleId = self.styleManager.addStyle(styleDef)
 
@@ -88,14 +87,14 @@ class SelectStyleDialog(QtWidgets.QDialog):
                                                 'Delete Style',\
                                                 f'Delete style {self.getStyleNameForRow(curRow)}')
 
-      if response == QtWidgets.QMessageBox.Yes:
+      if response == QtWidgets.QMessageBox.StandardButton.Yes:
         # Delete the style
         self.styleManager.deleteStyle(styleId)
         self.ui.styleList.takeItem(curRow)
 
-  @QtCore.Slot()
-  def on_editButton_clicked(self) -> None:
-    curRow = self.styleList.currentRow()
+  @QtCore.Slot(bool)
+  def on_editButton_clicked(self, checked) -> None:
+    curRow = self.ui.styleList.currentRow()
 
     if curRow != -1:
       styleId = self.getStyleIdForRow(curRow)
@@ -104,7 +103,7 @@ class SelectStyleDialog(QtWidgets.QDialog):
       if styleDef is not None:
         dlg = StyleDlg(self, styleDef)
 
-        if dlg.exec() == QtWidgets.QDialog.Accepted:
+        if dlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
           styleDef = dlg.getStyle()
 
-          self.styleManager.setStyle(styleDef, styleId)
+          self.styleManager.setStyle(styleId, styleDef)

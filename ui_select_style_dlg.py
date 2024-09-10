@@ -47,7 +47,7 @@ class Ui_SelectStyleDlg(object):
         self.newButton = QPushButton(SelectStyleDlg)
         self.newButton.setObjectName(u"newButton")
         icon = QIcon()
-        icon.addFile(u":/PyLogBook/Resources/plus.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/NoteBook/Resources/plus.png", QSize(), QIcon.Normal, QIcon.Off)
         self.newButton.setIcon(icon)
 
         self.verticalLayout_2.addWidget(self.newButton)
@@ -55,7 +55,7 @@ class Ui_SelectStyleDlg(object):
         self.deleteButton = QPushButton(SelectStyleDlg)
         self.deleteButton.setObjectName(u"deleteButton")
         icon1 = QIcon()
-        icon1.addFile(u":/PyLogBook/Resources/minus.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/NoteBook/Resources/minus.png", QSize(), QIcon.Normal, QIcon.Off)
         self.deleteButton.setIcon(icon1)
 
         self.verticalLayout_2.addWidget(self.deleteButton)
@@ -63,7 +63,7 @@ class Ui_SelectStyleDlg(object):
         self.editButton = QPushButton(SelectStyleDlg)
         self.editButton.setObjectName(u"editButton")
         icon2 = QIcon()
-        icon2.addFile(u":/PyLogBook/Resources/pencil.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon2.addFile(u":/NoteBook/Resources/pencil.png", QSize(), QIcon.Normal, QIcon.Off)
         self.editButton.setIcon(icon2)
 
         self.verticalLayout_2.addWidget(self.editButton)
