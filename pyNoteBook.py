@@ -30,6 +30,9 @@ from constants import kPrefsFileName, \
                       kStyleDefsFileName, \
                       kStartupLoadPreviousNoteBook
 
+kUserTextEditor = 0
+kToDoEditor = 1
+
 kMaxLogileSize = 1024 * 1024
 kMaxRecentFiles = 20
 
@@ -115,6 +118,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
     self.ui.pageTextEdit.newPageSelected.connect(self.onPageSelected)
 
+    # ToDo List signals
+    self.ui.pageToDoEdit.toDoListModifiedSignal.connect(self.onPageModified)
+
     # Page History Widget
     self.ui.recentlyViewedList.PHW_PageSelected.connect(self.onPageSelected)
 
@@ -178,6 +184,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   @QtCore.Slot()
   def on_actionNew_Top_Level_Folder_triggered(self):
     self.createNewPage(PAGE_TYPE.kPageFolder, topLevel=True)
+
+  @QtCore.Slot()
+  def on_actionNew_To_Do_List_triggered(self):
+    self.createNewPage(PAGE_TYPE.kPageTypeToDoList)
 
   @QtCore.Slot()
   def on_actionClose_triggered(self):
@@ -566,12 +576,16 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.db.addNewBlankPage(self.currentPageData)
 
       if pageType == PAGE_TYPE.kPageTypeUserText:
+        self.ui.editorStackedWidget.setCurrentIndex(kUserTextEditor)
         # TODO: Should a 'new page created' event be emitted here?
         pass
 
       elif pageType == PAGE_TYPE.kPageFolder:
         # TODO: Should a 'new folder created' event be emitted here?
         pass
+
+      elif pageType == PAGE_TYPE.kPageTypeToDoList:
+        self.ui.editorStackedWidget.setCurrentIndex(kToDoEditor)
 
       # Write the page order to the database.
       pageOrderStr = self.ui.pageTree.getPageOrderString()
@@ -583,11 +597,20 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     # TODO: Once there are multiple editor types, activate the appropriate editor
 
     if pageData.m_pageType == PAGE_TYPE.kPageTypeUserText:
+      self.ui.editorStackedWidget.setCurrentIndex(kUserTextEditor)
       if isNewPage:
-        # TODO: Create new document
+        # TODO: Create new document.  Will this case occur?
         pass
       else:
         self.ui.pageTextEdit.setPageContents(pageData.m_contentString, imageNames)
+
+    elif pageData.m_pageType == PAGE_TYPE.kPageTypeToDoList:
+      self.ui.editorStackedWidget.setCurrentIndex(kToDoEditor)
+      if isNewPage:
+        # TODO: Create new document.  Will this case occur?
+        pass
+      else:
+        self.ui.pageToDoEdit.setPageContents(pageData.m_contentString, imageNames)
 
     # Set tags
     if len(pageData.m_tags) == 0:

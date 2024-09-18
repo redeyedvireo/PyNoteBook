@@ -29,6 +29,7 @@ from page_title_list import CPageTitleList
 from page_tree import CPageTree
 from tag_list import CTagList
 from title_label_widget import CTitleLabelWidget
+from to_do_edit import ToDoEditWidget
 import pynotebook_rc
 
 class Ui_PyNoteBookWindow(object):
@@ -206,6 +207,15 @@ class Ui_PyNoteBookWindow(object):
         self.horizontalLayout_3.setContentsMargins(11, 11, 11, 11)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.editorStackedWidget.addWidget(self.pageTextEdit)
+        self.pageToDoEdit = ToDoEditWidget()
+        self.pageToDoEdit.setObjectName(u"pageToDoEdit")
+        sizePolicy1.setHeightForWidth(self.pageToDoEdit.sizePolicy().hasHeightForWidth())
+        self.pageToDoEdit.setSizePolicy(sizePolicy1)
+        self.horizontalLayout_5 = QHBoxLayout(self.pageToDoEdit)
+        self.horizontalLayout_5.setSpacing(6)
+        self.horizontalLayout_5.setContentsMargins(11, 11, 11, 11)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.editorStackedWidget.addWidget(self.pageToDoEdit)
 
         self.verticalLayout.addWidget(self.editorStackedWidget)
 
@@ -320,7 +330,7 @@ class Ui_PyNoteBookWindow(object):
         self.actionExit.triggered.connect(PyNoteBookWindow.close)
 
         self.navigationTabWidget.setCurrentIndex(4)
-        self.editorStackedWidget.setCurrentIndex(0)
+        self.editorStackedWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(PyNoteBookWindow)
