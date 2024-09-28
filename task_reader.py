@@ -52,7 +52,7 @@ class TaskReader:
     """
     taskDef = TaskDef()
 
-    doneStr = taskNode.get(kPriorityAttr)
+    doneStr = taskNode.get(kDoneAttr)
     taskDef.done =  True if doneStr == '1' else False
 
     priorityStr = taskNode.get(kPriorityAttr)

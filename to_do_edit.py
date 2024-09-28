@@ -3,7 +3,10 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from priority_delegate import PriorityDelegate
 from taskdef import TaskDef, Task
 from task_reader import TaskReader
+from task_writer import writeTasks
 from to_do_item import ToDoItem
+from to_do_item_part import ToDoItemPart
+from taskdef import TaskDef, Task
 
 from ui_to_do_edit import Ui_ToDoEditWidget
 
@@ -14,6 +17,7 @@ from task_constants import kDoneColumn, kPriorityColumn, kTaskColumn
 
 class ToDoEditWidget(QtWidgets.QWidget):
   toDoListModifiedSignal = QtCore.Signal()
+  toDoListSavePage = QtCore.Signal()
 
   def __init__(self, parent: QtWidgets.QWidget | None = None):
     super(ToDoEditWidget, self).__init__(parent)
@@ -112,6 +116,46 @@ class ToDoEditWidget(QtWidgets.QWidget):
 
     taskItem.setSizeHint(hint)
 
+  def getPageContents(self) -> str:
+    # Collect all tasks
+
+    tasks = self.getTopLevelTasks()
+
+    # Use TaskWriter to make a string out of tasks (an XML string)
+    return writeTasks(tasks)
+
+  def getTopLevelTasks(self) -> list[Task]:
+    tasks: list[Task] = []
+
+    rootItem = self.model.invisibleRootItem()
+    numRows = rootItem.rowCount()
+
+    for row in range(numRows):
+      child = rootItem.child(row, kDoneColumn)
+      if type(child) is ToDoItemPart:
+        toDoItem = child.getToDoItemContainer()
+
+        if type(toDoItem) is ToDoItem:
+          task = toDoItem.toTask()
+          tasks.append(task)
+
+          taskDefs = self.getSubTasks(toDoItem)
+          task.subTasks = taskDefs
+
+    return tasks
+
+  def getSubTasks(self, parent: ToDoItem) -> list[TaskDef]:
+    subTasks: list[TaskDef] = []
+    numRows = parent.getNumChildren()
+
+    for row in range(numRows):
+      childToDoItem = parent.getChildTaskToDoItemContainer(row)
+      if childToDoItem is not None:
+        subTask = childToDoItem.toTaskDef()
+        subTasks.append(subTask)
+
+    return subTasks
+
   def setPageContents(self, contents: str, imageNames: list[str]) -> None:
     taskReader = TaskReader()
 
@@ -123,12 +167,12 @@ class ToDoEditWidget(QtWidgets.QWidget):
 
     # Populate the UI
     for task in tasks:
-      toDoItem = self.addTask(task.taskDef.done, task.taskDef, None)
+      toDoItem = self.addTask(task.taskDef, None)
 
       if toDoItem is not None:
         # Populate subtasks
         for subtask in task.subTasks:
-          self.addTask(subtask.done, subtask, toDoItem)
+          self.addTask(subtask, toDoItem)
 
     self.setDocumentModified(False)
     self.loading = False
@@ -136,35 +180,23 @@ class ToDoEditWidget(QtWidgets.QWidget):
   def removeAllTasks(self):
     self.model.removeRows(0, self.model.rowCount())
 
-  def addTask(self, done: bool, taskDef: TaskDef, parent: ToDoItem | None) -> ToDoItem | None:
-    parentItem = self.model.invisibleRootItem() if parent is None else parent.getDoneItem()
+  def addTask(self, taskDef: TaskDef, parent: ToDoItem | None) -> ToDoItem | None:
+    toDoItem = ToDoItem.createFromTaskDef(taskDef, parent)
+    parentItem = self.model.invisibleRootItem() if parent is None else parent.getDonePart()
 
     if parentItem is not None:
-      doneItem = ToDoItem('')
-      priorityItem = ToDoItem(str(taskDef.priority))
-      taskItem = ToDoItem(taskDef.taskText)
-
-      doneItem.setCheckable(True)
-      doneItem.setCheckState(QtCore.Qt.CheckState.Checked if done else QtCore.Qt.CheckState.Unchecked)
-      doneItem.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
-
-      priorityItem.setData(taskDef.priority, QtCore.Qt.ItemDataRole.DisplayRole)
-      priorityItem.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
-
-      parentItem.appendRow([ doneItem, priorityItem, taskItem ])
-
-      doneItem.markTaskDone(done)
+      parentItem.appendRow([ toDoItem.donePart, toDoItem.priorityPart, toDoItem.taskPart ])
 
       self.sortList()
 
       # Note: when the application first starts, this function may not work right,
       # because the UI elements have not yet been sized
 
-      self.updateRowHeight(taskItem.index())
+      self.updateRowHeight(toDoItem.taskPart.index())
 
       self.saveOrEmitModified()       # TODO: Not sure this is needed
 
-      return taskItem
+      return toDoItem
     else:
       return None
 
@@ -172,8 +204,7 @@ class ToDoEditWidget(QtWidgets.QWidget):
     # Don't save if currently in the middle of loading
     if not self.loading:
       if self.autosave:
-        pass
-        # TODO: emit SavePage()
+        self.toDoListSavePage.emit()
       else:
         # Auto-save not enabled.  Tell the main window that it has been modified
         self.modified = True
@@ -194,8 +225,14 @@ class ToDoEditWidget(QtWidgets.QWidget):
       return
 
     elif item.column() == kPriorityColumn:
-      # Priorities have changed: initiate a sort
-      self.sortList()
+      # A priority has changed.  This data is stored in the QStandardItem; this
+      # value needs to be copied to the ToDoItem container.
+      if type(item) is ToDoItemPart:
+        toDoItem = item.getToDoItemContainer()
+        toDoItem.priority = int(item.getValue())
+
+        # Priorities have changed: initiate a sort
+        self.sortList()
 
     elif item.column() == kTaskColumn:
       # Update the row height
@@ -210,12 +247,14 @@ class ToDoEditWidget(QtWidgets.QWidget):
   def handleItemClicked(self, index: QtCore.QModelIndex):
     item = self.model.itemFromIndex(index)
 
-    if type(item) is ToDoItem:
-      done = item.isTaskDone()
+    if type(item) is ToDoItemPart:
+      toDoItem = item.getToDoItemContainer()
+      toDoItem.updateDoneStatusFromCheckState()
+      done = toDoItem.isTaskDone()
 
-      item.crossOutTask(done)
-      item.markSubtasksAsDone(done, True)
-      item.updateParentDoneStatus()
+      toDoItem.crossOutTask(done)
+      toDoItem.markSubtasksAsDone(done, True)
+      toDoItem.updateParentDoneStatus()
 
       if done:
         # Set row visibility (this will hide subtasks as well)

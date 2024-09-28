@@ -120,6 +120,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     # ToDo List signals
     self.ui.pageToDoEdit.toDoListModifiedSignal.connect(self.onPageModified)
+    self.ui.pageToDoEdit.toDoListSavePage.connect(self.on_savePageButton_clicked)
 
     # Page History Widget
     self.ui.recentlyViewedList.PHW_PageSelected.connect(self.onPageSelected)
@@ -149,8 +150,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if self.currentPageData is not None:
       self.currentPageData.m_title = self.ui.titleLabelWidget.getPageTitleLabel()
       self.currentPageData.m_tags = self.ui.tagsEdit.text()
-      self.currentPageData.m_contentString = self.ui.pageTextEdit.toHtml()
       self.currentPageData.m_modifiedDateTime = datetime.datetime.now()
+
+      if self.currentPageData.m_pageType == PAGE_TYPE.kPageTypeUserText:
+        self.currentPageData.m_contentString = self.ui.pageTextEdit.toHtml()
+      elif self.currentPageData.m_pageType == PAGE_TYPE.kPageTypeToDoList:
+        self.currentPageData.m_contentString = self.ui.pageToDoEdit.getPageContents()
 
       success = self.db.updatePage(self.currentPageData)
 
