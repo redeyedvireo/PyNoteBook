@@ -89,6 +89,17 @@ class ToDoEditWidget(QtWidgets.QWidget):
     if self.sorting:
       self.model.sort(kPriorityColumn)
 
+  def updateDoneRowVisibility(self):
+    numRows = self.model.rowCount()
+    rootItem = self.model.invisibleRootItem()
+    rootIndex = rootItem.index()
+
+    for row in range(numRows):
+      toDoItem = self.getTopLevelToDoItem(row, kDoneColumn)
+      if toDoItem is not None:
+        if toDoItem.done:
+          self.ui.treeView.setRowHidden(row, rootIndex, self.hideDoneTasks)
+
   def updateRowHeight(self, index: QtCore.QModelIndex):
     taskItem = self.model.itemFromIndex(index)
 
@@ -200,9 +211,8 @@ class ToDoEditWidget(QtWidgets.QWidget):
     else:
       return None
 
-  def createNewTask(self):
-    taskDef = TaskDef.createFromParts(False, 5, 'Task description')
-    toDoItem = self.addTask(taskDef, None)
+  def createNewTask(self, parent: ToDoItem | None):
+    toDoItem = self.addTask(TaskDef.createFromParts(False, 5, 'Task description'), parent)
 
     if toDoItem is not None:
       # Select the task item
@@ -210,6 +220,37 @@ class ToDoEditWidget(QtWidgets.QWidget):
 
       # Start editing the task
       self.ui.treeView.edit(toDoItem.getItemIndex())
+
+  def createNewSubtask(self):
+    selectedRow = self.getSelectedRow()
+    if selectedRow != -1:
+      rootItem = self.model.invisibleRootItem()
+
+      # TODO: Need to determine if the selectedRow is a top-level row.  If it is not,
+      #       get its parent, which will be a top-level item.
+      donePart = rootItem.child(selectedRow, kDoneColumn)
+
+      if type(donePart) is ToDoItemPart:
+        toDoItem = donePart.container
+        self.createNewTask(toDoItem)
+
+  def deleteSelectedTask(self):
+    selectedRow = self.getSelectedRow()
+    if selectedRow != -1:
+      rootItem = self.model.invisibleRootItem()
+      self.model.removeRow(selectedRow, rootItem.index())
+
+      self.saveOrEmitModified()
+
+  def getSelectedRow(self) -> int:
+    if self.ui.treeView.currentIndex().isValid():
+      return self.ui.treeView.currentIndex().row()
+    else:
+      return -1
+
+  def getTopLevelToDoItem(self, row: int, column: int) -> ToDoItem | None:
+    item = self.model.item(row, column)
+    return item.container if type(item) is ToDoItemPart else None
 
   def saveOrEmitModified(self):
     # Don't save if currently in the middle of loading
@@ -280,9 +321,17 @@ class ToDoEditWidget(QtWidgets.QWidget):
 
   @QtCore.Slot()
   def on_newTaskButton_clicked(self):
-    self.createNewTask()
+    self.createNewTask(None)
+
+  @QtCore.Slot()
+  def on_newSubtaskButton_clicked(self):
+    self.createNewSubtask()
 
   @QtCore.Slot()
   def on_deleteTaskButton_clicked(self):
-    # TODO: Implement
-    pass
+    self.deleteSelectedTask()
+
+  @QtCore.Slot()
+  def on_hideDoneTasksButton_clicked(self):
+    self.hideDoneTasks = self.ui.hideDoneTasksButton.isChecked()
+    self.updateDoneRowVisibility()
