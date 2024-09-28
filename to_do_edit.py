@@ -222,31 +222,49 @@ class ToDoEditWidget(QtWidgets.QWidget):
       self.ui.treeView.edit(toDoItem.getItemIndex())
 
   def createNewSubtask(self):
-    selectedRow = self.getSelectedRow()
+    selectedRow, isTopLevel, parentQModelIndex = self.getSelectedRow()
     if selectedRow != -1:
       rootItem = self.model.invisibleRootItem()
 
-      # TODO: Need to determine if the selectedRow is a top-level row.  If it is not,
-      #       get its parent, which will be a top-level item.
-      donePart = rootItem.child(selectedRow, kDoneColumn)
+      if isTopLevel:
+        donePart = rootItem.child(selectedRow, kDoneColumn)
 
-      if type(donePart) is ToDoItemPart:
-        toDoItem = donePart.container
-        self.createNewTask(toDoItem)
+        if type(donePart) is ToDoItemPart:
+          toDoItem = donePart.container
+          self.createNewTask(toDoItem)
+      else:
+        # The selected row is not a top-level row.  Get its parent, and then create
+        # the subtask off of that.
+        if parentQModelIndex is not None:
+          item = self.model.itemFromIndex(parentQModelIndex)
+
+          if type(item) is ToDoItemPart:
+            toDoItem = item.container
+            self.createNewTask(toDoItem)
 
   def deleteSelectedTask(self):
-    selectedRow = self.getSelectedRow()
+    selectedRow, isTopLevel, parentQModelIndex = self.getSelectedRow()
     if selectedRow != -1:
       rootItem = self.model.invisibleRootItem()
       self.model.removeRow(selectedRow, rootItem.index())
 
       self.saveOrEmitModified()
 
-  def getSelectedRow(self) -> int:
+  def getSelectedRow(self) -> tuple[int, bool, QtCore.QModelIndex | None]:
+    """Returns the index of the selected row, whether this row is a top-level row, and if not,
+       the row's parent QModelIndex.
+
+    Returns:
+        tuple[int, bool]: The first item is the row number.
+                          The second item is a bool indicating whether the row is a top-level row.
+                          The third item is the row's parent QModelIndex, if it exists, or None if it doesn't.
+    """
     if self.ui.treeView.currentIndex().isValid():
-      return self.ui.treeView.currentIndex().row()
+      parent = self.ui.treeView.currentIndex().parent()
+
+      return (self.ui.treeView.currentIndex().row(), not parent.isValid(), parent if parent.isValid() else None)
     else:
-      return -1
+      return (-1, True, None)
 
   def getTopLevelToDoItem(self, row: int, column: int) -> ToDoItem | None:
     item = self.model.item(row, column)
