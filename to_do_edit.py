@@ -133,7 +133,7 @@ class ToDoEditWidget(QtWidgets.QWidget):
     for row in range(numRows):
       child = rootItem.child(row, kDoneColumn)
       if type(child) is ToDoItemPart:
-        toDoItem = child.getToDoItemContainer()
+        toDoItem = child.container
 
         if type(toDoItem) is ToDoItem:
           task = toDoItem.toTask()
@@ -200,6 +200,17 @@ class ToDoEditWidget(QtWidgets.QWidget):
     else:
       return None
 
+  def createNewTask(self):
+    taskDef = TaskDef.createFromParts(False, 5, 'Task description')
+    toDoItem = self.addTask(taskDef, None)
+
+    if toDoItem is not None:
+      # Select the task item
+      self.ui.treeView.setCurrentIndex(toDoItem.getItemIndex())
+
+      # Start editing the task
+      self.ui.treeView.edit(toDoItem.getItemIndex())
+
   def saveOrEmitModified(self):
     # Don't save if currently in the middle of loading
     if not self.loading:
@@ -228,7 +239,7 @@ class ToDoEditWidget(QtWidgets.QWidget):
       # A priority has changed.  This data is stored in the QStandardItem; this
       # value needs to be copied to the ToDoItem container.
       if type(item) is ToDoItemPart:
-        toDoItem = item.getToDoItemContainer()
+        toDoItem = item.container
         toDoItem.priority = int(item.getValue())
 
         # Priorities have changed: initiate a sort
@@ -248,9 +259,8 @@ class ToDoEditWidget(QtWidgets.QWidget):
     item = self.model.itemFromIndex(index)
 
     if type(item) is ToDoItemPart:
-      toDoItem = item.getToDoItemContainer()
-      toDoItem.updateDoneStatusFromCheckState()
-      done = toDoItem.isTaskDone()
+      toDoItem = item.container
+      done = toDoItem.done
 
       toDoItem.crossOutTask(done)
       toDoItem.markSubtasksAsDone(done, True)
@@ -267,6 +277,10 @@ class ToDoEditWidget(QtWidgets.QWidget):
       self.ui.treeView.setCurrentIndex(item.index())
 
       self.saveOrEmitModified()
+
+  @QtCore.Slot()
+  def on_newTaskButton_clicked(self):
+    self.createNewTask()
 
   @QtCore.Slot()
   def on_deleteTaskButton_clicked(self):

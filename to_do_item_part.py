@@ -12,18 +12,36 @@ class ToDoItemPart(QtGui.QStandardItem):
   def __init__(self, text: str):
     super(ToDoItemPart, self).__init__(text)
 
+  @property
+  def checked(self) -> bool:
+    return self.checkState() == QtCore.Qt.CheckState.Checked if self.isCheckable() else False
+
+  @checked.setter
+  def checked(self, checked: bool):
+    self.setCheckState(QtCore.Qt.CheckState.Checked if checked else QtCore.Qt.CheckState.Unchecked)
+
+  # The 'container' is the ToDoItem object, which contains each of the 3 parts (donePart, priorityPart, taskTextPart)
+  # Note: can't declare the return type due to a circular import
+  @property
+  def container(self):
+    return self.data(QtCore.Qt.ItemDataRole.UserRole)
+
+  @container.setter
+  def container(self, container):
+    self.setData(container, QtCore.Qt.ItemDataRole.UserRole)
+
   def __lt__(self, other: 'ToDoItemPart') -> bool:
     # The sort order places done items as the lowest priority, so that
     # the list will place all non-done items before all done items,
     # and within each group (done and non-done), items will be sorted
     # by priority.
     from to_do_item import ToDoItem
-    toDoItemContainer = self.getToDoItemContainer()
-    otherToDoItemContainer = other.getToDoItemContainer()
+    toDoItemContainer = self.container
+    otherToDoItemContainer = other.container
 
     if type(toDoItemContainer) is ToDoItem and type(otherToDoItemContainer) is ToDoItem:
-      thisItemIsDone = toDoItemContainer.isTaskDone()
-      otherItemIsDone = otherToDoItemContainer.isTaskDone()
+      thisItemIsDone = toDoItemContainer.done
+      otherItemIsDone = otherToDoItemContainer.done
 
       thisItemPriority = toDoItemContainer.priority
       otherItemPriority = otherToDoItemContainer.priority
@@ -39,18 +57,5 @@ class ToDoItemPart(QtGui.QStandardItem):
     else:
       return False      # Should never get here
 
-  def getToDoItemContainer(self):
-    """Returns the ToDoItem 'container' of this ToDoItemPart
-
-    Returns:
-        ToDoItem: Container item
-                  Note: can't declare the return type due to a circular import
-    """
-    return self.data(QtCore.Qt.ItemDataRole.UserRole)
-
   def getValue(self) -> str:
     return self.data(QtCore.Qt.ItemDataRole.DisplayRole)
-
-  def isChecked(self) -> bool:
-    """ Gets the checked state of the item, if it is checkable.  If not, False is returned. """
-    return self.checkState() == QtCore.Qt.CheckState.Checked if self.isCheckable() else False

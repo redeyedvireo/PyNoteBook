@@ -24,21 +24,19 @@ class ToDoItem:
     """
     super(ToDoItem, self).__init__()
 
-    self.done = done
-    self.priority = priority
-    self.taskText = taskText
     self.parentContainer = parentContainer
 
     # The data of each item contains its container (ie, this object)
     self.donePart = ToDoItemPart('')
-    self.donePart.setData(self, QtCore.Qt.ItemDataRole.UserRole)
+    self.donePart.container = self
+    self.done = done
 
     self.priorityPart = ToDoItemPart('')
-    self.priorityPart.setData(str(self.priority), QtCore.Qt.ItemDataRole.DisplayRole)
-    self.priorityPart.setData(self, QtCore.Qt.ItemDataRole.UserRole)
+    self.priority = priority
+    self.priorityPart.container = self
 
-    self.taskPart = ToDoItemPart(self.taskText)
-    self.taskPart.setData(self, QtCore.Qt.ItemDataRole.UserRole)
+    self.taskPart = ToDoItemPart(taskText)
+    self.taskPart.container = self
 
   @staticmethod
   def createFromTaskDef(taskDef: TaskDef, parentContainer) -> 'ToDoItem':
@@ -54,13 +52,37 @@ class ToDoItem:
     toDoItem = ToDoItem(taskDef.done, taskDef.priority, taskDef.taskText, parentContainer)
 
     toDoItem.donePart.setCheckable(True)
-    toDoItem.donePart.setCheckState(QtCore.Qt.CheckState.Checked if taskDef.done else QtCore.Qt.CheckState.Unchecked)
+    toDoItem.donePart.checked = taskDef.done
     toDoItem.donePart.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
 
     toDoItem.priorityPart.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
 
-    toDoItem.setTaskDoneStatus(taskDef.done)
+    toDoItem.done = taskDef.done
     return toDoItem
+
+  @property
+  def done(self) -> bool:
+    return self.donePart.checked
+
+  @done.setter
+  def done(self, done: bool):
+    self.donePart.checked = done
+
+  @property
+  def priority(self) -> int:
+    return int(self.priorityPart.data(QtCore.Qt.ItemDataRole.DisplayRole))
+
+  @priority.setter
+  def priority(self, priority: int):
+    self.priorityPart.setData(str(priority), QtCore.Qt.ItemDataRole.DisplayRole)
+
+  @property
+  def taskText(self) -> str:
+    return self.taskPart.text()
+
+  @taskText.setter
+  def setTaskText(self, value: str):
+    self.taskPart.setText(value)
 
   def toTaskDef(self) -> TaskDef:
     return TaskDef.createFromParts(self.done, self.priority, self.taskText)
@@ -79,14 +101,11 @@ class ToDoItem:
   def getTaskPart(self) -> ToDoItemPart:
     return self.taskPart
 
-  def isTaskDone(self) -> bool:
-    return self.done
-
   def updateParentDoneStatus(self):
     parentContainer = self.parentContainer
 
     if parentContainer is not None:
-      currentDoneStatus = parentContainer.isTaskDone()
+      currentDoneStatus = parentContainer.done
 
       # If all subtasks are done, then the parent task is done.
       numRows = parentContainer.getNumChildren()
@@ -106,23 +125,9 @@ class ToDoItem:
         # The status has changed.  Must update it.  If all subtasks are done,
         # then mark the parent as done.  If they are not all done, mark
         # the parent as not done.
-        parentContainer.setTaskDoneStatus(allSubTasksDone)
+        parentContainer.done = allSubTasksDone
         parentContainer.crossOutTask(allSubTasksDone)
         parentContainer.updateParentDoneStatus()
-
-  def updateDoneStatusFromCheckState(self):
-    """Updates the done status of the task from the check state of the done part.
-    """
-    self.done = self.donePart.isChecked()
-
-  def setTaskDoneStatus(self, done: bool):
-    """Sets the task done staus, AND sets the check state of the done part.
-
-    Args:
-        done (bool): True to set done, False otherwise.
-    """
-    self.done = done
-    self.donePart.setCheckState(QtCore.Qt.CheckState.Checked if done else QtCore.Qt.CheckState.Unchecked)
 
   def crossOutTask(self, doCrossOut: bool):
     font = self.taskPart.font()
@@ -134,14 +139,14 @@ class ToDoItem:
     for row in range(numRows):
       childTask = self.getChildTaskToDoItemContainer(row)
       if childTask is not None:
-        childTask.setTaskDoneStatus(done)
+        childTask.done = done
 
         if crossOutSubtasks:
           childTask.crossOutTask(done)
 
   def isChildTaskDone(self, row: int) -> bool:
     childTask = self.getChildTaskToDoItemContainer(row)
-    return childTask.isTaskDone() if childTask is not None else False
+    return childTask.done if childTask is not None else False
 
   def getNumChildren(self) -> int:
     """Returns the number of subtasks for this task
@@ -169,6 +174,9 @@ class ToDoItem:
     """
     childItem = self.getChildTask(row)
     if childItem is not None:
-      return childItem.getToDoItemContainer()
+      return childItem.container
     else:
       return None
+
+  def getItemIndex(self) -> QtCore.QModelIndex:
+    return self.taskPart.index()
