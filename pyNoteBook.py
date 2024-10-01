@@ -275,7 +275,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       # Add page to the page history
       self.ui.recentlyViewedList.addHistoryItem(pageId, self.currentPageData.m_title)
 
-      # TODO: Notify child components that a new page has been selected?
+      # Notify child components that a new page has been selected
+      self.ui.pageTree.selectPage(pageId)
+      # TODO: Might need to notify date pane? (see C++ version)
+
     else:
       # Page does not exist.  Blank out editors.
       logging.error(f'[PyNoteBookWindow.onPageSelected] Page ID {pageId} does not exist')

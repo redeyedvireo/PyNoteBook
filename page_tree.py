@@ -354,6 +354,18 @@ class CPageTree(QtWidgets.QTreeWidget):
     else:
       return False
 
+  def selectPage(self, pageId: ENTITY_ID):
+    selectedItem = self.findItem(pageId)
+
+    if selectedItem is not None:
+      # Need to set the loading flag, because the scrollToItem() function, called below,
+      # causes various subtrees to expand, which trigger onItemChanged() to be called.
+      self.loading = True
+
+      self.scrollToItem(selectedItem)
+      self.setCurrentItem(selectedItem)
+      self.loading = False
+
   def removePage(self, pageId: ENTITY_ID):
     item = self.findItem(pageId)
 
