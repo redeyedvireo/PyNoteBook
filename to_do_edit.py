@@ -246,7 +246,15 @@ class ToDoEditWidget(QtWidgets.QWidget):
     selectedRow, isTopLevel, parentQModelIndex = self.getSelectedRow()
     if selectedRow != -1:
       rootItem = self.model.invisibleRootItem()
-      self.model.removeRow(selectedRow, rootItem.index())
+
+      if isTopLevel:
+        self.model.removeRow(selectedRow, rootItem.index())
+
+      else:
+        # The selected row is not a top-level row.  Get its parent, and then delete
+        # the child off of the parent.
+        if parentQModelIndex is not None:
+          self.model.removeRow(selectedRow, parentQModelIndex)
 
       self.saveOrEmitModified()
 
