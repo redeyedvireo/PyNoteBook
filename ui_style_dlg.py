@@ -121,7 +121,7 @@ class Ui_CStyleDlg(object):
         self.fgColorToolButton.setObjectName(u"fgColorToolButton")
         self.fgColorToolButton.setEnabled(True)
         icon = QIcon()
-        icon.addFile(u":/PyLogBook/Resources/Text Foreground.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/NoteBook/Resources/Text Foreground.png", QSize(), QIcon.Normal, QIcon.Off)
         self.fgColorToolButton.setIcon(icon)
 
         self.gridLayout.addWidget(self.fgColorToolButton, 0, 1, 1, 1)
@@ -135,7 +135,7 @@ class Ui_CStyleDlg(object):
         self.bgColorToolButton.setObjectName(u"bgColorToolButton")
         self.bgColorToolButton.setEnabled(True)
         icon1 = QIcon()
-        icon1.addFile(u":/PyLogBook/Resources/Text Background.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/NoteBook/Resources/Text Background.png", QSize(), QIcon.Normal, QIcon.Off)
         self.bgColorToolButton.setIcon(icon1)
 
         self.gridLayout.addWidget(self.bgColorToolButton, 1, 1, 1, 1)
@@ -150,6 +150,7 @@ class Ui_CStyleDlg(object):
         self.sampleLabel = QLabel(CStyleDlg)
         self.sampleLabel.setObjectName(u"sampleLabel")
         self.sampleLabel.setMinimumSize(QSize(0, 25))
+        self.sampleLabel.setStyleSheet(u"background-color: white;")
         self.sampleLabel.setFrameShape(QFrame.Box)
         self.sampleLabel.setTextFormat(Qt.RichText)
 

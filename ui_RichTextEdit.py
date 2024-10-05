@@ -243,6 +243,8 @@ class Ui_RichTextEditWidget(object):
 
         self.textEdit = CustomTextEdit(RichTextEditWidget)
         self.textEdit.setObjectName(u"textEdit")
+        self.textEdit.setAutoFillBackground(True)
+        self.textEdit.setStyleSheet(u"background-color: white;")
 
         self.verticalLayout.addWidget(self.textEdit)
 
@@ -263,6 +265,7 @@ class Ui_RichTextEditWidget(object):
 
         self.searchEdit = QLineEdit(self.richTextEditSearchWidget)
         self.searchEdit.setObjectName(u"searchEdit")
+        self.searchEdit.setStyleSheet(u"background-color: white;")
 
         self.horizontalLayout_3.addWidget(self.searchEdit)
 

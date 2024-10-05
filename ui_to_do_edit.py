@@ -60,6 +60,7 @@ class Ui_ToDoEditWidget(object):
 
         self.treeView = QTreeView(ToDoEditWidget)
         self.treeView.setObjectName(u"treeView")
+        self.treeView.setStyleSheet(u"background-color: white;")
         self.treeView.setEditTriggers(QAbstractItemView.DoubleClicked|QAbstractItemView.EditKeyPressed|QAbstractItemView.SelectedClicked)
         self.treeView.setDragEnabled(True)
         self.treeView.setDragDropMode(QAbstractItemView.InternalMove)

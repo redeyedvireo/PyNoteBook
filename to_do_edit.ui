@@ -88,6 +88,9 @@
    </item>
    <item>
     <widget class="QTreeView" name="treeView">
+     <property name="styleSheet">
+      <string notr="true">background-color: white;</string>
+     </property>
      <property name="editTriggers">
       <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
      </property>

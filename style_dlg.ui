@@ -150,8 +150,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Text Foreground.png</normaloff>:/PyLogBook/Resources/Text Foreground.png</iconset>
+        <iconset resource="pynotebook.qrc">
+         <normaloff>:/NoteBook/Resources/Text Foreground.png</normaloff>:/NoteBook/Resources/Text Foreground.png</iconset>
        </property>
       </widget>
      </item>
@@ -171,8 +171,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="PyLogBook.qrc">
-         <normaloff>:/PyLogBook/Resources/Text Background.png</normaloff>:/PyLogBook/Resources/Text Background.png</iconset>
+        <iconset resource="pynotebook.qrc">
+         <normaloff>:/NoteBook/Resources/Text Background.png</normaloff>:/NoteBook/Resources/Text Background.png</iconset>
        </property>
       </widget>
      </item>
@@ -201,6 +201,9 @@
        <width>0</width>
        <height>25</height>
       </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: white;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>

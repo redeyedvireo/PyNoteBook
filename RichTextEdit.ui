@@ -466,7 +466,14 @@
     </layout>
    </item>
    <item>
-    <widget class="CustomTextEdit" name="textEdit"/>
+    <widget class="CustomTextEdit" name="textEdit">
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: white;</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QWidget" name="richTextEditSearchWidget" native="true">
@@ -501,7 +508,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="searchEdit"/>
+       <widget class="QLineEdit" name="searchEdit">
+        <property name="styleSheet">
+         <string notr="true">background-color: white;</string>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="horizontalSpacer_4">

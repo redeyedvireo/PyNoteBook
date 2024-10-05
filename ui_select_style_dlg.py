@@ -39,6 +39,7 @@ class Ui_SelectStyleDlg(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.styleList.sizePolicy().hasHeightForWidth())
         self.styleList.setSizePolicy(sizePolicy)
+        self.styleList.setStyleSheet(u"background-color: white;")
 
         self.horizontalLayout.addWidget(self.styleList)
 
@@ -99,6 +100,7 @@ class Ui_SelectStyleDlg(object):
         sizePolicy2.setHeightForWidth(self.descriptionEdit.sizePolicy().hasHeightForWidth())
         self.descriptionEdit.setSizePolicy(sizePolicy2)
         self.descriptionEdit.setMaximumSize(QSize(16777215, 100))
+        self.descriptionEdit.setStyleSheet(u"background-color: white;")
         self.descriptionEdit.setReadOnly(True)
 
         self.verticalLayout.addWidget(self.descriptionEdit)
