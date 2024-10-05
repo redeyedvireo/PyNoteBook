@@ -47,6 +47,9 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.initBulletStyleButton()
     self.initNumberStyleButton()
 
+    # Hide the search widgets to start
+    self.ui.richTextEditSearchWidget.hide()
+
   def setConnections(self):
     self.ui.textEdit.selectionChanged.connect(self.onSelectionChanged)
     self.ui.textEdit.textChanged.connect(self.onTextChanged)
@@ -437,3 +440,53 @@ class RichTextEditWidget(QtWidgets.QWidget):
   @QtCore.Slot()
   def onUpperCaseRomanNumeralsTriggered(self):
     TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListUpperRoman)
+
+  @QtCore.Slot()
+  def on_searchButton_clicked(self):
+    self.ui.richTextEditSearchWidget.show()
+    self.ui.searchEdit.setFocus(QtCore.Qt.FocusReason.MouseFocusReason)
+
+  @QtCore.Slot()
+  def on_searchHideButton_clicked(self):
+    self.ui.richTextEditSearchWidget.hide()
+    self.ui.textEdit.setFocus(QtCore.Qt.FocusReason.MouseFocusReason)
+
+  @QtCore.Slot()
+  def on_searchEdit_returnPressed(self):
+    # Return was pressed while the search edit widget had the focus.  In this case, move the cursor
+    # to the top of the document, and begin the search.
+    # TODO: Is this the best approach?  It seems most editors start searching from the cursor's current position.
+    self.ui.textEdit.moveCursor(QtGui.QTextCursor.MoveOperation.Start)
+    self.onSearchNext()
+
+  @QtCore.Slot()
+  def on_nextButton_clicked(self):
+    self.onSearchNext()
+
+  @QtCore.Slot()
+  def on_prevButton_clicked(self):
+    self.onSearchPrevious()
+
+  def onSearchNext(self):
+    self.search(True)
+
+  def onSearchPrevious(self):
+    self.search(False)
+
+  def search(self, searchForward: bool):
+    searchFlags = QtGui.QTextDocument.FindFlag() if searchForward else QtGui.QTextDocument.FindFlag.FindBackward
+    wrapPosition = QtGui.QTextCursor.MoveOperation.Start if searchForward else QtGui.QTextCursor.MoveOperation.End
+
+    if self.ui.wholeWordCheckBox.isChecked():
+      searchFlags = searchFlags | QtGui.QTextDocument.FindFlag.FindWholeWords
+
+    if self.ui.matchCaseCheckBox.isChecked():
+      searchFlags = searchFlags | QtGui.QTextDocument.FindFlag.FindCaseSensitively
+
+    searchText = self.ui.searchEdit.text()
+
+    self.ui.textEdit.setFocus(QtCore.Qt.FocusReason.MouseFocusReason)
+    if not self.ui.textEdit.find(searchText, searchFlags):   # Find forward, case-insensitively
+      # If didn't find the text, wrap around to the beginning
+      self.ui.textEdit.moveCursor(wrapPosition)
+      self.ui.textEdit.find(searchText, searchFlags)

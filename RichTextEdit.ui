@@ -459,7 +459,7 @@
          <normaloff>:/NoteBook/Resources/Search.png</normaloff>:/NoteBook/Resources/Search.png</iconset>
        </property>
        <property name="shortcut">
-        <string>Alt+S</string>
+        <string>Ctrl+F</string>
        </property>
       </widget>
      </item>
@@ -492,8 +492,8 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset>
-          <normaloff>:/PyNoteBook/Resources/Close.png</normaloff>:/PyNoteBook/Resources/Close.png</iconset>
+         <iconset resource="pynotebook.qrc">
+          <normaloff>:/NoteBook/Resources/Close.png</normaloff>:/NoteBook/Resources/Close.png</iconset>
         </property>
         <property name="flat">
          <bool>true</bool>
@@ -502,6 +502,36 @@
       </item>
       <item>
        <widget class="QLineEdit" name="searchEdit"/>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>5</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="matchCaseCheckBox">
+        <property name="text">
+         <string>Match Case</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="wholeWordCheckBox">
+        <property name="text">
+         <string>Whole Words</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="prevButton">

@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QFontComboBox, QHBoxLayout,
-    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
-    QToolButton, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFontComboBox,
+    QHBoxLayout, QLineEdit, QPushButton, QSizePolicy,
+    QSpacerItem, QToolButton, QVBoxLayout, QWidget)
 
 from ColorButton import CColorButton
 from custom_text_edit import CustomTextEdit
@@ -255,7 +255,7 @@ class Ui_RichTextEditWidget(object):
         self.searchHideButton = QPushButton(self.richTextEditSearchWidget)
         self.searchHideButton.setObjectName(u"searchHideButton")
         icon17 = QIcon()
-        icon17.addFile(u":/PyNoteBook/Resources/Close.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon17.addFile(u":/NoteBook/Resources/Close.png", QSize(), QIcon.Normal, QIcon.Off)
         self.searchHideButton.setIcon(icon17)
         self.searchHideButton.setFlat(True)
 
@@ -265,6 +265,20 @@ class Ui_RichTextEditWidget(object):
         self.searchEdit.setObjectName(u"searchEdit")
 
         self.horizontalLayout_3.addWidget(self.searchEdit)
+
+        self.horizontalSpacer_4 = QSpacerItem(5, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_3.addItem(self.horizontalSpacer_4)
+
+        self.matchCaseCheckBox = QCheckBox(self.richTextEditSearchWidget)
+        self.matchCaseCheckBox.setObjectName(u"matchCaseCheckBox")
+
+        self.horizontalLayout_3.addWidget(self.matchCaseCheckBox)
+
+        self.wholeWordCheckBox = QCheckBox(self.richTextEditSearchWidget)
+        self.wholeWordCheckBox.setObjectName(u"wholeWordCheckBox")
+
+        self.horizontalLayout_3.addWidget(self.wholeWordCheckBox)
 
         self.prevButton = QPushButton(self.richTextEditSearchWidget)
         self.prevButton.setObjectName(u"prevButton")
@@ -375,9 +389,11 @@ class Ui_RichTextEditWidget(object):
 #endif // QT_CONFIG(tooltip)
         self.searchButton.setText("")
 #if QT_CONFIG(shortcut)
-        self.searchButton.setShortcut(QCoreApplication.translate("RichTextEditWidget", u"Alt+S", None))
+        self.searchButton.setShortcut(QCoreApplication.translate("RichTextEditWidget", u"Ctrl+F", None))
 #endif // QT_CONFIG(shortcut)
         self.searchHideButton.setText("")
+        self.matchCaseCheckBox.setText(QCoreApplication.translate("RichTextEditWidget", u"Match Case", None))
+        self.wholeWordCheckBox.setText(QCoreApplication.translate("RichTextEditWidget", u"Whole Words", None))
 #if QT_CONFIG(tooltip)
         self.prevButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Previous Occurrence (Ctrl+P)", None))
 #endif // QT_CONFIG(tooltip)
