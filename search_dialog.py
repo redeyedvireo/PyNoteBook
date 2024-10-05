@@ -78,7 +78,7 @@ class SearchDialog(QtWidgets.QDialog):
           elif searchText in tags:
             self.addItem(pageId, pageTitle)
 
-    self.restorCursor()
+    self.restoreCursor()
 
   def addItem(self, pageId: ENTITY_ID, title: str):
     newItem = QtWidgets.QListWidgetItem(title)
@@ -90,7 +90,7 @@ class SearchDialog(QtWidgets.QDialog):
     if app is not None:
       app.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CursorShape.WaitCursor))
 
-  def restorCursor(self):
+  def restoreCursor(self):
     app = self.getApp()
     if app is not None:
       app.restoreOverrideCursor()
