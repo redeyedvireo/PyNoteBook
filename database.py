@@ -1,10 +1,10 @@
-from PySide6 import QtCore, QtSql
+from PySide6 import QtCore, QtSql, QtGui
 from pathlib import Path
 import datetime
 import logging
 
 from encrypter import Encrypter
-from utility import toQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray, unknownToString
+from utility import toQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray, unknownToString, pixmapToQByteArray, qByteArrayToPixmap
 
 from page_data import PageData, PageDataDict, PageIdDict
 from notebook_types import PAGE_TYPE, ENTITY_ID, ENTITY_LIST, ENTITY_PAIR, ENTITY_PAIR_LIST, ID_TITLE_LIST, kInvalidPageId
@@ -19,6 +19,12 @@ kDataTypeBlob = 2
 kPageHistoryKey = "pagehistory"
 kDatabaseVersionId = "databaseversion"
 kPageOrderKey = "pageorder"
+
+# Table names
+kAdditionalDataTable = "additionaldata"
+
+# Additional data types (for the Additional Data table)
+kImageData = 1
 
 class Database:
   def __init__(self):
@@ -765,3 +771,98 @@ class Database:
       val = self.getQueryField(queryObj, 'pageid')
 
       return val if type(val) == int else None
+
+  def addImage(self, imageName: str, pixmap: QtGui.QPixmap, parentPageId: ENTITY_ID) -> bool:
+    # Convert the pixmap to a QByteArray for storage
+    # See: https://stackoverflow.com/questions/57404778/how-to-convert-a-qpixmaps-image-into-a-bytes
+    pixmapSaveSuccess, imageData = pixmapToQByteArray(pixmap)
+
+    if not pixmapSaveSuccess:
+      self.reportError('[Database.addImage] error: Converting pixmap to byte array failed')
+      return False
+
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare(f"insert into {kAdditionalDataTable} (itemid, type, contents, parentid) values (?, ?, ?, ?)")
+
+    queryObj.addBindValue(imageName)
+    queryObj.addBindValue(kImageData)
+    queryObj.addBindValue(imageData)
+    queryObj.addBindValue(parentPageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.addImage] Error when attempting to save an image: {sqlErr.text()}')
+      return False
+
+    return True
+
+  def getImage(self, imageName: str) -> QtGui.QPixmap | None:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare(f"select contents from {kAdditionalDataTable} where itemid=?")
+    queryObj.addBindValue(imageName)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.getFirstPageId] error: {sqlErr.text()}')
+      return None
+
+    if queryObj.first():
+      contentsField = queryObj.record().indexOf('contents')
+      byteArray = queryObj.value(contentsField).toByteArray()
+      pixmapConvertSuccess, pixmap = qByteArrayToPixmap(byteArray)
+
+      if not pixmapConvertSuccess:
+        self.reportError('[Database.addImage] error: Converting byte array to pixmap failed')
+        return None
+
+      else:
+        return pixmap
+    else:
+      return None
+
+  def getImageNamesForPage(self, pageId: ENTITY_ID) -> list[str]:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare(f"select itemid from {kAdditionalDataTable} where parentid=?")
+    queryObj.addBindValue(pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.getImageNamesForPage] Error when attempting to retrieve image names: {sqlErr.text()}')
+      return []
+
+    nameList = []
+
+    while queryObj.next():
+      nameField = queryObj.record().indexOf('itemid')
+      imageName = unknownToString(queryObj.value(nameField))
+      nameList.append(imageName)
+
+    return nameList
+
+  def deleteAllImagesForPage(self, pageId: ENTITY_ID) -> bool:
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare(f"delete from {kAdditionalDataTable} where parentid=?")
+    queryObj.addBindValue(pageId)
+
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError(f'[Database.deleteAllImagesForPage] error: {sqlErr.text()}')
+      return False
+    else:
+      return True
