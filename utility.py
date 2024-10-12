@@ -1,6 +1,6 @@
 from typing import Any
 import logging
-from PySide6 import QtCore
+from PySide6 import QtCore, QtGui
 import os.path
 import time
 import datetime
@@ -89,3 +89,21 @@ def stringToArray(inStr: str) -> list[str]:
       resultArray = [inStr]      # Just one element
 
   return resultArray
+
+def pixmapToQByteArray(pixmap: QtGui.QPixmap) -> tuple[bool, QtCore.QByteArray]:
+  # From: https://stackoverflow.com/questions/57404778/how-to-convert-a-qpixmaps-image-into-a-bytes
+  imageData = QtCore.QByteArray()
+  buffer = QtCore.QBuffer(imageData)
+  buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
+  success = pixmap.save(buffer, 'PNG')
+  buffer.close()
+
+  return (success, imageData)
+
+def qByteArrayToPixmap(data: QtCore.QByteArray) -> tuple[bool, QtGui.QPixmap]:
+  # From: https://stackoverflow.com/questions/57404778/how-to-convert-a-qpixmaps-image-into-a-bytes
+  byteArray = QtCore.QByteArray(data)
+  pixmap = QtGui.QPixmap()
+  success = pixmap.loadFromData(byteArray, 'PNG')
+
+  return (success, pixmap)
