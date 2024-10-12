@@ -128,13 +128,13 @@ class RichTextEditWidget(QtWidgets.QWidget):
   def setDocumentText(self, content: str) -> None:
     self.ui.textEdit.setHtml(content)
 
-  def setPageContents(self, contents: str, imageNames: list[str]) -> None:
+  def setPageContents(self, contents: str, imageNames: list[str], pageId: ENTITY_ID) -> None:
     self.ui.textEdit.clear()
 
     # TODO: Load images
 
     self.ui.textEdit.setHtml(contents)      # The C++ version uses insertHtml()
-
+    self.ui.textEdit.currentPageId = pageId
     self.setDocumentModified(False)
 
   def setGlobalFont(self, fontFamily, fontSize):
@@ -440,6 +440,46 @@ class RichTextEditWidget(QtWidgets.QWidget):
   @QtCore.Slot()
   def onUpperCaseRomanNumeralsTriggered(self):
     TextInserter.setBulletStyle(self.ui.textEdit, QtGui.QTextListFormat.Style.ListUpperRoman)
+
+  @QtCore.Slot()
+  def on_clearFormattingButton_clicked(self):
+    selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
+
+    currentBlockFormat = selectionCursor.blockFormat()
+
+    # Ensure lines are single-spaced
+
+    # There is a problem with Pyside's implementation of QTextBlockFormat.setLineHeight().  The second parameter
+    # should be able ta take QtGui.QTextBlockFormat.LineHeightTypes.SingleHeight, but it throws an error about the
+    # enum being incompatible with type int.  I determined from experimentation that the value of this enum is 0,
+    # so we'll use 0 for the second parameter.
+    # currentBlockFormat.setLineHeight(0.0, QtGui.QTextBlockFormat.LineHeightTypes.SingleHeight)  # This should work, but throws an exception
+    currentBlockFormat.setLineHeight(0.0, 0)  # The second parameter is the value of QtGui.QTextBlockFormat.LineHeightTypes.SingleHeight
+    currentBlockFormat.setTopMargin(0)
+    currentBlockFormat.setBottomMargin(0)
+    selectionCursor.setBlockFormat(currentBlockFormat)
+
+    defaultFont = self.ui.textEdit.document().defaultFont()
+
+    tempCharFormat = QtGui.QTextCharFormat()
+    tempCharFormat.setFont(defaultFont)
+
+    # Clear colors
+    selectionFormat.clearBackground()
+    selectionFormat.clearForeground()
+
+    selectionCursor.setCharFormat(tempCharFormat)
+
+    self.ui.textEdit.setTextCursor(selectionCursor)
+    self.updateControls()   # So the font and font size widgets show the correct thing after the font was changed here
+
+  @QtCore.Slot()
+  def on_indentLeftButton_clicked(self):
+    self.ui.textEdit.reduceSelectionIndent()
+
+  @QtCore.Slot()
+  def on_indentRightButton_clicked(self):
+    self.ui.textEdit.increaseSelectionIndent()
 
   @QtCore.Slot()
   def on_searchButton_clicked(self):

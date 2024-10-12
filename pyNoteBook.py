@@ -270,7 +270,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
       self.tagsModified = False
 
-      self.displayPage(self.currentPageData, imageNames, False)
+      self.displayPage(self.currentPageData, imageNames, False, pageId)
 
       # Add page to the page history
       self.ui.recentlyViewedList.addHistoryItem(pageId, self.currentPageData.m_title)
@@ -278,6 +278,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       # Notify child components that a new page has been selected
       self.ui.pageTree.selectPage(pageId)
       # TODO: Might need to notify date pane? (see C++ version)
+
+      # TODO: Maybe consider storing the current page in the database to make it easy for other
+      #       components to access it.  This will also help make the app more resilient.
 
     else:
       # Page does not exist.  Blank out editors.
@@ -599,10 +602,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       pageOrderStr = self.ui.pageTree.getPageOrderString()
       self.db.setPageOrder(pageOrderStr)
 
-  def displayPage(self, pageData: PageData, imageNames: list[str], isNewPage: bool):
+  def displayPage(self, pageData: PageData, imageNames: list[str], isNewPage: bool, pageId: ENTITY_ID):
     self.ui.titleLabelWidget.setPageTitleLabel(pageData.m_title)
 
-    # TODO: Once there are multiple editor types, activate the appropriate editor
+    # Activate the appropriate editor
 
     if pageData.m_pageType == PAGE_TYPE.kPageTypeUserText:
       self.ui.editorStackedWidget.setCurrentIndex(kUserTextEditor)
@@ -610,7 +613,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
         # TODO: Create new document.  Will this case occur?
         pass
       else:
-        self.ui.pageTextEdit.setPageContents(pageData.m_contentString, imageNames)
+        self.ui.pageTextEdit.setPageContents(pageData.m_contentString, imageNames, pageId)
 
     elif pageData.m_pageType == PAGE_TYPE.kPageTypeToDoList:
       self.ui.editorStackedWidget.setCurrentIndex(kToDoEditor)

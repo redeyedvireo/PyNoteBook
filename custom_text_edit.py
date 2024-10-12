@@ -2,6 +2,7 @@ import re
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from text_table import TextTable
+from text_image import TextImage
 from style_manager import StyleManager
 from styleDef import StyleDef
 from database import Database
@@ -28,11 +29,34 @@ class CustomTextEdit(QtWidgets.QTextEdit):
     self.copiedColumn = -1
     self.m_bCursorOverLink = False
     self.hoveredLink = None     # Link over which the cursor is hovered.  Can be an ENTITY_ID (for a NoteBook page) or a string (for a web link)
+    self.currentPageId = kInvalidPageId
 
   def initialize(self, styleManager: StyleManager, messageLabel: QtWidgets.QLabel, database: Database):
     self.styleManager = styleManager
     self.db = database
     self.messageLabel = messageLabel
+
+  def keyPressEvent(self, event: QtGui.QKeyEvent):
+    if event.key() == QtCore.Qt.Key.Key_Tab:
+      if self.cursorInList():
+        self.increaseSelectionIndent()
+        return
+      elif TextTable.isCursorInTable(self.textCursor()):
+        self.goToNextCell()
+        event.accept()
+        return
+
+    elif event.key() == QtCore.Qt.Key.Key_Backtab:
+      if self.cursorInList():
+        self.reduceSelectionIndent()
+        return
+      elif TextTable.isCursorInTable(self.textCursor()):
+        self.goToPreviousCell()
+        event.accept()
+        return
+
+    else:
+      super(CustomTextEdit, self).keyPressEvent(event)
 
   def contextMenuEvent(self, event: QtGui.QContextMenuEvent):
     menu = self.createStandardContextMenu()
@@ -316,13 +340,215 @@ class CustomTextEdit(QtWidgets.QTextEdit):
 
   @QtCore.Slot()
   def onMergeListWithPrevious(self):
-    # TODO: Implement
-    print('Implement onMergeListWithPrevious')
+    curBlock = self.textCursor().block()
+    prevBlock = self.getPreviousMatchingListBlock(curBlock)
+
+    if prevBlock is not None:
+      prevList = prevBlock.textList()
+
+      if prevList is not None:
+        prevList.add(curBlock)
 
   @QtCore.Slot()
   def onInsertImageFromFile(self):
-    # TODO: Implement
-    print('Implement onInsertImageFromFile')
+    filePath, selectedFilter = QtWidgets.QFileDialog.getOpenFileName(self, 'Select Image File', '', 'Images (*.png *.jpg *.bmp)')
 
+    if filePath is not None and len(filePath) > 0:
+      TextImage.insertImageIntoDocument(self.document(), self.textCursor(), filePath, self.currentPageId, self.db)
 
+  def increaseSelectionIndent(self):
+    selectionCursor = self.textCursor()
+    currentList = selectionCursor.currentList()
 
+    if currentList is not None:
+      listFormat = currentList.format()
+
+      if selectionCursor.hasSelection():
+        # Indent the lines that are selected
+        listFormat.setIndent(listFormat.indent() + 1)
+        listFormat.setStyle(self.nextBullet(listFormat.style()))
+        selectionCursor.createList(listFormat)
+      else:
+        # No selection; just indent the current line
+        if currentList.count() == 1:
+          # There is only one item in the list, so can just indent it
+          listFormat.setIndent(listFormat.indent() + 1)
+          listFormat.setStyle(self.nextBullet(listFormat.style()))
+          currentList.setFormat(listFormat)
+        else:
+          # Indent the line containing the cursor
+          listFormat.setIndent(listFormat.indent() + 1)
+          listFormat.setStyle(self.nextBullet(listFormat.style()))
+          selectionCursor.createList(listFormat)
+
+  def reduceSelectionIndent(self):
+    selectionCursor = self.textCursor()
+    currentList = selectionCursor.currentList()
+
+    if currentList is not None:
+      listFormat = currentList.format()
+      curIndent = listFormat.indent()
+
+      if curIndent > 0:
+        if selectionCursor.hasSelection():
+          # Dedent the items that are selected
+          listFormat.setIndent(listFormat.indent() - 1)
+          listFormat.setStyle(self.prevBullet(listFormat.style()))
+          selectionCursor.createList(listFormat)
+        else:
+          # Reduce indent of the current line
+          if currentList.count() == 1:
+            # There is only one item in the list, so can just dedent it
+            listFormat.setIndent(curIndent - 1)
+            listFormat.setStyle(self.prevBullet(listFormat.style()))
+            currentList.setFormat(listFormat)
+
+            # In case this list is adjacent to a previous list, check if it can be
+            # merged with the previous list.
+            newBlock = currentList.item(0)
+            prevMatchingBlock = self.getPreviousMatchingListBlock(newBlock)
+
+            if prevMatchingBlock is not None:
+              prevList = prevMatchingBlock.textList()
+              if prevList is not None:
+                prevList.add(newBlock)
+
+            self.setTextCursor(selectionCursor)
+          else:
+            # Dedent the line containing the cursor
+            listFormat.setIndent(listFormat.indent() - 1)
+            listFormat.setStyle(self.prevBullet(listFormat.style()))
+
+            # Must create a new list, or else the entire sublist will be dedented
+            newList = selectionCursor.createList(listFormat)
+            newBlock = newList.item(0)        # This will be the first item
+            prevMatchingBlock = self.getPreviousMatchingListBlock(newBlock)
+
+            if prevMatchingBlock is not None:
+              prevList = prevMatchingBlock.textList()
+              if prevList is not None:
+                prevList.add(newBlock)
+
+  def getPreviousMatchingListBlock(self, block: QtGui.QTextBlock) -> QtGui.QTextBlock | None:
+    selectionCursor = self.textCursor()
+    list = selectionCursor.currentList()
+    returnBlock = QtGui.QTextBlock()
+
+    if list is not None:
+      listFormat = list.format()
+      initialIndent = listFormat.indent()
+
+      curBlock = block.previous()
+      curList = curBlock.textList()
+
+      while curList is not None:
+        curListFormat = curList.format()
+
+        if curListFormat.indent() == initialIndent:
+          # Found one
+          returnBlock = curBlock
+          break
+
+        # Go to previous block
+        curBlock = curBlock.previous()
+        curList = curBlock.textList()
+
+      return returnBlock
+    else:
+      return None
+
+  def nextBullet(self, currentBullet: QtGui.QTextListFormat.Style) -> QtGui.QTextListFormat.Style:
+    """Returns the next bullet style in the bullet enumeration.
+       In the C++ version, it was possible to just cast the style value to an integer, and
+       then subtract 1 from it.  In Python, this is not possible, so we must use a switch
+       statement to accomplish this.
+
+    Args:
+        currentBullet (QtGui.QTextListFormat.Style): Current bullet style
+
+    Returns:
+        QtGui.QTextListFormat.Style: The next bullet style in the bullet style enumeration
+    """
+    match currentBullet:
+      case QtGui.QTextListFormat.Style.ListDisc:
+        return QtGui.QTextListFormat.Style.ListCircle
+
+      case QtGui.QTextListFormat.Style.ListCircle:
+        return QtGui.QTextListFormat.Style.ListSquare
+
+      case QtGui.QTextListFormat.Style.ListSquare:
+        # Go to next non-numeric bullet
+        return QtGui.QTextListFormat.Style.ListDisc
+
+      case QtGui.QTextListFormat.Style.ListDecimal:
+        return QtGui.QTextListFormat.Style.ListLowerAlpha
+
+      case QtGui.QTextListFormat.Style.ListLowerAlpha:
+        return QtGui.QTextListFormat.Style.ListUpperAlpha
+
+      case QtGui.QTextListFormat.Style.ListUpperAlpha:
+        return QtGui.QTextListFormat.Style.ListLowerRoman
+
+      case QtGui.QTextListFormat.Style.ListLowerRoman:
+        return QtGui.QTextListFormat.Style.ListUpperRoman
+
+      case QtGui.QTextListFormat.Style.ListUpperRoman:
+        # Go to next numeric bullet
+        return QtGui.QTextListFormat.Style.ListDecimal
+
+      case _:
+        # Should never get here, but just in case...
+        return QtGui.QTextListFormat.Style.ListDisc
+
+  def prevBullet(self, currentBullet: QtGui.QTextListFormat.Style) -> QtGui.QTextListFormat.Style:
+    """Returns the previous bullet style in the bullet enumeration.
+       In the C++ version, it was possible to just cast the style value to an integer, and
+       then add 1 from it.  In Python, this is not possible, so we must use a switch
+       statement to accomplish this.
+
+    Args:
+        currentBullet (QtGui.QTextListFormat.Style): Current bullet style
+
+    Returns:
+        QtGui.QTextListFormat.Style: The next bullet style in the bullet style enumeration
+    """
+    match currentBullet:
+      case QtGui.QTextListFormat.Style.ListDisc:
+        return QtGui.QTextListFormat.Style.ListSquare
+
+      case QtGui.QTextListFormat.Style.ListCircle:
+        return QtGui.QTextListFormat.Style.ListDisc
+
+      case QtGui.QTextListFormat.Style.ListSquare:
+        # Go to previous non-numeric bullet
+        return QtGui.QTextListFormat.Style.ListCircle
+
+      case QtGui.QTextListFormat.Style.ListDecimal:
+        return QtGui.QTextListFormat.Style.ListUpperRoman
+
+      case QtGui.QTextListFormat.Style.ListLowerAlpha:
+        return QtGui.QTextListFormat.Style.ListDecimal
+
+      case QtGui.QTextListFormat.Style.ListUpperAlpha:
+        return QtGui.QTextListFormat.Style.ListLowerAlpha
+
+      case QtGui.QTextListFormat.Style.ListLowerRoman:
+        return QtGui.QTextListFormat.Style.ListUpperAlpha
+
+      case QtGui.QTextListFormat.Style.ListUpperRoman:
+        # Go to previous numeric bullet
+        return QtGui.QTextListFormat.Style.ListLowerRoman
+
+      case _:
+        # Should never get here, but just in case...
+        return QtGui.QTextListFormat.Style.ListDisc
+
+  def goToNextCell(self):
+    cursor = self.textCursor()
+    cursor.movePosition(QtGui.QTextCursor.MoveOperation.NextCell)
+    self.setTextCursor(cursor)
+
+  def goToPreviousCell(self):
+    cursor = self.textCursor()
+    cursor.movePosition(QtGui.QTextCursor.MoveOperation.PreviousCell)
+    self.setTextCursor(cursor)
