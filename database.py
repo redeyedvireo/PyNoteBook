@@ -816,7 +816,7 @@ class Database:
 
     if queryObj.first():
       contentsField = queryObj.record().indexOf('contents')
-      byteArray = queryObj.value(contentsField).toByteArray()
+      byteArray = queryObj.value(contentsField)
       pixmapConvertSuccess, pixmap = qByteArrayToPixmap(byteArray)
 
       if not pixmapConvertSuccess:

@@ -23,7 +23,6 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.setupUi(self)
 
     self.styleManager = None
-    self.db = None
     self.bulletStyleMenu = QtWidgets.QMenu()
     self.numberStyleMenu = QtWidgets.QMenu()
 
@@ -131,11 +130,19 @@ class RichTextEditWidget(QtWidgets.QWidget):
   def setPageContents(self, contents: str, imageNames: list[str], pageId: ENTITY_ID) -> None:
     self.ui.textEdit.clear()
 
-    # TODO: Load images
+    # Load images
+    self.loadImagesIntoDocument(imageNames)
 
     self.ui.textEdit.setHtml(contents)      # The C++ version uses insertHtml()
     self.ui.textEdit.currentPageId = pageId
     self.setDocumentModified(False)
+
+  def loadImagesIntoDocument(self, imageNames: list[str]):
+    for imageName in imageNames:
+      pixmap = self.db.getImage(imageName)
+
+      if pixmap is not None:
+        self.ui.textEdit.document().addResource(QtGui.QTextDocument.ResourceType.ImageResource, QtCore.QUrl(imageName), pixmap)
 
   def setGlobalFont(self, fontFamily, fontSize):
     selectionCursor = self.ui.textEdit.textCursor()

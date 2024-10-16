@@ -265,8 +265,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if self.currentPageData is not None:
       self.currentPageId = pageId
 
-      # TODO: Get images for page
-      imageNames = []
+      # Get images for page
+      imageNames = self.db.getImageNamesForPage(self.currentPageId)
 
       self.tagsModified = False
 
