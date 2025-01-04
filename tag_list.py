@@ -20,20 +20,39 @@ class CTagList(QtWidgets.QListWidget):
     """Adds items from the tag cache to the list.  It is assumed that the tag cache has
        been populated.
     """
-    tagsAdded = []      # Used to prevent duplicates from being added
+    for tag in self.tagCache.tagDict.keys():
+      self.addTag(tag)
 
-    for tag, pageIds in self.tagCache.tagDict.items():
-      for pageId in pageIds:
-        if tag not in tagsAdded:
-          self.addTag(pageId, tag)
-          tagsAdded.append(tag)
-
-  def addTag(self, pageId: ENTITY_ID, tag: str) -> None:
+  def addTag(self, tag: str) -> None:
 	  # Add to the list
     newItem = QtWidgets.QListWidgetItem(tag)
 
-    newItem.setData(QtCore.Qt.ItemDataRole.UserRole, pageId)
     self.addItem(newItem)
+
+  def updateTags(self) -> None:
+    rowsToDelete = []
+    numRows = self.count()
+
+    # Scan the list and remove any tags that are no longer in the tag cache
+    for row in range(numRows):
+      item = self.item(row)
+      if item is not None:
+        tag = item.text()
+        if tag not in self.tagCache.tagDict:
+          rowsToDelete.append(row)
+
+    # Remove the rows
+    for row in reversed(rowsToDelete):
+      self.takeItem(row)
+
+    # Add any new tags
+    for tag, pageIds in self.tagCache.tagDict.items():
+      if self.findTag(tag) is None:
+        self.addTag(tag)
+
+  def findTag(self, tag: str) -> QtWidgets.QListWidgetItem | None:
+    foundItems = self.findItems(tag, QtCore.Qt.MatchFlag.MatchFixedString)
+    return foundItems[0] if len(foundItems) > 0 else None
 
   def onContextMenu(self, pos):
     self.contextMenu.clear()

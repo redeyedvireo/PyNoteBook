@@ -18,12 +18,33 @@ class TagCache:
       for tag in tagsForPage:
         self.addTag(pageId, tag)
 
-  def removeTag(self, pageId: ENTITY_ID, tag: str) -> None:
+  def removePageIdFromTag(self, pageId: ENTITY_ID, tag: str) -> None:
     if tag in self.tagDict:
-      self.tagDict[tag].remove(pageId)
+      if pageId in self.tagDict[tag]:
+        pageDict = self.tagDict[tag]
+        pageDict.remove(pageId)
+        if len(pageDict) == 0:
+          del self.tagDict[tag]
 
-      if len(self.tagDict[tag]) == 0:
-        del self.tagDict[tag]
+  def updateTagsForPage(self, pageId: ENTITY_ID, tags: list[str]) -> None:
+    tagsToDelete = []
+
+    # Remove all tags for the page
+    for tag, pageSet in self.tagDict.items():
+      if pageId in pageSet:
+        self.tagDict[tag].remove(pageId)
+
+        # If the tag is now empty, add it to the list of tags to delete
+        if len(self.tagDict[tag]) == 0:
+          tagsToDelete.append(tag)
+
+    # Delete any empty tags
+    for tag in tagsToDelete:
+      del self.tagDict[tag]
+
+    # Add the new tags
+    for tag in tags:
+      self.addTag(pageId, tag)
 
   def pagesUsingTag(self, tag: str) -> list[ENTITY_ID]:
     if tag in self.tagDict:

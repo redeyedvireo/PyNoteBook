@@ -24,6 +24,7 @@ from search_dialog import SearchDialog
 from style_manager import StyleManager
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
+from utility import stringToArray
 
 kLogFile = 'PyNoteBook.log'
 kAppName = 'PyNoteBook'
@@ -166,6 +167,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
         self.currentPageData.m_contentString = self.ui.pageToDoEdit.getPageContents()
 
       success = self.db.updatePage(self.currentPageData)
+
+      self.tagCache.updateTagsForPage(self.currentPageData.m_pageId, stringToArray(self.currentPageData.m_tags))
+      self.ui.tagList.updateTags()
 
       if not success:
         logging.error(f'[on_savePageButton_clicked] Error saving page ID {self.currentPageData.m_pageId} ({self.currentPageData.m_title})')
