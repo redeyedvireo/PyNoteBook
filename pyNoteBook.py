@@ -22,6 +22,7 @@ from favorites_dialog import FavoritesDialog
 from favorites_manager import FavoritesManager
 from search_dialog import SearchDialog
 from style_manager import StyleManager
+from switchboard import Switchboard
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 from utility import stringToArray
@@ -43,6 +44,8 @@ kMaxRecentFiles = 20
 class PyNoteBookWindow(QtWidgets.QMainWindow):
   def __init__(self):
     super(PyNoteBookWindow, self).__init__()
+
+    self.switchboard = Switchboard()
 
     prefsFilePath = self.getPrefsPath()
     self.prefs = Preferences(prefsFilePath)
@@ -77,10 +80,11 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.setConnections()
 
   def initialize(self):
-    self.ui.pageTree.initialize(self.db)
+    self.ui.pageTree.initialize(self.db, self.switchboard)
     self.ui.recentlyViewedList.initialize(self.db)
     self.ui.titleLabelWidget.initialize()
-    self.ui.tagList.initialize(self.tagCache, self.pageCache)
+    self.ui.tagList.initialize(self.tagCache, self.pageCache, self.switchboard)
+    self.ui.pageTitleList.initialize(self.switchboard)
 
     self.prefs.readPrefsFile()
 
@@ -111,10 +115,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   # *************************** SLOTS ***************************
 
   def setConnections(self):
+    # Switchboard signals
+    self.switchboard.pageSelected.connect(self.onPageSelected)
+    self.switchboard.pageTitleUpdated.connect(self.onPageTitleChanged)
+    self.switchboard.pageDeleted.connect(self.onPageDeleted)
+
     # Page Tree signals
-    self.ui.pageTree.pageSelectedSignal.connect(self.onPageSelected)
-    self.ui.pageTree.pageTitleChangedSignal.connect(self.onPageTitleChanged)
-    self.ui.pageTree.PT_PageDeleted.connect(self.onPageDeleted)
     self.ui.pageTree.PT_OnCreateNewPage.connect(self.on_actionNew_Page_triggered)
     self.ui.pageTree.PT_OnCreateNewFolder.connect(self.on_actionNew_Folder_triggered)
 
@@ -132,14 +138,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     # Page History Widget
     self.ui.recentlyViewedList.PHW_PageSelected.connect(self.onPageSelected)
 
-    self.ui.pageTitleList.pageSelected.connect(self.onPageSelected)
-
     # Title Label Widget
     self.ui.titleLabelWidget.TLW_SetPageAsFavorite.connect(self.onAddPageToFavorites)
     self.ui.titleLabelWidget.TLW_SetPageAsNonFavorite.connect(self.onRemovePageFromFavorites)
-
-    # Tag List Widget
-    self.ui.tagList.pageSelected.connect(self.onPageSelected)
 
   @QtCore.Slot()
   def on_actionOpen_Notebook_triggered(self):
@@ -311,19 +312,20 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if self.currentPageData is not None:
       self.currentPageData.m_title = newTitle
 
-    # Notify children
-    self.ui.pageTitleList.onPageTitleUpdated(pageId, newTitle)
+    # Update the page cache
+    self.pageCache.updatePageTitleForPage(pageId, newTitle)
 
   def onPageDeleted(self, pageId: ENTITY_ID):
     # self.db.deleteAllImagesForPage(pageId)      # TODO: Implement this
     self.db.deletePage(pageId)
 
+    # Update the page cache
+    self.tagCache.removePageIdFromAllTags(pageId)
+    self.pageCache.removePage(pageId)
+
     self.clearPageEditControls()
 
     self.ui.pageTree.removePage(pageId)
-
-    # Notify children
-    self.ui.pageTitleList.onPageDeleted(pageId)
 
   def onPageDefavorited(self, pageId: ENTITY_ID):
     self.db.setPageFavoriteStatus(pageId, False)
@@ -623,8 +625,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       pageOrderStr = self.ui.pageTree.getPageOrderString()
       self.db.setPageOrder(pageOrderStr)
 
-      # Notify children
-      self.ui.pageTitleList.onNewPageCreated(newPageId, title)
+      # Update page cache
+      self.pageCache.addPage(newPageId, title)
+
+      self.switchboard.emitNewPageCreated(newPageId, title)
 
   def displayPage(self, pageData: PageData, imageNames: list[str], isNewPage: bool, pageId: ENTITY_ID):
     self.ui.titleLabelWidget.setPageTitleLabel(pageData.m_title)

@@ -23,5 +23,8 @@ class PageCache:
   def pageTitle(self, pageId: ENTITY_ID) -> str:
     return self.pageDict.get(pageId, '')
 
+  def updatePageTitleForPage(self, pageId: ENTITY_ID, title: str) -> None:
+    self.pageDict[pageId] = title
+
   def clear(self):
     self.pageDict.clear()

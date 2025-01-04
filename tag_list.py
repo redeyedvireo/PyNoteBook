@@ -1,20 +1,23 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 from notebook_types import ENTITY_ID
 from pageCache import PageCache
+from switchboard import Switchboard
 from tagCache import TagCache
 
 class CTagList(QtWidgets.QListWidget):
-  pageSelected = QtCore.Signal(ENTITY_ID)
-
   def __init__(self, parent):
     super(CTagList, self).__init__(parent)
     self.setContextMenuPolicy(QtGui.Qt.ContextMenuPolicy.CustomContextMenu)
     self.customContextMenuRequested.connect(self.onContextMenu)
     self.contextMenu = QtWidgets.QMenu(self)
 
-  def initialize(self, tagCache: TagCache, pageCache: PageCache) -> None:
+  def initialize(self, tagCache: TagCache, pageCache: PageCache, switchboard: Switchboard) -> None:
     self.tagCache = tagCache
     self.pageCache = pageCache
+    self.switchboard = switchboard
+
+    self.switchboard.pageTitleUpdated.connect(self.updateTags)
+    self.switchboard.pageDeleted.connect(self.onPageIdDeleted)
 
   def addItems(self) -> None:
     """Adds items from the tag cache to the list.  It is assumed that the tag cache has
@@ -85,4 +88,7 @@ class CTagList(QtWidgets.QListWidget):
     if type(sender) is QtGui.QAction:
       pageId = sender.data()
 
-      self.pageSelected.emit(pageId)
+      self.switchboard.emitPageSelected(pageId)
+
+  def onPageIdDeleted(self, pageId: ENTITY_ID):
+    self.updateTags()

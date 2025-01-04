@@ -1,15 +1,20 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 from notebook_types import ENTITY_ID
+from switchboard import Switchboard
 
 # TODO: Add functions to handle page importing, and page updated by import (see C++ version)
 
 class CPageTitleList(QtWidgets.QListWidget):
-  pageSelected = QtCore.Signal(ENTITY_ID)
-
   def __init__(self, parent):
     super(CPageTitleList, self).__init__(parent)
     self.setSortingEnabled(True)
     self.itemClicked.connect(self.onItemClicked)
+
+  def initialize(self, switchboard: Switchboard):
+    self.switchboard = switchboard
+    switchboard.newPageCreated.connect(self.onNewPageCreated)
+    switchboard.pageTitleUpdated.connect(self.onPageTitleUpdated)
+    switchboard.pageDeleted.connect(self.onPageDeleted)
 
   def findItem(self, pageId: ENTITY_ID) -> QtWidgets.QListWidgetItem | None:
     for i in range(self.count()):
@@ -32,7 +37,7 @@ class CPageTitleList(QtWidgets.QListWidget):
   def onNewPageCreated(self, pageId: ENTITY_ID, pageTitle: str):
     self.addPageTitleItem(pageId, pageTitle)
 
-  def onPageTitleUpdated(self, pageId: ENTITY_ID, pageTitle: str):
+  def onPageTitleUpdated(self, pageId: ENTITY_ID, pageTitle: str, isModification: bool):
     item = self.findItem(pageId)
     if item is not None:
       item.setText(pageTitle)
@@ -44,4 +49,4 @@ class CPageTitleList(QtWidgets.QListWidget):
 
   def onItemClicked(self, item: QtWidgets.QListWidgetItem):
     pageId = item.data(QtCore.Qt.ItemDataRole.UserRole)
-    self.pageSelected.emit(pageId)
+    self.switchboard.emitPageSelected(pageId)

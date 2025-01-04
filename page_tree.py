@@ -4,6 +4,7 @@ import logging
 from PySide6 import QtCore, QtWidgets, QtGui
 from notebook_types import kInvalidPageId, PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, ENTITY_LIST
 from database import Database
+from switchboard import Switchboard
 
 class PageWidgetItemType(Enum):
   eItemPage = 0
@@ -55,9 +56,6 @@ PageItemList = list[CPageWidgetItem]
 #************************************************************************
 
 class CPageTree(QtWidgets.QTreeWidget):
-  pageSelectedSignal = QtCore.Signal(ENTITY_ID)
-  pageTitleChangedSignal = QtCore.Signal(ENTITY_ID, str, bool)
-  PT_PageDeleted = QtCore.Signal(ENTITY_ID)
   PT_OnCreateNewPage = QtCore.Signal()
   PT_OnCreateNewFolder = QtCore.Signal()
 
@@ -87,8 +85,9 @@ class CPageTree(QtWidgets.QTreeWidget):
     self.setDragEnabled(True)
     self.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.InternalMove)
 
-  def initialize(self, db: Database):
+  def initialize(self, db: Database, switchboard: Switchboard):
     self.db = db
+    self.switchboard = switchboard
     self.setConnections()
     self.initMenus()
 
@@ -397,7 +396,7 @@ class CPageTree(QtWidgets.QTreeWidget):
       self.writePageOrderToDatabase()
 
       if newItem is not None and type(newItem) is CPageWidgetItem:
-        self.pageSelectedSignal.emit(newItem.pageId)
+        self.switchboard.emitPageSelected(newItem.pageId)
 
   def getPageOrderString(self) -> str:
     idList = self.getTreeIdList()
@@ -467,10 +466,7 @@ class CPageTree(QtWidgets.QTreeWidget):
     return entityList
 
   def deletePage(self, pageId):
-    # Emit message to mainwindow that the page is being deleted.  The mainwindow will reflect
-    # that signal, and the Page Title List and Date Tree will respond to the
-    # reflected signal to change their names.
-    self.PT_PageDeleted.emit(pageId)
+    self.switchboard.emitPageDeleted(pageId)
 
   def deleteFolder(self):
     if self.lastClickedPage is not None and self.lastClickedPage.itemType == PageWidgetItemType.eItemFolder:
@@ -539,7 +535,7 @@ class CPageTree(QtWidgets.QTreeWidget):
   def onItemClicked(self, item, column):
     if type(item) is CPageWidgetItem:
       pageId = item.pageId
-      self.pageSelectedSignal.emit(pageId)
+      self.switchboard.emitPageSelected(pageId)
 
   def onItemChanged(self, item, column: int):
     if self.loading:
@@ -548,7 +544,7 @@ class CPageTree(QtWidgets.QTreeWidget):
 
     if type(item) is CPageWidgetItem:
       self.setCurrentItem(item)
-      self.pageTitleChangedSignal.emit(item.pageId, item.text(0), not self.newPageBeingCreated)
+      self.switchboard.emitPageTitleUpdated(item.pageId, item.text(0), not self.newPageBeingCreated)
 
     # Reset this flag.
     self.newPageBeingCreated = False

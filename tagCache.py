@@ -26,6 +26,26 @@ class TagCache:
         if len(pageDict) == 0:
           del self.tagDict[tag]
 
+  def removePageIdFromAllTags(self, pageId: ENTITY_ID) -> None:
+    """Removes the given page ID from all tags.
+
+    Args:
+        pageId (ENTITY_ID): ID of page to remove.
+    """
+    tagsToDelete = []
+
+    for tag, tagsForPage in self.tagDict.items():
+      if pageId in tagsForPage:
+        self.tagDict[tag].remove(pageId)
+
+        # If the tag is now empty, add it to the list of tags to delete
+        if len(self.tagDict[tag]) == 0:
+          tagsToDelete.append(tag)
+
+    # Delete any empty tags
+    for tag in tagsToDelete:
+      del self.tagDict[tag]
+
   def updateTagsForPage(self, pageId: ENTITY_ID, tags: list[str]) -> None:
     tagsToDelete = []
 
