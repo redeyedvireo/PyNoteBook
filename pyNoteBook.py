@@ -124,6 +124,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
     self.ui.pageTextEdit.newPageSelected.connect(self.onPageSelected)
 
+    # Tags edit signals
+    self.ui.tagsEdit.textChanged.connect(self.onTagsModified)
+
     # ToDo List signals
     self.ui.pageToDoEdit.toDoListModifiedSignal.connect(self.onPageModified)
     self.ui.pageToDoEdit.toDoListSavePage.connect(self.on_savePageButton_clicked)
@@ -704,6 +707,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTextEdit.newDocument(fontFamily, fontSize)
 
     self.ui.tagsEdit.clear()
+
+  def onTagsModified(self):
+    self.tagsModified = True
+    self.onPageModified()
 
   def currentPageIsValid(self) -> bool:
     return self.currentPageId != kInvalidPageId
