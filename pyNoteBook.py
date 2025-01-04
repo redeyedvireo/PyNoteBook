@@ -6,7 +6,9 @@ import logging
 import platform
 from logging.handlers import RotatingFileHandler
 from PySide6 import QtCore, QtWidgets, QtGui
+from pageCache import PageCache
 from qt_util import loadUi
+from tagCache import TagCache
 from util import getScriptPath
 from ui_pynotebookwindow import Ui_PyNoteBookWindow
 from database import Database
@@ -47,6 +49,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.prefs = Preferences(prefsFilePath)
 
     self.db = Database()
+    self.tagCache = TagCache()
+    self.pageCache = PageCache()
 
     self.notebookFileName = ''      # Current notebook file name (name only)
     self.lastUsedDirectory: str = getScriptPath()
@@ -77,6 +81,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTree.initialize(self.db)
     self.ui.recentlyViewedList.initialize(self.db)
     self.ui.titleLabelWidget.initialize()
+    self.ui.tagList.initialize(self.tagCache, self.pageCache)
 
     self.prefs.readPrefsFile()
 
@@ -128,6 +133,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     # Title Label Widget
     self.ui.titleLabelWidget.TLW_SetPageAsFavorite.connect(self.onAddPageToFavorites)
     self.ui.titleLabelWidget.TLW_SetPageAsNonFavorite.connect(self.onRemovePageFromFavorites)
+
+    # Tag List Widget
+    self.ui.tagList.pageSelected.connect(self.onPageSelected)
 
   @QtCore.Slot()
   def on_actionOpen_Notebook_triggered(self):
@@ -542,14 +550,17 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def populateNavigationControls(self, pageOrderStr: str):
     pageDict, success = self.db.getPageList()   # Retrieve all pages, regardless of whether they appear in the pageOrderStr
 
+    self.pageCache.addPages(pageDict)
+
     self.ui.pageTree.addItemsNew(pageDict, pageOrderStr)
 
     self.ui.pageTitleList.addItems(pageDict)
     self.ui.dateTree.addItems(pageDict)
 
     pageIdDict, success = self.db.getTagList()
+    self.tagCache.addTags(pageIdDict)
 
-    self.ui.tagList.addItems(pageIdDict)
+    self.ui.tagList.addItems()
 
   def enableDataEntry(self, enable):
     self.ui.pageTextEdit.setEnabled(enable)
