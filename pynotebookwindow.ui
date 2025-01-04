@@ -49,7 +49,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="treeTab">
        <attribute name="title">
@@ -84,7 +84,7 @@
       </widget>
       <widget class="QWidget" name="listTab">
        <attribute name="title">
-        <string>List</string>
+        <string>Pages</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <property name="spacing">
@@ -297,7 +297,7 @@
      <x>0</x>
      <y>0</y>
      <width>1076</width>
-     <height>21</height>
+     <height>33</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

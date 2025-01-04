@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'select_style_dlg.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.0
+## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -48,7 +48,7 @@ class Ui_SelectStyleDlg(object):
         self.newButton = QPushButton(SelectStyleDlg)
         self.newButton.setObjectName(u"newButton")
         icon = QIcon()
-        icon.addFile(u":/NoteBook/Resources/plus.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/NoteBook/Resources/plus.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.newButton.setIcon(icon)
 
         self.verticalLayout_2.addWidget(self.newButton)
@@ -56,7 +56,7 @@ class Ui_SelectStyleDlg(object):
         self.deleteButton = QPushButton(SelectStyleDlg)
         self.deleteButton.setObjectName(u"deleteButton")
         icon1 = QIcon()
-        icon1.addFile(u":/NoteBook/Resources/minus.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/NoteBook/Resources/minus.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.deleteButton.setIcon(icon1)
 
         self.verticalLayout_2.addWidget(self.deleteButton)
@@ -64,7 +64,7 @@ class Ui_SelectStyleDlg(object):
         self.editButton = QPushButton(SelectStyleDlg)
         self.editButton.setObjectName(u"editButton")
         icon2 = QIcon()
-        icon2.addFile(u":/NoteBook/Resources/pencil.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon2.addFile(u":/NoteBook/Resources/pencil.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.editButton.setIcon(icon2)
 
         self.verticalLayout_2.addWidget(self.editButton)

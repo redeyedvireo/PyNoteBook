@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pynotebookwindow.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.0
+## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -38,7 +38,7 @@ class Ui_PyNoteBookWindow(object):
             PyNoteBookWindow.setObjectName(u"PyNoteBookWindow")
         PyNoteBookWindow.resize(1076, 768)
         icon = QIcon()
-        icon.addFile(u":/NoteBook/NoteBook.ico", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/NoteBook/NoteBook.ico", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         PyNoteBookWindow.setWindowIcon(icon)
         self.actionExit = QAction(PyNoteBookWindow)
         self.actionExit.setObjectName(u"actionExit")
@@ -65,7 +65,7 @@ class Ui_PyNoteBookWindow(object):
         self.actionNew_Page = QAction(PyNoteBookWindow)
         self.actionNew_Page.setObjectName(u"actionNew_Page")
         icon1 = QIcon()
-        icon1.addFile(u":/NoteBook/Resources/NewPage.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/NoteBook/Resources/NewPage.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.actionNew_Page.setIcon(icon1)
         self.actionImport_TiddlyWiki = QAction(PyNoteBookWindow)
         self.actionImport_TiddlyWiki.setObjectName(u"actionImport_TiddlyWiki")
@@ -94,7 +94,7 @@ class Ui_PyNoteBookWindow(object):
         self.actionSearch = QAction(PyNoteBookWindow)
         self.actionSearch.setObjectName(u"actionSearch")
         icon2 = QIcon()
-        icon2.addFile(u":/NoteBook/Resources/Search.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon2.addFile(u":/NoteBook/Resources/Search.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.actionSearch.setIcon(icon2)
         self.centralWidget = QWidget(PyNoteBookWindow)
         self.centralWidget.setObjectName(u"centralWidget")
@@ -262,7 +262,7 @@ class Ui_PyNoteBookWindow(object):
         PyNoteBookWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QMenuBar(PyNoteBookWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 1076, 21))
+        self.menuBar.setGeometry(QRect(0, 0, 1076, 33))
         self.menuFile = QMenu(self.menuBar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuImport = QMenu(self.menuFile)
@@ -329,7 +329,7 @@ class Ui_PyNoteBookWindow(object):
         self.retranslateUi(PyNoteBookWindow)
         self.actionExit.triggered.connect(PyNoteBookWindow.close)
 
-        self.navigationTabWidget.setCurrentIndex(4)
+        self.navigationTabWidget.setCurrentIndex(0)
         self.editorStackedWidget.setCurrentIndex(1)
 
 
@@ -369,7 +369,7 @@ class Ui_PyNoteBookWindow(object):
         ___qtreewidgetitem = self.pageTree.headerItem()
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Page Title", None));
         self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.treeTab), QCoreApplication.translate("PyNoteBookWindow", u"Tree", None))
-        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.listTab), QCoreApplication.translate("PyNoteBookWindow", u"List", None))
+        self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.listTab), QCoreApplication.translate("PyNoteBookWindow", u"Pages", None))
         ___qtreewidgetitem1 = self.dateTree.headerItem()
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("PyNoteBookWindow", u"Date", None));
         self.navigationTabWidget.setTabText(self.navigationTabWidget.indexOf(self.dateTab), QCoreApplication.translate("PyNoteBookWindow", u"Date", None))

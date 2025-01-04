@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'style_dlg.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.0
+## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -121,7 +121,7 @@ class Ui_CStyleDlg(object):
         self.fgColorToolButton.setObjectName(u"fgColorToolButton")
         self.fgColorToolButton.setEnabled(True)
         icon = QIcon()
-        icon.addFile(u":/NoteBook/Resources/Text Foreground.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/NoteBook/Resources/Text Foreground.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.fgColorToolButton.setIcon(icon)
 
         self.gridLayout.addWidget(self.fgColorToolButton, 0, 1, 1, 1)
@@ -135,7 +135,7 @@ class Ui_CStyleDlg(object):
         self.bgColorToolButton.setObjectName(u"bgColorToolButton")
         self.bgColorToolButton.setEnabled(True)
         icon1 = QIcon()
-        icon1.addFile(u":/NoteBook/Resources/Text Background.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/NoteBook/Resources/Text Background.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.bgColorToolButton.setIcon(icon1)
 
         self.gridLayout.addWidget(self.bgColorToolButton, 1, 1, 1, 1)

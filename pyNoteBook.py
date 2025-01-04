@@ -41,8 +41,6 @@ kMaxRecentFiles = 20
 
 # ---------------------------------------------------------------
 class PyNoteBookWindow(QtWidgets.QMainWindow):
-  MW_PageDeleted = QtCore.Signal(ENTITY_ID)
-
   def __init__(self):
     super(PyNoteBookWindow, self).__init__()
 
@@ -133,6 +131,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     # Page History Widget
     self.ui.recentlyViewedList.PHW_PageSelected.connect(self.onPageSelected)
+
+    self.ui.pageTitleList.pageSelected.connect(self.onPageSelected)
 
     # Title Label Widget
     self.ui.titleLabelWidget.TLW_SetPageAsFavorite.connect(self.onAddPageToFavorites)
@@ -311,6 +311,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if self.currentPageData is not None:
       self.currentPageData.m_title = newTitle
 
+    # Notify children
+    self.ui.pageTitleList.onPageTitleUpdated(pageId, newTitle)
+
   def onPageDeleted(self, pageId: ENTITY_ID):
     # self.db.deleteAllImagesForPage(pageId)      # TODO: Implement this
     self.db.deletePage(pageId)
@@ -319,8 +322,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     self.ui.pageTree.removePage(pageId)
 
-    # TODO: Rethink this - instead of emitting a signal, just call the page removal member functions of each widget
-    self.MW_PageDeleted.emit(pageId)
+    # Notify children
+    self.ui.pageTitleList.onPageDeleted(pageId)
 
   def onPageDefavorited(self, pageId: ENTITY_ID):
     self.db.setPageFavoriteStatus(pageId, False)
@@ -619,6 +622,9 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       # Write the page order to the database.
       pageOrderStr = self.ui.pageTree.getPageOrderString()
       self.db.setPageOrder(pageOrderStr)
+
+      # Notify children
+      self.ui.pageTitleList.onNewPageCreated(newPageId, title)
 
   def displayPage(self, pageData: PageData, imageNames: list[str], isNewPage: bool, pageId: ENTITY_ID):
     self.ui.titleLabelWidget.setPageTitleLabel(pageData.m_title)
