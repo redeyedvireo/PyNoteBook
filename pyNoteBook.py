@@ -125,7 +125,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTextEdit.newPageSelected.connect(self.onPageSelected)
 
     # Tags edit signals
-    self.ui.tagsEdit.textChanged.connect(self.onTagsModified)
+    self.ui.tagsEdit.textEdited.connect(self.onTagsModified)
 
     # ToDo List signals
     self.ui.pageToDoEdit.toDoListModifiedSignal.connect(self.onPageModified)
