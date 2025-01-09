@@ -1,5 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 from notebook_types import ENTITY_ID
+from page_data import PageData
 from switchboard import Switchboard
 
 # TODO: Add functions to handle page importing, and page updated by import (see C++ version)
@@ -34,8 +35,8 @@ class CPageTitleList(QtWidgets.QListWidget):
     newItem.setData(QtCore.Qt.ItemDataRole.UserRole, pageId)
     self.addItem(newItem)
 
-  def onNewPageCreated(self, pageId: ENTITY_ID, pageTitle: str):
-    self.addPageTitleItem(pageId, pageTitle)
+  def onNewPageCreated(self, pageData: PageData):
+    self.addPageTitleItem(pageData.m_pageId, pageData.m_title)
 
   def onPageTitleUpdated(self, pageId: ENTITY_ID, pageTitle: str, isModification: bool):
     item = self.findItem(pageId)

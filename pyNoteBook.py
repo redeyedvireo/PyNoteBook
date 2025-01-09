@@ -85,6 +85,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.titleLabelWidget.initialize()
     self.ui.tagList.initialize(self.tagCache, self.pageCache, self.switchboard)
     self.ui.pageTitleList.initialize(self.switchboard)
+    self.ui.dateTree.initialize(self.switchboard)
 
     self.prefs.readPrefsFile()
 
@@ -182,7 +183,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.tagsModified = False
       self.ui.pageTextEdit.setDocumentModified(False)
 
-      # TODO: Emit PageSaved signal (see who needs this.  It might not be necessary.)
+      # Emit PageSaved signal
+      self.switchboard.emitPageSaved(self.currentPageData)
 
       self.setAppTitle()
       self.ui.savePageButton.setEnabled(False)
@@ -628,7 +630,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       # Update page cache
       self.pageCache.addPage(newPageId, title)
 
-      self.switchboard.emitNewPageCreated(newPageId, title)
+      self.switchboard.emitNewPageCreated(self.currentPageData)
 
   def displayPage(self, pageData: PageData, imageNames: list[str], isNewPage: bool, pageId: ENTITY_ID):
     self.ui.titleLabelWidget.setPageTitleLabel(pageData.m_title)

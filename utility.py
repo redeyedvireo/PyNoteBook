@@ -3,33 +3,38 @@ import logging
 from PySide6 import QtCore, QtGui
 import os.path
 import time
-import datetime
-from datetime import timezone
+from datetime import date, datetime, timezone
 
-def julianDayToDate(julianDay: int) -> datetime.date:
+def julianDayToDate(julianDay: int) -> date:
   """ Returns a Python date corresponding to the given Julian day. """
   qtDate = QtCore.QDate.fromJulianDay(julianDay)
   date = qtDate.toPython()
   return date     # I think this is a datetime.date, but the documentation doesn't say
 
-def dateToJulianDay(inDate: datetime.date) -> int:
+def dateToJulianDay(inDate: date) -> int:
   """ Returns a Julian day for the given Python date. """
   qtDate = QtCore.QDate(inDate.year, inDate.month, inDate.day)    # TODO: Python days and months start with 1.  Same true of QDate?
   return qtDate.toJulianDay()
 
-def formatDateTime(inDateTime: datetime.datetime) -> str:
+def datesEqual(date1: datetime | date, date2: datetime | date) -> bool:
+  date1ToCompare = date1.date() if isinstance(date1, datetime) else date1
+  date2ToCompare = date2.date() if isinstance(date2, datetime) else date2
+
+  return date1ToCompare == date2ToCompare
+
+def formatDateTime(inDateTime: datetime) -> str:
   return inDateTime.strftime("%B %d, %Y %I:%M %p")
 
-def formatDateTimeWithDay(inDateTime: datetime.datetime) -> str:
+def formatDateTimeWithDay(inDateTime: datetime) -> str:
   return inDateTime.strftime("%A, %B %d, %Y %I:%M %p")
 
 # Format date
-def formatDate(inDate: datetime.date) -> str:
+def formatDate(inDate: date) -> str:
   return inDate.strftime("%a %b %d %Y")
 
 # Take a date string, and convert it to a date
-def dateFromFormattedString(dateStr: str) -> datetime.date:
-  thisDateTime = datetime.datetime.strptime(dateStr, "%a %b %d %Y")
+def dateFromFormattedString(dateStr: str) -> date:
+  thisDateTime = datetime.strptime(dateStr, "%a %b %d %Y")
   return thisDateTime.date()
 
 def toQByteArray(data: int | str | bytes) -> QtCore.QByteArray:

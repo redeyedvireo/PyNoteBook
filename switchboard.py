@@ -1,9 +1,12 @@
 # An attempt at a PubSub mechanism
 from PySide6 import QtCore, QtWidgets, QtGui
 
+from page_data import PageData
+
 class Switchboard(QtCore.QObject):
   pageSelected = QtCore.Signal(int)
-  newPageCreated = QtCore.Signal(int, str)
+  newPageCreated = QtCore.Signal(PageData)
+  pageSaved = QtCore.Signal(PageData)
   pageTitleUpdated = QtCore.Signal(int, str, bool)
   pageDeleted = QtCore.Signal(int)
   pageImported = QtCore.Signal(int, str)
@@ -16,8 +19,11 @@ class Switchboard(QtCore.QObject):
   def emitPageSelected(self, pageId: int):
     self.pageSelected.emit(pageId)
 
-  def emitNewPageCreated(self, pageId: int, pageTitle: str):
-    self.newPageCreated.emit(pageId, pageTitle)
+  def emitNewPageCreated(self, pageData: PageData):
+    self.newPageCreated.emit(pageData)
+
+  def emitPageSaved(self, pageData: PageData):
+    self.pageSaved.emit(pageData)
 
   def emitPageTitleUpdated(self, pageId: int, pageTitle: str, isModification: bool):
     self.pageTitleUpdated.emit(pageId, pageTitle, isModification)
