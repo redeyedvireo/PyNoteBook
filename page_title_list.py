@@ -17,6 +17,8 @@ class CPageTitleList(QtWidgets.QListWidget):
     switchboard.pageTitleUpdated.connect(self.onPageTitleUpdated)
     switchboard.pageDeleted.connect(self.onPageDeleted)
 
+    # TODO: Connect signals for PageImported and PageUpdatedByImport
+
   def findItem(self, pageId: ENTITY_ID) -> QtWidgets.QListWidgetItem | None:
     for i in range(self.count()):
       item = self.item(i)

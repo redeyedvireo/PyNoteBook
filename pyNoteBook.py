@@ -117,6 +117,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   def setConnections(self):
     # Switchboard signals
+    # Switchboard signals should be handled by this class first
     self.switchboard.pageSelected.connect(self.onPageSelected)
     self.switchboard.pageTitleUpdated.connect(self.onPageTitleChanged)
     self.switchboard.pageDeleted.connect(self.onPageDeleted)
@@ -293,10 +294,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       # Add page to the page history
       self.ui.recentlyViewedList.addHistoryItem(pageId, self.currentPageData.m_title)
 
-      # Notify child components that a new page has been selected
-      self.ui.pageTree.selectPage(pageId)
-      # TODO: Might need to notify date pane? (see C++ version)
-
       # TODO: Maybe consider storing the current page in the database to make it easy for other
       #       components to access it.  This will also help make the app more resilient.
 
@@ -326,8 +323,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.pageCache.removePage(pageId)
 
     self.clearPageEditControls()
-
-    self.ui.pageTree.removePage(pageId)
 
   def onPageDefavorited(self, pageId: ENTITY_ID):
     self.db.setPageFavoriteStatus(pageId, False)

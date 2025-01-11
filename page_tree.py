@@ -92,13 +92,17 @@ class CPageTree(QtWidgets.QTreeWidget):
     self.initMenus()
 
   def setConnections(self):
-    # TODO: Set signal/slot connections
     self.itemClicked.connect(self.onItemClicked)
     self.itemChanged.connect(self.onItemChanged)
     self.itemExpanded.connect(self.onItemExpanded)
     self.itemCollapsed.connect(self.onItemCollapsed)
-
     self.customContextMenuRequested.connect(self.onContextMenu)
+
+    # Switchboard signals
+    self.switchboard.pageSelected.connect(self.selectPage)
+    self.switchboard.pageDeleted.connect(self.removePage)
+
+    # TODO: Connect signals for PageImported and PageUpdatedByImport
 
   def initMenus(self):
     # Page context menu
