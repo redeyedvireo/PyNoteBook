@@ -5,6 +5,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from notebook_types import kInvalidPageId, PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, ENTITY_LIST
 from database import Database
 from switchboard import Switchboard
+from utility import deDupeList
 
 class PageWidgetItemType(Enum):
   eItemPage = 0
@@ -220,6 +221,9 @@ class CPageTree(QtWidgets.QTreeWidget):
   def addItemsNew(self, pageDict, pageOrderStr):
     pageIdList = pageOrderStr.split(',')
 
+    # Remove any duplicates in the page order string, while preserving the order
+    pageIdList = deDupeList(pageIdList)
+
     self.loading = True
 
     for pageIdStr in pageIdList:
@@ -404,6 +408,10 @@ class CPageTree(QtWidgets.QTreeWidget):
 
   def getPageOrderString(self) -> str:
     idList = self.getTreeIdList()
+
+    # Remove any duplicates in the page order string, while preserving the order
+    idList = deDupeList(idList)
+
     return ','.join(map(str, idList))
 
   def getTreeIdList(self) -> ENTITY_LIST:

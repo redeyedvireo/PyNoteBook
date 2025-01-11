@@ -112,3 +112,12 @@ def qByteArrayToPixmap(data: QtCore.QByteArray) -> tuple[bool, QtGui.QPixmap]:
   success = pixmap.loadFromData(byteArray, 'PNG')
 
   return (success, pixmap)
+
+def deDupeList(aList):
+  """Removes duplicates from a list, while preserving its order.
+
+  Args:
+      aList (_type_): List of items
+  """
+  # Found this trick here: https://stackoverflow.com/questions/1653970/does-python-have-an-ordered-set
+  return list(dict.fromkeys(aList))

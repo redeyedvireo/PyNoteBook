@@ -423,7 +423,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       pageOrderStr = self.db.getPageOrder()
 
       if pageOrderStr is not None:
-        print(f'Page order string: {pageOrderStr}')
+        logging.debug(f'Page order string: {pageOrderStr}')
         self.populateNavigationControls(pageOrderStr)
 
         # Read page history
