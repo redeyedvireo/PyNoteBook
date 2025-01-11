@@ -47,11 +47,15 @@ class Database:
       if dbExists:
         logging.info("Database open")
         self.updateDatabase()
+        return True
       else:
         # Create the database, and all tables
-        self.createNewDatabase()
-        logging.info(f'Created new database at: {pathName}')
-      return True
+        success = self.createNewDatabase()
+        if success:
+          logging.info(f'Created new database at: {pathName}')
+        else:
+          logging.error(f'Encountered errors in creating a new database')
+        return success
     else:
       logging.error("Could not open database")
       return False
@@ -79,8 +83,73 @@ class Database:
     pass
 
   def createNewDatabase(self):
-    # TODO: Create database tables
-    pass
+    # Create database tables
+    globalsTableSuccess = self.createGlobalsTable()
+    pagesTableSuccess = self.createPagesTable()
+    additionalDataTableSuccess = self.createAdditionalDataTable()
+
+    return globalsTableSuccess and pagesTableSuccess and additionalDataTableSuccess
+
+  def createGlobalsTable(self):
+    """ Creates the globals table. """
+    createStr = "create table globals ("
+    createStr += "key text UNIQUE, "
+    createStr += "datatype int, "
+    createStr += "intval int, "
+    createStr += "stringval text, "
+    createStr += "blobval blob"
+    createStr += ")"
+
+    return self.createTable(createStr)
+
+  def createPagesTable(self):
+    """ Creates the pages table. """
+    createStr = "create table pages ("
+    createStr += "pageid integer UNIQUE, "			# Unique Page ID (must not be 0)
+    createStr += "parentid integer, "				# Page ID of this page's parent page
+    createStr += "created integer, "				# Date and time the page was created, as a time_t
+    createStr += "lastmodified integer, "			# Date and time page was last modified, as a time_t
+    createStr += "nummodifications integer, "		# Number of modifications made to the page
+    createStr += "pagetype integer, "				# Type of page (0=user text, 1=folder, 2=HTML, 3=Javascript)
+    createStr += "pagetitle blob, "				# Title of page.  Must be blob to hold encrypted data
+    createStr += "contents blob, "					# Must be blob to hold encrypted data
+    createStr += "tags blob, "						# Must be blob to hold encrypted data
+    createStr += "additionalitems text, "			# Additional items needed by this page.  A string of comma-separated values
+    createStr += "isfavorite integer default 0 "	# 1 if the page is a "favorite", 0 if not
+    createStr += ")"
+
+    return self.createTable(createStr)
+
+  def createAdditionalDataTable(self):
+    """ Create the additional data table.  This table holds supplementary data
+	      for pages, such as images, audio clips and video clips."""
+    createStr = "create table additionaldata ("
+    createStr += "itemid text UNIQUE, "		# Unique ID for this data item (will be a UUID)
+    createStr += "type integer, "				  # Type of data (1=image, 2=audio clip, 3=video clip)
+    createStr += "contents blob, "				# Data contents.  Can be anything.
+    createStr += "parentid integer "			# ID of its containing content data entry (not sure if this is really needed)
+    createStr += ")"
+
+    return self.createTable(createStr)
+
+
+  def createTable(self, creationStr: str):
+    queryObj = QtSql.QSqlQuery()
+    queryObj.prepare(creationStr)
+    queryObj.exec_()
+
+    # Check for errors
+    sqlErr = queryObj.lastError()
+
+    if sqlErr.type() != QtSql.QSqlError.ErrorType.NoError:
+      self.reportError( "Error when attempting to the globals table: {}".format(sqlErr.text()))
+      return False
+
+    return True
+
+  def storePassword(self, password: str):
+    # TODO: Implement
+    logging.error('[Database.storePassword] Passwords are not supported yet')
 
   def getQueryField(self, queryObj, fieldName) -> int | str | bytes | None:
     fieldIndex = queryObj.record().indexOf(fieldName)
@@ -188,6 +257,7 @@ class Database:
       queryObj.addBindValue(valueToStore)
       queryObj.addBindValue(key)
     else:
+      # Key does not exist - create it
       if isinstance(value, int):
         createStr = "insert into globals (key, datatype, intval) values (?, ?, ?)"
         dataType = kDataTypeInteger
@@ -200,6 +270,7 @@ class Database:
 
         # Must convert to a QByteArray
         valueAsBytes = toQByteArray(value)
+        valueToStore = valueAsBytes
       else:
         self.reportError("setGlobalValue: invalid data type")
         return False
@@ -208,7 +279,7 @@ class Database:
 
       queryObj.addBindValue(key)
       queryObj.addBindValue(dataType)
-      queryObj.addBindValue(valueAsBytes)
+      queryObj.addBindValue(valueToStore)
 
     queryObj.exec_()
 
@@ -241,7 +312,7 @@ class Database:
 
   def getPageHistory(self) -> str | None:
     pageHistory = self.getGlobalValue(kPageHistoryKey)
-    return None if pageHistory is None else str(pageHistory)
+    return None if (pageHistory is None or pageHistory == '') else str(pageHistory)
 
   def setPageHistory(self, pageHistoryStr) -> bool:
     return self.setGlobalValue(kPageHistoryKey, pageHistoryStr)
@@ -682,7 +753,15 @@ class Database:
     fieldNum = queryObj.record().indexOf('maxpageid')
 
     if queryObj.first():
-      nextId = queryObj.value(fieldNum)
+      nextIdVal = queryObj.value(fieldNum)
+      nextId = kInvalidPageId
+
+      try:
+        nextId = int(nextIdVal)
+      except ValueError:
+        # The next ID was probably a space, which would happen in the case of a new database
+        nextId = 0      # This will cause the next ID (or first ID) to be 1
+
       return nextId + 1
     else:
       self.reportError(f'nextPageId error: maxpageid was not returned by the query')

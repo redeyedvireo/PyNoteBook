@@ -14,3 +14,4 @@ pyside6-uic table_format_dlg.ui -o ui_table_format_dlg.py
 pyside6-uic choose_page_to_link_dlg.ui -o ui_choose_page_to_link_dlg.py
 pyside6-uic add_web_link_dlg.ui -o ui_add_web_link_dlg.py
 pyside6-uic to_do_edit.ui -o ui_to_do_edit.py
+pyside6-uic set_password_dlg.ui -o ui_set_password_dlg.py

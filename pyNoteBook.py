@@ -8,6 +8,7 @@ from logging.handlers import RotatingFileHandler
 from PySide6 import QtCore, QtWidgets, QtGui
 from pageCache import PageCache
 from qt_util import loadUi
+from set_password_dlg import SetPasswordDlg
 from tagCache import TagCache
 from util import getScriptPath
 from ui_pynotebookwindow import Ui_PyNoteBookWindow
@@ -110,7 +111,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if previousFilepath is not None and len(previousFilepath) > 0:
       if self.prefs.onStartupLoad == kStartupLoadPreviousNoteBook:
         # Reopen previously opened notebook.
-        self.OpenNotebookFile(previousFilepath)
+        self.openNotebookFile(previousFilepath)
 
 
   # *************************** SLOTS ***************************
@@ -145,6 +146,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.titleLabelWidget.TLW_SetPageAsNonFavorite.connect(self.onRemovePageFromFavorites)
 
   @QtCore.Slot()
+  def on_actionNew_Notebook_triggered(self):
+    # If there is already a notebook open, close it first
+    self.closeNotebookFile()
+    self.createNewNotebookFile()
+
+  @QtCore.Slot()
   def on_actionOpen_Notebook_triggered(self):
     self.checkSavePage()          # First check if a notebook page is open, and if so, prompt the user to save it.
 
@@ -154,8 +161,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       "NoteBook files (*.nbk)");
 
     if len(tempDbPathname) > 0:
-      print(f'DB filename: {tempDbPathname}, selected filter: {selectedFilter}')
-      self.OpenNotebookFile(tempDbPathname)
+      logging.debug(f'DB filename: {tempDbPathname}, selected filter: {selectedFilter}')
+      self.openNotebookFile(tempDbPathname)
 
   @QtCore.Slot()
   def on_savePageButton_clicked(self):
@@ -353,7 +360,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
       self.closeNotebookFile()
       self.clearAllControls()
-      self.OpenNotebookFile(sender.text())
+      self.openNotebookFile(sender.text())
 
 
 # *************************** SETTINGS ***************************
@@ -408,7 +415,53 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
 # *************************** FILE ***************************
 
-  def OpenNotebookFile(self, filepath) -> bool:
+  def createNewNotebookFile(self):
+    filepathTuple = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                          "NoteBook - New Notebook File",
+                                                          self.lastUsedDirectory,
+                                                          'Notebook files (*.nbk)')
+
+    if len(filepathTuple[0]) > 0:
+      filepath = filepathTuple[0]
+
+      dlg = SetPasswordDlg(self)
+
+      result = dlg.exec()
+
+      password = ''     # If empty, no password is being used
+
+      # Note: if the user clicks Cancel from the password dialog, that aborts
+      # creating a notebook.
+      if result == QtWidgets.QDialog.DialogCode.Accepted:
+        password = dlg.getPassword()
+
+        self.clearAllControls()
+
+        # Delete the file if it exists
+        if os.path.exists(filepath):
+          os.remove(filepath)
+
+        directory, filename = os.path.split(filepath)
+        self.notebookFileName = filename
+        self.lastUsedDirectory = directory
+        self.currentNoteBookPath = filepath
+
+        successfulCreation = self.db.openDatabase(self.currentNoteBookPath)
+
+        if successfulCreation:
+          self.addFileToRecentFilesList()
+
+          if len(password) > 0:
+            self.db.storePassword(password)
+
+          self.setAppTitle()
+      else:
+        QtWidgets.QMessageBox.critical(self, kAppName, 'Could not create NoteBook')
+
+        self.notebookFileName = ''
+        self.currentNoteBookPath = ''
+
+  def openNotebookFile(self, filepath) -> bool:
     if len(filepath) > 0 and os.path.exists(filepath):
       directory, filename = os.path.split(filepath)
       self.notebookFileName = filename
@@ -559,17 +612,18 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def populateNavigationControls(self, pageOrderStr: str):
     pageDict, success = self.db.getPageList()   # Retrieve all pages, regardless of whether they appear in the pageOrderStr
 
-    self.pageCache.addPages(pageDict)
+    if len(pageDict) > 0:
+      self.pageCache.addPages(pageDict)
 
-    self.ui.pageTree.addItemsNew(pageDict, pageOrderStr)
+      self.ui.pageTree.addItemsNew(pageDict, pageOrderStr)
 
-    self.ui.pageTitleList.addItems(pageDict)
-    self.ui.dateTree.addItems(pageDict)
+      self.ui.pageTitleList.addItems(pageDict)
+      self.ui.dateTree.addItems(pageDict)
 
-    pageIdDict, success = self.db.getTagList()
-    self.tagCache.addTags(pageIdDict)
+      pageIdDict, success = self.db.getTagList()
+      self.tagCache.addTags(pageIdDict)
 
-    self.ui.tagList.addItems()
+      self.ui.tagList.addItems()
 
   def enableDataEntry(self, enable):
     self.ui.pageTextEdit.setEnabled(enable)
@@ -588,6 +642,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     # Create new page
     newPageId = self.db.nextPageId()      # Get an unused ID to use for this new page
+
+    if newPageId == kInvalidPageId:
+      # There was a problem in finding the next ID
+      logging.error(f'Error finding the next page ID')
+      QtWidgets.QMessageBox.critical(self, kAppName, "Can't create new page due to an internal error.  See the logs for more information.")
+      return
 
     self.currentPageData = PageData()
     self.currentPageData.m_pageId = newPageId
@@ -626,6 +686,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       self.pageCache.addPage(newPageId, title)
 
       self.switchboard.emitNewPageCreated(self.currentPageData)
+
+      self.enableDataEntry(True)
 
   def displayPage(self, pageData: PageData, imageNames: list[str], isNewPage: bool, pageId: ENTITY_ID):
     self.ui.titleLabelWidget.setPageTitleLabel(pageData.m_title)
