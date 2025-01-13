@@ -607,7 +607,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       pageId = pageId if type(pageId) == int else None
 
     if pageId is not None:
-      self.onPageSelected(pageId)
+      self.switchboard.emitPageSelected(pageId)
 
   def populateNavigationControls(self, pageOrderStr: str):
     pageDict, success = self.db.getPageList()   # Retrieve all pages, regardless of whether they appear in the pageOrderStr
