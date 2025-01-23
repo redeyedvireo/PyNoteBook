@@ -2,6 +2,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from typing import TypedDict
 import xml.etree.ElementTree as ET
 import logging
+import os.path
 
 from styleDef import FormatFlag, StyleDef
 
@@ -119,6 +120,9 @@ class StyleManager:
     Returns:
         boolean: True if successful, False otherwise
     """
+    if not os.path.exists(styleDefFilePath):
+      return False
+
     tree = ET.parse(styleDefFilePath)
     root = tree.getroot()
 
