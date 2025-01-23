@@ -236,7 +236,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   @QtCore.Slot()
   def on_actionManage_Favorites_triggered(self):
     dlg = FavoritesDialog(self.favoritesManager.favoritesList, self)
-    result = dlg.exec_()
+    result = dlg.exec()
 
     if result == QtWidgets.QDialog.DialogCode.Accepted:
       newFavoritesList = dlg.favoritesList
@@ -253,12 +253,12 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
   def on_actionPage_Info_triggered(self):
     if self.currentPageData is not None:
       dlg = CPageInfoDlg(self, self.currentPageData)
-      dlg.exec_()
+      dlg.exec()
 
   @QtCore.Slot()
   def on_actionSettings_triggered(self):
     dlg = PrefsDialog(self.prefs, self)
-    result = dlg.exec_()
+    result = dlg.exec()
 
     if result == QtWidgets.QDialog.DialogCode.Accepted:
       self.prefs = dlg.preferences

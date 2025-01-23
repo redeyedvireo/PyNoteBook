@@ -80,7 +80,7 @@ class CTagList(QtWidgets.QListWidget):
       action.setData(pageId)
       action.triggered.connect(self.onPageIdSelected)
 
-    self.contextMenu.exec_(self.mapToGlobal(pos))
+    self.contextMenu.exec(self.mapToGlobal(pos))
 
   def onPageIdSelected(self):
     sender = self.sender()
