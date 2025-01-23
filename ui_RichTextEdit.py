@@ -27,7 +27,7 @@ class Ui_RichTextEditWidget(object):
     def setupUi(self, RichTextEditWidget):
         if not RichTextEditWidget.objectName():
             RichTextEditWidget.setObjectName(u"RichTextEditWidget")
-        RichTextEditWidget.resize(532, 628)
+        RichTextEditWidget.resize(545, 628)
         self.verticalLayout = QVBoxLayout(RichTextEditWidget)
         self.verticalLayout.setSpacing(1)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -48,6 +48,7 @@ class Ui_RichTextEditWidget(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sizeCombo.sizePolicy().hasHeightForWidth())
         self.sizeCombo.setSizePolicy(sizePolicy)
+        self.sizeCombo.setMinimumSize(QSize(45, 0))
         self.sizeCombo.setMaximumSize(QSize(40, 16777215))
 
         self.horizontalLayout_2.addWidget(self.sizeCombo)
@@ -136,7 +137,7 @@ class Ui_RichTextEditWidget(object):
         icon7 = QIcon()
         icon7.addFile(u":/NoteBook/Resources/Bullet Table.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.bulletTableInsertButton.setIcon(icon7)
-        self.bulletTableInsertButton.setPopupMode(QToolButton.MenuButtonPopup)
+        self.bulletTableInsertButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
         self.horizontalLayout_2.addWidget(self.bulletTableInsertButton)
 
@@ -145,7 +146,7 @@ class Ui_RichTextEditWidget(object):
         icon8 = QIcon()
         icon8.addFile(u":/NoteBook/Resources/Number Table.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.numberTableInsertButton.setIcon(icon8)
-        self.numberTableInsertButton.setPopupMode(QToolButton.MenuButtonPopup)
+        self.numberTableInsertButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
         self.horizontalLayout_2.addWidget(self.numberTableInsertButton)
 
@@ -172,7 +173,7 @@ class Ui_RichTextEditWidget(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.styleButton = QToolButton(RichTextEditWidget)
         self.styleButton.setObjectName(u"styleButton")
-        self.styleButton.setPopupMode(QToolButton.MenuButtonPopup)
+        self.styleButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
         self.horizontalLayout.addWidget(self.styleButton)
 

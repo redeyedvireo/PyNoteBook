@@ -162,7 +162,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
       self.ui.textEdit.setTextCursor(selectionCursor)
 
-      tempFont = QtGui.QFont(fontFamily, fontSize)
+      tempFont = QtGui.QFont(fontFamily, fontSizeToUse)
       doc = self.ui.textEdit.document()
 
       doc.setDefaultFont(tempFont)
@@ -183,7 +183,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
         curFontSize = int(fontSizeStr)
         maxFontSize = max(maxFontSize, curFontSize)
 
-        if curFontSize > fontSize:
+        if curFontSize >= fontSize:
           return curFontSize
 
     # fontSize is larger than any font in the combo box.  In this
@@ -239,13 +239,6 @@ class RichTextEditWidget(QtWidgets.QWidget):
     selectionCursor = self.ui.textEdit.textCursor()
     selectionFormat = selectionCursor.charFormat()
     return (selectionCursor, selectionFormat)
-
-  def addAddendum(self):
-    textCursor = self.ui.textEdit.textCursor()
-
-    textCursor.movePosition(QtGui.QTextCursor.MoveOperation.End, QtGui.QTextCursor.MoveMode.MoveAnchor)
-
-    self.ui.textEdit.insertHtml(f'<br><hr />Addendum {formatDateTime(datetime.datetime.now())}<br>')
 
 
   # Slots
