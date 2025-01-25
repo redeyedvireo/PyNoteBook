@@ -110,7 +110,7 @@ class Ui_PyNoteBookWindow(object):
         sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.navigationTabWidget.sizePolicy().hasHeightForWidth())
         self.navigationTabWidget.setSizePolicy(sizePolicy)
-        self.navigationTabWidget.setMinimumSize(QSize(300, 0))
+        self.navigationTabWidget.setMinimumSize(QSize(320, 0))
         self.treeTab = QWidget()
         self.treeTab.setObjectName(u"treeTab")
         self.verticalLayout_4 = QVBoxLayout(self.treeTab)
