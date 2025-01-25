@@ -1,19 +1,19 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 from database import Database
+from switchboard import Switchboard
 from notebook_types import ENTITY_ID, kInvalidPageId
 
 kDefaultMaxHistory = 20
 
 class CPageHistoryWidget(QtWidgets.QListWidget):
-  PHW_PageSelected = QtCore.Signal(ENTITY_ID)
-
   def __init__(self, parent):
     super(CPageHistoryWidget, self).__init__(parent)
     self.db = None
     self.maxHistory = kDefaultMaxHistory
 
-  def initialize(self, db: Database):
+  def initialize(self, db: Database, switchboard: Switchboard):
     self.db = db
+    self.switchboard = switchboard
 
     self.setConnections()
 
@@ -91,5 +91,5 @@ class CPageHistoryWidget(QtWidgets.QListWidget):
 
   def onItemClicked(self, item):
     pageId = self.pageIdForItem(item)
-    self.PHW_PageSelected.emit(pageId)
+    self.switchboard.emitPageSelected(pageId)
 

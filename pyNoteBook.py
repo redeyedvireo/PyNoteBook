@@ -82,7 +82,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   def initialize(self):
     self.ui.pageTree.initialize(self.db, self.switchboard)
-    self.ui.recentlyViewedList.initialize(self.db)
+    self.ui.recentlyViewedList.initialize(self.db, self.switchboard)
     self.ui.titleLabelWidget.initialize()
     self.ui.tagList.initialize(self.tagCache, self.pageCache, self.switchboard)
     self.ui.pageTitleList.initialize(self.switchboard)
@@ -137,9 +137,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     # ToDo List signals
     self.ui.pageToDoEdit.toDoListModifiedSignal.connect(self.onPageModified)
     self.ui.pageToDoEdit.toDoListSavePage.connect(self.on_savePageButton_clicked)
-
-    # Page History Widget
-    self.ui.recentlyViewedList.PHW_PageSelected.connect(self.onPageSelected)
 
     # Title Label Widget
     self.ui.titleLabelWidget.TLW_SetPageAsFavorite.connect(self.onAddPageToFavorites)
