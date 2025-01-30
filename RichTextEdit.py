@@ -2,6 +2,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import datetime
 
 from select_style_dlg import SelectStyleDialog
+from switchboard import Switchboard
 from table_format_dlg import TableFormatDialog
 from style_manager import StyleManager
 from text_table import TextTable
@@ -36,10 +37,11 @@ class RichTextEditWidget(QtWidgets.QWidget):
     # Connect signals
     self.setConnections()
 
-  def initialize(self, styleManager: StyleManager, messageLabel: QtWidgets.QLabel, database: Database):
+  def initialize(self, styleManager: StyleManager, messageLabel: QtWidgets.QLabel, database: Database, switchboard: Switchboard):
     self.styleManager = styleManager
     self.db = database
     self.messageLabel = messageLabel
+    self.switchboard = switchboard
     self.ui.textEdit.initialize(self.styleManager, messageLabel, self.db)
     self.initStyleButton()
     self.populatePointSizesCombo()
@@ -408,6 +410,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
         if styleId is not None:
           self.styleManager.applyStyle(self.ui.textEdit, styleId)
           self.initStyleButton()
+          self.switchboard.emitStylesChanged()
 
   @QtCore.Slot()
   def onSolidCircleTriggered(self):

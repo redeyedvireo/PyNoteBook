@@ -76,7 +76,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.styleManager = StyleManager()
     self.styleManager.loadStyleDefs(self.getStyleDefsPath())
 
-    self.ui.pageTextEdit.initialize(self.styleManager, self.ui.messageLabel, self.db)
+    self.ui.pageTextEdit.initialize(self.styleManager, self.ui.messageLabel, self.db, self.switchboard)
 
     self.setConnections()
 
@@ -122,6 +122,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.switchboard.pageSelected.connect(self.onPageSelected)
     self.switchboard.pageTitleUpdated.connect(self.onPageTitleChanged)
     self.switchboard.pageDeleted.connect(self.onPageDeleted)
+    self.switchboard.stylesChanged.connect(self.saveStyles)
 
     # Page Tree signals
     self.ui.pageTree.PT_OnCreateNewPage.connect(self.on_actionNew_Page_triggered)
@@ -492,6 +493,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     else:
       logging.error(f'NoteBook {self.currentNoteBookPath} does not exist')
       return False
+
+  def saveStyles(self):
+    styleFilePath = self.getStyleDefsPath()
+    self.styleManager.saveStyleDefs(styleFilePath)
 
   def addFavoritesToFavoritesMenu(self):
     favoritePages = self.db.getFavoritePages()

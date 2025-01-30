@@ -12,6 +12,7 @@ class Switchboard(QtCore.QObject):
   pageImported = QtCore.Signal(int, str)
   pageImportUpdated = QtCore.Signal(int, str)
   pageImportDeleted = QtCore.Signal(int)
+  stylesChanged = QtCore.Signal()
 
   def __init__(self):
     super(Switchboard, self).__init__()
@@ -39,3 +40,6 @@ class Switchboard(QtCore.QObject):
 
   def emitPageImportDeleted(self, pageId: int):
     self.pageImportDeleted.emit(pageId)
+
+  def emitStylesChanged(self):
+    self.stylesChanged.emit()
