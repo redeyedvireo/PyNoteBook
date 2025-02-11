@@ -107,6 +107,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     previousFilepath = self.prefs.lastFile
 
     self.ui.navigationTabWidget.setCurrentIndex(self.prefs.selectedNavigationTab)
+    self.ui.pageToDoEdit.setAutoSave(self.prefs.todoListAutosave)
 
     if previousFilepath is not None and len(previousFilepath) > 0:
       if self.prefs.onStartupLoad == kStartupLoadPreviousNoteBook:
@@ -261,6 +262,11 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if result == QtWidgets.QDialog.DialogCode.Accepted:
       self.prefs = dlg.preferences
       self.prefs.writePrefsFile()
+
+      # Update anything that is affected by the prefs
+      self.ui.pageToDoEdit.setAutoSave(self.prefs.todoListAutosave)
+
+      # TODO: Is there anything else that should be updated by a prefs change?
 
   @QtCore.Slot()
   def on_actionAbout_NoteBook_triggered(self):
@@ -745,8 +751,16 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       if result == QtWidgets.QMessageBox.StandardButton.Yes:
         self.on_savePageButton_clicked()
 
-  def pageModified(self) -> bool:
-    return self.ui.pageTextEdit.isModified() or self.tagsModified
+  def pageModified(self):
+    if self.currentPageData is None:
+      return False
+
+    if self.currentPageData.m_pageType == PAGE_TYPE.kPageTypeUserText:
+      return self.ui.pageTextEdit.isModified() or self.tagsModified
+    elif self.currentPageData.m_pageType == PAGE_TYPE.kPageTypeToDoList:
+       return self.ui.pageToDoEdit.isModified() or self.tagsModified
+    else:
+      return False
 
   def onPageModified(self):
     self.setAppTitle()

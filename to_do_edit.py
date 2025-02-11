@@ -41,6 +41,9 @@ class ToDoEditWidget(QtWidgets.QWidget):
 
     self.configureTree()
 
+  def setAutoSave(self, autosave: bool):
+    self.autosave = autosave
+
   def configureTree(self):
     self.model.setHorizontalHeaderLabels(['Done', 'Priority', 'Task'])
 
@@ -82,7 +85,7 @@ class ToDoEditWidget(QtWidgets.QWidget):
   def setDocumentModified(self, modified: bool):
     self.modified = modified
 
-  def isDocumentModified(self) -> bool:
+  def isModified(self) -> bool:
     return self.modified
 
   def sortList(self):

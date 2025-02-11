@@ -14,5 +14,6 @@ kFilesLastFile = 'files-lastfile'
 kWindowSize = 'window-size'
 kWindowPos = 'window-pos'
 kNavigationTab = 'navigation-tab'
+kTodoListAutosave = 'todolist-autosave'
 
 kRecentFiles = 'recentfiles'

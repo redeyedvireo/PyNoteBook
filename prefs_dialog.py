@@ -33,6 +33,9 @@ class PrefsDialog(QtWidgets.QDialog):
     self.populatePointSizesCombo()
     self.setDefaultFont(self.curFont)
 
+    # ToDo list Editor
+    self.ui.autoSaveCheckBox.setChecked(self.preferences.todoListAutosave)
+
   def populatePointSizesCombo(self):
     fontDatabase = QtGui.QFontDatabase()
 
@@ -94,3 +97,4 @@ class PrefsDialog(QtWidgets.QDialog):
     fontSize = int(self.ui.fontSizeCombo.currentText())
     self.preferences.editorDefaultFontFamily = font.family()
     self.preferences.editorDefaultFontSize = fontSize
+    self.preferences.todoListAutosave = self.ui.autoSaveCheckBox.isChecked()

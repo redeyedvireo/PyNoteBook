@@ -13,7 +13,9 @@ from constants import kStartupLoadPreviousNoteBook, \
                       kRecentFiles, \
                       kWindowSize, \
                       kWindowPos, \
-                      kNavigationTab
+                      kNavigationTab, \
+                      kTodoListAutosave
+
 class Preferences():
   def __init__(self, prefsFilePath) -> None:
     self.prefsFilePath = prefsFilePath
@@ -27,7 +29,8 @@ class Preferences():
       kRecentFiles: [],
       kWindowSize: '',
       kWindowPos: '',
-      kNavigationTab: 0
+      kNavigationTab: 0,
+      kTodoListAutosave: True
     }
 
   def readPrefsFile(self):
@@ -48,6 +51,7 @@ class Preferences():
         self.prefsMap[kWindowPos] = configObj.get('window', 'pos', fallback='')
         self.prefsMap[kWindowSize] = configObj.get('window', 'size', fallback='')
         self.prefsMap[kNavigationTab] = configObj.get('navigation', 'tab', fallback=0)
+        self.prefsMap[kTodoListAutosave] = configObj.getboolean('todolist', 'autosave', fallback=True)
 
         # Read recent files list
         if configObj.has_section(kRecentFiles):
@@ -134,6 +138,14 @@ class Preferences():
   @selectedNavigationTab.setter
   def selectedNavigationTab(self, value: int):
     self.prefsMap[kNavigationTab] = value
+
+  @property
+  def todoListAutosave(self) -> bool:
+    return True if not self.prefsItemExists(kTodoListAutosave) else self.prefsMap[kTodoListAutosave]
+
+  @todoListAutosave.setter
+  def todoListAutosave(self, value: bool):
+    self.prefsMap[kTodoListAutosave] = value
 
   @property
   def lastFile(self) -> str:
