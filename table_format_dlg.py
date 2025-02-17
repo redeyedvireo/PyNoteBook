@@ -29,8 +29,23 @@ class TableFormatDialog(QtWidgets.QDialog):
   def columns(self) -> int:
     return self.ui.columnsSpin.value()
 
+  def hasHeader(self) -> bool:
+    return self.ui.headerGroupBox.isChecked()
+
+  def setHasHeader(self, hasHeader: bool):
+    self.ui.headerGroupBox.setChecked(hasHeader)
+
   def backgroundColor(self) -> QtGui.QColor:
     return self.ui.backgroundColorButton.getColor()
+
+  def setBackgroundColor(self, color: QtGui.QColor):
+    self.ui.backgroundColorButton.setColor(color)
+
+  def headerBackgroundColor(self) -> QtGui.QColor:
+    return self.ui.headerBackgroundButton.getColor()
+
+  def setHeaderBackgroundColor(self, color: QtGui.QColor):
+    self.ui.headerBackgroundButton.setColor(color)
 
   def getColumnConstraints(self) -> list[QtGui.QTextLength]:
     columnConstraints = []
@@ -46,9 +61,6 @@ class TableFormatDialog(QtWidgets.QDialog):
   @QtCore.Slot(int)
   def on_columnsSpin_valueChanged(self, i: int):
     self.adjustTableRows(i)
-
-  def setBackgroundColor(self, color: QtGui.QColor):
-    self.ui.backgroundColorButton.setColor(color)
 
   def populateColumns(self):
     colWidths = []

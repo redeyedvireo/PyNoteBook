@@ -1,7 +1,10 @@
+from turtle import bgcolor
 from PySide6 import QtCore, QtWidgets, QtGui
 import re
+import logging
 
 from text_table_defs import kDefaultColumnWidth
+from debugHelper import dumpBrush, dumpTableCell, dumpTextTable
 
 class TextTable:
   def __init__(self) -> None:
@@ -345,6 +348,28 @@ class TextTable:
     else:
       return -1
 
+  def hasHeader(self):
+    if self.textTable is not None:
+      return self.textTable.format().headerRowCount() > 0
+    else:
+      return False
+
+  def setHasHeader(self, hasHeader: bool):
+    if self.textTable is not None:
+      textTableFormat = self.textTable.format()
+      textTableFormat.setHeaderRowCount(1 if hasHeader else 0)
+      self.textTable.setFormat(textTableFormat)
+
+      if not hasHeader:
+        # Clear the format of the header cells
+        bacgroundBrush = self.background()
+        for col in range(self.textTable.columns()):
+          cell = self.textTable.cellAt(0, col)
+          cellFormat = cell.format()
+          # cellFormat.setBackground(bacgroundBrush)
+          cellFormat.clearBackground()
+          cell.setFormat(cellFormat)
+
   def resize(self, rows: int, columns: int):
     if self.textTable is not None:
       self.textTable.resize(rows, columns)
@@ -361,21 +386,116 @@ class TextTable:
     else:
       return QtGui.QTextFrameFormat()
 
-  def background(self) -> QtGui.QBrush:
+  def background(self) -> QtGui.QColor:
     if self.textTable is not None:
       tableFormat = self.textTable.format()
-      return tableFormat.background()
+      return tableFormat.background().color()
     else:
-      return QtGui.QBrush()
+      return QtGui.QColor()
 
-  def setBackground(self, brush: QtGui.QBrush):
+  def setBackground(self, bgColor: QtGui.QColor):
     if self.textTable is not None:
-      ttFormat = self.textTable.format()
-      ttFormat.setBackground(brush)
-      self.textTable.setFormat(ttFormat)
+      textTableFormat = self.textTable.format()
+      textTableFormat.setBackground(bgColor)
+      textTableFormat.setBorderCollapse(False)
+      textTableFormat.setCellPadding(0)
+      self.textTable.setFormat(textTableFormat)
+
+      # Set the frame format as well
+      textFrameFormat = self.textTable.frameFormat()
+      textFrameFormat.setBackground(bgColor)
+
+      # Set frame border color
+      borderBrush = QtGui.QBrush(QtGui.QColor.fromString('#888'))
+      textFrameFormat.setBorderBrush(borderBrush)
+      textFrameFormat.setBorderStyle(QtGui.QTextFrameFormat.BorderStyle.BorderStyle_Outset)
+      textFrameFormat.setBorder(1)
+      self.textTable.setFrameFormat(textFrameFormat)
+
+      # Since cells can have their own format, which overrides the table's format, we need to set them explicitly here.
+      numColumns = self.textTable.columns()
+      numRows = self.textTable.rows()
+      startRow = 1 if self.hasHeader() else 0
+
+      for row in range(startRow, numRows):
+        for col in range(numColumns):
+          cell = self.textTable.cellAt(row, col)
+          cellFormat = cell.format()
+          cellFormat.clearBackground()    # Allows the table's background color to show through
+          cell.setFormat(cellFormat)
+
+          # Experiment - try selecting all the text in the cell
+          firstPos = cell.firstCursorPosition()
+          lastPos = cell.lastCursorPosition()
+          cursorCharFormat = firstPos.charFormat()
+          cursorCharFormat.clearForeground()
+          cursorCharFormat.clearBackground()
+          firstPos.setCharFormat(cursorCharFormat)
+
+          blockCharFormat = firstPos.blockCharFormat()
+          blockCharFormat.clearForeground()
+          blockCharFormat.clearBackground()
+          firstPos.setBlockCharFormat(blockCharFormat)
+
+          cursorCharFormat = lastPos.charFormat()
+          cursorCharFormat.clearForeground()
+          cursorCharFormat.clearBackground()
+          lastPos.setCharFormat(cursorCharFormat)
+
+          blockCharFormat = lastPos.blockCharFormat()
+          blockCharFormat.clearForeground()
+          blockCharFormat.clearBackground()
+          lastPos.setBlockCharFormat(blockCharFormat)
+
+
+
+  def headerBackground(self) -> QtGui.QColor:
+    if self.textTable is not None:
+      if self.hasHeader():
+        cell = self.textTable.cellAt(0, 0)
+        cellFormat = cell.format()
+        return cellFormat.background().color()
+      else:
+        return self.background()
+    else:
+      return QtGui.QColor()
+
+  def setHeaderBackground(self, bgColor: QtGui.QColor):
+    if self.textTable is not None and self.hasHeader():
+      numColumns = self.textTable.columns()
+
+      for col in range(numColumns):
+        cell = self.textTable.cellAt(0, col)
+        cellFormat = cell.format()
+        bgBrush = QtGui.QBrush(bgColor)
+        bgBrush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
+        cellFormat.setBackground(bgBrush)
+        cell.setFormat(cellFormat)
 
   def setColumnConstraints(self, columnConstraints: list[QtGui.QTextLength]):
     if self.textTable is not None:
       ttFormat = self.textTable.format()
       ttFormat.setColumnWidthConstraints(columnConstraints)
       self.textTable.setFormat(ttFormat)
+
+  def dump(self):
+    """This function is useful to debug tricky table formatting issues. """
+    if self.textTable is not None:
+      dumpTextTable(self.textTable)
+
+  @staticmethod
+  def dumpTable(cursorInTable: QtGui.QTextCursor):
+    table = cursorInTable.currentTable()
+
+    if table is not None:
+      dumpTextTable(table)
+
+  @staticmethod
+  def dumpCell(cursorInTable: QtGui.QTextCursor):
+    table = cursorInTable.currentTable()
+
+    if table is not None:
+      cell = table.cellAt(cursorInTable)
+      cellFormat = cell.format()
+      logging.debug(f'Cell at row {cell.row()}, column {cell.column()}:')
+      dumpTableCell(cell)

@@ -832,7 +832,9 @@ def getLogfilePath():
 def main():
   console = logging.StreamHandler()
   rotatingFileHandler = RotatingFileHandler(getLogfilePath(), maxBytes=kMaxLogileSize, backupCount=9)
-  logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',
+  logLevel = logging.INFO
+  # logLevel = logging.DEBUG
+  logging.basicConfig(level=logLevel, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',
                           handlers=[ rotatingFileHandler, console ])
 
   app = QtWidgets.QApplication([])

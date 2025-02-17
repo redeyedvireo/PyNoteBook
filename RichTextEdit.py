@@ -347,10 +347,15 @@ class RichTextEditWidget(QtWidgets.QWidget):
         frameFormat = textTable.textFrameFormat()
         tableWidth = frameFormat.width()
 
-        # Header color
-        bgBrush = textTable.background()
+        # Header
+        hasHeader = textTable.hasHeader()
 
-        dlg.setBackgroundColor(bgBrush.color())
+        dlg.setHasHeader(hasHeader)
+        if hasHeader:
+          dlg.setHeaderBackgroundColor(textTable.headerBackground())
+
+        # Background color
+        dlg.setBackgroundColor(textTable.background())
 
     else:
       # The cursor is not in a table
@@ -381,7 +386,22 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
       columnConstraints = dlg.getColumnConstraints()
       textTable.setColumnConstraints(columnConstraints)
-      textTable.setBackground(QtGui.QBrush(bgColor))
+
+      # Set the header before setting the background, because if there is no header, the header cells will
+      # specifically be cleared of any background color.
+      hasHeader = dlg.hasHeader()
+
+      textTable.setHasHeader(hasHeader)
+
+      if hasHeader:
+        headerBgColor = dlg.headerBackgroundColor()
+        textTable.setHeaderBackground(headerBgColor)
+
+      textTable.setBackground(bgColor)
+
+      # DEBUG - dump the table
+      # textTable.dump()
+
 
   @QtCore.Slot()
   def on_insertHLineButton_clicked(self):

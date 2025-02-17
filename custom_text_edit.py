@@ -96,6 +96,8 @@ class CustomTextEdit(QtWidgets.QTextEdit):
 
       menu.addAction('Convert Table to Text', self.onConvertTableToText)
       menu.addAction('Format Table...', self.onTableFormat)
+      menu.addAction('Dump Table', lambda: TextTable.dumpTable(self.textCursor()))
+      menu.addAction('Dump Current Cell', lambda: TextTable.dumpCell(self.textCursor()))
       menu.addSeparator()
 
     menu.addAction('Insert Link to Page...', self.onInsertPageLinkDlg)

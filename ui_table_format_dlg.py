@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'table_format_dlg.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.0
+## Created by: Qt User Interface Compiler version 6.8.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -31,7 +31,7 @@ class Ui_TableFormatDlg(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.formLayout = QFormLayout()
         self.formLayout.setObjectName(u"formLayout")
-        self.formLayout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
+        self.formLayout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.label = QLabel(TableFormatDlg)
         self.label.setObjectName(u"label")
 
@@ -61,7 +61,7 @@ class Ui_TableFormatDlg(object):
 
         self.headerGroupBox = QGroupBox(TableFormatDlg)
         self.headerGroupBox.setObjectName(u"headerGroupBox")
-        self.headerGroupBox.setEnabled(False)
+        self.headerGroupBox.setEnabled(True)
         self.headerGroupBox.setCheckable(True)
         self.horizontalLayout = QHBoxLayout(self.headerGroupBox)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -119,8 +119,8 @@ class Ui_TableFormatDlg(object):
 
         self.buttonBox = QDialogButtonBox(TableFormatDlg)
         self.buttonBox.setObjectName(u"buttonBox")
-        self.buttonBox.setOrientation(Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
 
         self.verticalLayout.addWidget(self.buttonBox)
 
