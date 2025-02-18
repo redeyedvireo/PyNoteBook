@@ -143,3 +143,8 @@ class TableFormatDialog(QtWidgets.QDialog):
       self.ui.tableWidget.setItem(row, col, item)
 
     item.setText(text)
+
+  @QtCore.Slot(bool)
+  def on_headerGroupBox_clicked(self, checked: bool):
+    if not self.ui.headerGroupBox.isChecked():
+      self.ui.headerBackgroundButton.setNoColor()
