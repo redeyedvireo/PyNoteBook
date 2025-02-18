@@ -10,7 +10,7 @@ from pageCache import PageCache
 from qt_util import loadUi
 from set_password_dlg import SetPasswordDlg
 from tagCache import TagCache
-from util import getScriptPath
+from util import getScriptPath, runningFromBundle
 from ui_pynotebookwindow import Ui_PyNoteBookWindow
 from database import Database
 from page_data import PageData
@@ -832,8 +832,12 @@ def getLogfilePath():
 def main():
   console = logging.StreamHandler()
   rotatingFileHandler = RotatingFileHandler(getLogfilePath(), maxBytes=kMaxLogileSize, backupCount=9)
+
   logLevel = logging.INFO
-  # logLevel = logging.DEBUG
+
+  if runningFromBundle():
+    logLevel = logging.DEBUG
+
   logging.basicConfig(level=logLevel, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',
                           handlers=[ rotatingFileHandler, console ])
 
@@ -842,7 +846,6 @@ def main():
   window = PyNoteBookWindow()
   window.initialize()
 
-  # widget.resize(800, 600)
   window.show()
 
   returnValue = app.exec()
