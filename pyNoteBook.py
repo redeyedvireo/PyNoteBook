@@ -835,7 +835,7 @@ def main():
 
   logLevel = logging.INFO
 
-  if runningFromBundle():
+  if not runningFromBundle():
     logLevel = logging.DEBUG
 
   logging.basicConfig(level=logLevel, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',
