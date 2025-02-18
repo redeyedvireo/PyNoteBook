@@ -1,83 +1,107 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 import logging
 
-def dumpTextTable(textTable: QtGui.QTextTable):
+def debugOutput(message: str, indent = 0):
+  logging.debug(f'{" " * indent}{message}')
+
+def dumpTextTable(textTable: QtGui.QTextTable, indent = 0):
   textTableFormat = textTable.format()
   textFrameFormat = textTable.frameFormat()
 
   dumpTextTableFormat(textTableFormat)
   dumpFrameFormat(textFrameFormat)
 
-  logging.debug(f'Text Table:')
-  logging.debug(f'  Columns: {textTable.columns()}')
-  logging.debug(f'  Rows: {textTable.rows()}')
+  debugOutput(f'Text Table:', indent + 2)
+  debugOutput(f'Columns: {textTable.columns()}', indent + 4)
+  debugOutput(f'Rows: {textTable.rows()}', indent + 4)
+
   for i in range(textTable.rows()):
-    logging.debug(f'Row {i}:')
+    debugOutput(f'Row {i}:', indent + 4)
     for j in range(textTable.columns()):
       cell = textTable.cellAt(i, j)
-      logging.debug(f'  Column {j}:')
-      dumpTableCell(cell)
+      debugOutput(f'Column {j}:', indent + 6)
+      dumpTableCell(cell, indent + 6)
 
-def dumpTextTableFormat(textTableFormat: QtGui.QTextTableFormat):
-  logging.debug(f'Text Table Format:')
-  logging.debug(f'  Header row count: {textTableFormat.headerRowCount()}')
-  logging.debug(f'  Border collapse: {textTableFormat.borderCollapse()}')
-  logging.debug(f'  Cell spacing: {textTableFormat.cellSpacing()}')
-  logging.debug(f'  Cell padding: {textTableFormat.cellPadding()}')
-  logging.debug(f'  Is table cell format: {textTableFormat.isTableCellFormat()}')
-  logging.debug(f'  Is format valid: {textTableFormat.isValid()}')
-  logging.debug(f'  Background:{dumpBrush(textTableFormat.background())}')
-  logging.debug(f'  Foreground:{dumpBrush(textTableFormat.foreground())}')
-  logging.debug(f'  Column width constraints: {textTableFormat.columnWidthConstraints()}')
-  logging.debug(f'  Width: {textTableFormat.width()}')
+def dumpTextTableFormat(textTableFormat: QtGui.QTextTableFormat, indent: int = 0):
+  debugOutput(f'Text Table Format:', indent)
+  debugOutput(f'Header row count: {textTableFormat.headerRowCount()}', indent + 2)
+  debugOutput(f'Border collapse: {textTableFormat.borderCollapse()}', indent + 2)
+  debugOutput(f'Cell spacing: {textTableFormat.cellSpacing()}', indent + 2)
+  debugOutput(f'Cell padding: {textTableFormat.cellPadding()}', indent + 2)
+  debugOutput(f'Is table cell format: {textTableFormat.isTableCellFormat()}', indent + 2)
+  debugOutput(f'Is format valid: {textTableFormat.isValid()}', indent + 2)
+  debugOutput(f'Background:{dumpBrush(textTableFormat.background())}', indent + 2)
+  debugOutput(f'Foreground:{dumpBrush(textTableFormat.foreground())}', indent + 2)
+  debugOutput(f'Column width constraints: {textTableFormat.columnWidthConstraints()}', indent + 2)
+  debugOutput(f'Width: {textTableFormat.width()}', indent + 2)
 
-def dumpTextFormat(textFormat: QtGui.QTextFormat):
-  logging.debug(f'Text format:')
-  logging.debug(f'  Background: {dumpBrush(textFormat.background())}')
-  logging.debug(f'  Foreground: {dumpBrush(textFormat.foreground())}')
+def dumpTextFormat(textFormat: QtGui.QTextFormat, indent: int = 0):
+  debugOutput(f'Text format:', indent)
+  debugOutput(f'Background: {dumpBrush(textFormat.background())}', indent + 2)
+  debugOutput(f'Foreground: {dumpBrush(textFormat.foreground())}', indent + 2)
 
-def dumpFrameFormat(frameFormat: QtGui.QTextFrameFormat):
-  logging.debug(f'Frame format:')
-  logging.debug(f'  Border thickness: {frameFormat.border()}')
-  logging.debug(f'  Border brush: {dumpBrush(frameFormat.borderBrush())}')
-  logging.debug(f'  Border style: {frameFormat.borderStyle()}')
-  logging.debug(f'  Frame height: {frameFormat.height()}')
-  logging.debug(f'  Frame width: {frameFormat.width()}')
-  logging.debug(f'  Frame margin: {frameFormat.margin()}')
-  logging.debug(f'  Frame padding: {frameFormat.padding()}')
-  logging.debug(f'  Foreground: {frameFormat.foreground()}')
-  logging.debug(f'  Background: {frameFormat.background()}')
+def dumpFrameFormat(frameFormat: QtGui.QTextFrameFormat, indent: int = 0):
+  debugOutput(f'Frame format:', indent)
+  debugOutput(f'Border thickness: {frameFormat.border()}', indent + 2)
+  debugOutput(f'Border brush: {dumpBrush(frameFormat.borderBrush())}', indent + 2)
+  debugOutput(f'Border style: {frameFormat.borderStyle()}', indent + 2)
+  debugOutput(f'Frame height: {frameFormat.height()}', indent + 2)
+  debugOutput(f'Frame width: {frameFormat.width()}', indent + 2)
+  debugOutput(f'Frame margin: {frameFormat.margin()}', indent + 2)
+  debugOutput(f'Frame padding: {frameFormat.padding()}', indent + 2)
+  debugOutput(f'Foreground: {frameFormat.foreground()}', indent + 2)
+  debugOutput(f'Background: {frameFormat.background()}', indent + 2)
 
-def dumpTextBlockFormat(blockFormat: QtGui.QTextBlockFormat):
-  logging.debug(f'Text block format:')
-  logging.debug(f'  Bottom margin: {blockFormat.bottomMargin()}')
-  logging.debug(f'  Top margin: {blockFormat.topMargin()}')
-  logging.debug(f'  Left margin: {blockFormat.leftMargin()}')
-  logging.debug(f'  Right margin: {blockFormat.rightMargin()}')
-  logging.debug(f'  Line height: {blockFormat.lineHeight()}')
-  logging.debug(f'  Line height type: {blockFormat.lineHeightType()}')
-  logging.debug(f'  Text indent: {blockFormat.textIndent()}')
+def dumpTextBlockFormat(blockFormat: QtGui.QTextBlockFormat, indent: int = 0):
+  debugOutput(f'Text block format:', indent)
+  debugOutput(f'Bottom margin: {blockFormat.bottomMargin()}', indent + 2)
+  debugOutput(f'Top margin: {blockFormat.topMargin()}', indent + 2)
+  debugOutput(f'Left margin: {blockFormat.leftMargin()}', indent + 2)
+  debugOutput(f'Right margin: {blockFormat.rightMargin()}', indent + 2)
+  debugOutput(f'Line height: {blockFormat.lineHeight()}', indent + 2)
+  debugOutput(f'Line height type: {blockFormat.lineHeightType()}', indent + 2)
+  debugOutput(f'Text indent: {blockFormat.textIndent()}', indent + 2)
 
 def dumpBrush(brush: QtGui.QBrush):
   brushDump = f'Brush: Color: {brush.color()}, Style: {brush.style()}'
   return brushDump
 
-def dumpTableCell(tableCell: QtGui.QTextTableCell):
+def dumpTableCell(tableCell: QtGui.QTextTableCell, indent: int = 0):
   cellFormat = tableCell.format()
-  logging.debug(f'    Background: {dumpBrush(cellFormat.background())}')
-  logging.debug(f'    Foreground: {dumpBrush(cellFormat.foreground())}')
 
-  iterator = tableCell.begin()
-  while iterator != tableCell.end():
+  debugOutput(f'Background: {dumpBrush(cellFormat.background())}', indent)
+  debugOutput(f'Foreground: {dumpBrush(cellFormat.foreground())}', indent)
+
+  iteratorBegin = tableCell.begin()
+  iteratorEnd = tableCell.end()
+  dumpIterator(iteratorBegin, iteratorEnd, indent + 2)
+
+  # while iterator != tableCell.end():
+  #   frame = iterator.currentFrame()
+
+  #   # I think the iterator either points to a frame or a block, but not both
+  #   if frame is not None:
+  #     currentIteratorFormat = frame.format()
+  #     debugOutput(f'{dumpTextFormat(currentIteratorFormat)}', indent)
+  #   else:
+  #     currentIteratorFormat = iterator.currentBlock().blockFormat()
+  #     dumpTextBlockFormat(currentIteratorFormat, indent)
+
+  #   iterator += 1
+
+def dumpIterator(beginIterator: QtGui.QTextFrame.iterator, endIterator: QtGui.QTextFrame.iterator, indent = 0):
+  iterator = beginIterator
+
+  while iterator != endIterator:
     frame = iterator.currentFrame()
-
-    # I think the iterator either points to a frame or a block, but not both
     if frame is not None:
       currentIteratorFormat = frame.format()
-      logging.debug(f'  {dumpTextFormat(currentIteratorFormat)}')
+      debugOutput(f'{dumpTextFormat(currentIteratorFormat)}', indent)
+      subIteratorBegin = frame.begin()
+      subIteratorEnd = frame.end()
+      dumpIterator(subIteratorBegin, subIteratorEnd, indent + 2)
     else:
       currentIteratorFormat = iterator.currentBlock().blockFormat()
-      dumpTextBlockFormat(currentIteratorFormat)
+      dumpTextBlockFormat(currentIteratorFormat, indent)
 
     iterator += 1
-
