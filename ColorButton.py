@@ -30,21 +30,30 @@ class CColorButton(QtWidgets.QToolButton):
     self.clicked.connect(self.showColorDialog)
     self.m_noColorAction.triggered.connect(self.onNoColorActionTriggered)
 
+  @property
+  def color(self) -> QtGui.QColor | None:
+    if self.m_hasColor:
+      return self.m_color
+    else:
+      return None
 
-  def getColor(self) -> QtGui.QColor:
-    return self.m_color
+  @color.setter
+  def color(self, color: QtGui.QColor | None):
+    if color is None:
+      self.hasColor = False
+    else:
+      self.m_color = color
+      self.m_hasColor = True
+      self.update()
 
-  def setColor(self, color):
-    self.m_color = color
-    self.m_hasColor = True
-    self.update()
-
-  def setNoColor(self):
-    self.m_hasColor = False
-    self.update()
-
-  def hasColor(self):
+  @property
+  def hasColor(self) -> bool:
     return self.m_hasColor
+
+  @hasColor.setter
+  def hasColor(self, hasColor: bool):
+    self.m_hasColor = hasColor
+    self.update()
 
   def paintEvent(self, event):
     super(CColorButton, self).paintEvent(event)
@@ -65,7 +74,7 @@ class CColorButton(QtWidgets.QToolButton):
     color = QtWidgets.QColorDialog.getColor()
 
     if color.isValid:
-      self.setColor(color)
+      self.color = color
       self.colorChangedSignal.emit(color)
 
   def onNoColorActionTriggered(self):
