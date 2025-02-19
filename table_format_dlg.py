@@ -18,10 +18,8 @@ class TableFormatDialog(QtWidgets.QDialog):
 
     self.textTable = None
 
-    self.ui.headerBackgroundButton.setColorSwatchFillsButton(True)
     self.ui.backgroundColorButton.setColorSwatchFillsButton(True)
-    self.ui.headerBackgroundButton.setNoColor()
-    self.ui.backgroundColorButton.setNoColor()
+    self.ui.backgroundColorButton.hasColor = False
 
   def rows(self) -> int:
     return self.ui.rowsSpin.value()
@@ -29,23 +27,14 @@ class TableFormatDialog(QtWidgets.QDialog):
   def columns(self) -> int:
     return self.ui.columnsSpin.value()
 
-  def hasHeader(self) -> bool:
-    return self.ui.headerGroupBox.isChecked()
+  def backgroundColor(self):
+    return self.ui.backgroundColorButton.color
 
-  def setHasHeader(self, hasHeader: bool):
-    self.ui.headerGroupBox.setChecked(hasHeader)
+  def backgroundHasColor(self) -> bool:
+    return self.ui.backgroundColorButton.hasColor
 
-  def backgroundColor(self) -> QtGui.QColor:
-    return self.ui.backgroundColorButton.getColor()
-
-  def setBackgroundColor(self, color: QtGui.QColor):
-    self.ui.backgroundColorButton.setColor(color)
-
-  def headerBackgroundColor(self) -> QtGui.QColor:
-    return self.ui.headerBackgroundButton.getColor()
-
-  def setHeaderBackgroundColor(self, color: QtGui.QColor):
-    self.ui.headerBackgroundButton.setColor(color)
+  def setBackgroundColor(self, color: QtGui.QColor | None):
+    self.ui.backgroundColorButton.color = color
 
   def getColumnConstraints(self) -> list[QtGui.QTextLength]:
     columnConstraints = []
@@ -144,7 +133,3 @@ class TableFormatDialog(QtWidgets.QDialog):
 
     item.setText(text)
 
-  @QtCore.Slot(bool)
-  def on_headerGroupBox_clicked(self, checked: bool):
-    if not self.ui.headerGroupBox.isChecked():
-      self.ui.headerBackgroundButton.setNoColor()

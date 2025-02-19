@@ -27,7 +27,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.bulletStyleMenu = QtWidgets.QMenu()
     self.numberStyleMenu = QtWidgets.QMenu()
 
-    self.ui.textColorButton.setColor(QtGui.QColor('Black'))
+    self.ui.textColorButton.color = QtGui.QColor('Black')
 
     # Disable style button at first.  It will be enabled whenever there is a selection.
     self.ui.styleButton.setEnabled(False)
@@ -227,15 +227,15 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     textBrush = selectionFormat.foreground()
     if textBrush.isOpaque():
-      self.ui.textColorButton.setColor(textBrush.color())
+      self.ui.textColorButton.color = textBrush.color()
     else:
-      self.ui.textColorButton.setNoColor()
+      self.ui.textColorButton.hasColor = False
 
     bgBrush = selectionFormat.background()
     if bgBrush.isOpaque():
-      self.ui.textBackgroundButton.setColor(bgBrush.color())
+      self.ui.textBackgroundButton.color = bgBrush.color()
     else:
-      self.ui.textBackgroundButton.setNoColor()
+      self.ui.textBackgroundButton.hasColor = False
 
   def getCursorAndSelectionFormat(self) -> tuple[QtGui.QTextCursor, QtGui.QTextCharFormat]:
     selectionCursor = self.ui.textEdit.textCursor()
@@ -347,13 +347,6 @@ class RichTextEditWidget(QtWidgets.QWidget):
         frameFormat = textTable.textFrameFormat()
         tableWidth = frameFormat.width()
 
-        # Header
-        hasHeader = textTable.hasHeader()
-
-        dlg.setHasHeader(hasHeader)
-        if hasHeader:
-          dlg.setHeaderBackgroundColor(textTable.headerBackground())
-
         # Background color
         dlg.setBackgroundColor(textTable.background())
 
@@ -366,7 +359,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
       else:
         # New Table
-        dlg.setBackgroundColor(QtGui.QColor('white'))
+        dlg.setBackgroundColor(None)
 
     dlg.setTable(textTable)
     result = dlg.exec()
@@ -386,16 +379,6 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
       columnConstraints = dlg.getColumnConstraints()
       textTable.setColumnConstraints(columnConstraints)
-
-      # Set the header before setting the background, because if there is no header, the header cells will
-      # specifically be cleared of any background color.
-      hasHeader = dlg.hasHeader()
-
-      textTable.setHasHeader(hasHeader)
-
-      if hasHeader:
-        headerBgColor = dlg.headerBackgroundColor()
-        textTable.setHeaderBackground(headerBgColor)
 
       textTable.setBackground(bgColor)
 
