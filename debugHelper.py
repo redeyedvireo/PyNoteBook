@@ -49,8 +49,8 @@ def dumpFrameFormat(frameFormat: QtGui.QTextFrameFormat, indent: int = 0):
   debugOutput(f'Frame width: {frameFormat.width()}', indent + 2)
   debugOutput(f'Frame margin: {frameFormat.margin()}', indent + 2)
   debugOutput(f'Frame padding: {frameFormat.padding()}', indent + 2)
-  debugOutput(f'Foreground: {frameFormat.foreground()}', indent + 2)
-  debugOutput(f'Background: {frameFormat.background()}', indent + 2)
+  debugOutput(f'Foreground: {dumpBrush(frameFormat.foreground())}', indent + 2)
+  debugOutput(f'Background: {dumpBrush(frameFormat.background())}', indent + 2)
 
 def dumpTextBlockFormat(blockFormat: QtGui.QTextBlockFormat, indent: int = 0):
   debugOutput(f'Text block format:', indent)
