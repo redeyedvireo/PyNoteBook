@@ -285,7 +285,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     if type(sender) is QtGui.QAction:
       pageId = sender.data()
       if pageId != kInvalidPageId:
-        self.onPageSelected(pageId)
+        self.switchboard.emitPageSelected(pageId)
 
   def onPageSelected(self, pageId: ENTITY_ID):
     self.checkSavePage()        # Check if the current page is unsaved, and if so, ask user if he wants to save it.
