@@ -78,6 +78,11 @@ class Ui_TableFormatDlg(object):
 
         self.verticalLayout.addWidget(self.label_3)
 
+        self.label_4 = QLabel(TableFormatDlg)
+        self.label_4.setObjectName(u"label_4")
+
+        self.verticalLayout.addWidget(self.label_4)
+
         self.tableWidget = QTableWidget(TableFormatDlg)
         self.tableWidget.setObjectName(u"tableWidget")
         self.tableWidget.setEnabled(True)
@@ -110,5 +115,6 @@ class Ui_TableFormatDlg(object):
         self.label_5.setText(QCoreApplication.translate("TableFormatDlg", u"Table Background Color", None))
         self.backgroundColorButton.setText("")
         self.label_3.setText(QCoreApplication.translate("TableFormatDlg", u"Column Widths", None))
+        self.label_4.setText(QCoreApplication.translate("TableFormatDlg", u"Column types: \"Fixed\", \"Variable\", \"Percentage\"", None))
     # retranslateUi
 

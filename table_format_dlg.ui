@@ -93,6 +93,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Column types: &quot;Fixed&quot;, &quot;Variable&quot;, &quot;Percentage&quot;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QTableWidget" name="tableWidget">
      <property name="enabled">
       <bool>true</bool>

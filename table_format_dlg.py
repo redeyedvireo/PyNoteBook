@@ -42,7 +42,21 @@ class TableFormatDialog(QtWidgets.QDialog):
 
     for i in range(numColumns):
       colWidth = self.getTableValue(i, 0, kDefaultColumnWidth)
-      textLength = QtGui.QTextLength(QtGui.QTextLength.Type.FixedLength, colWidth)
+      constraintType = self.getTableStringValue(i, 1, 'Fixed')
+
+      match constraintType:
+        case 'Fixed':
+          textLength = QtGui.QTextLength(QtGui.QTextLength.Type.FixedLength, colWidth)
+
+        case 'Percentage':
+          textLength = QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, colWidth)
+
+        case 'Variable':
+          textLength = QtGui.QTextLength(QtGui.QTextLength.Type.VariableLength, colWidth)
+
+        case _:  # Default to Fixed
+          textLength = QtGui.QTextLength(QtGui.QTextLength.Type.FixedLength, colWidth)
+
       columnConstraints.append(textLength)
 
     return columnConstraints
@@ -76,7 +90,18 @@ class TableFormatDialog(QtWidgets.QDialog):
       self.setTableValue(col, kWidthColumn, textLength.rawValue())
 
       # For now, make all columns "fixed"
-      self.setTableText(col, kTypeColumn, 'Fixed')
+      match textLength.type():
+        case QtGui.QTextLength.Type.FixedLength:
+          self.setTableText(col, kTypeColumn, 'Fixed')
+
+        case QtGui.QTextLength.Type.PercentageLength:
+          self.setTableText(col, kTypeColumn, 'Percentage')
+
+        case QtGui.QTextLength.Type.VariableLength:
+          self.setTableText(col, kTypeColumn, 'Variable')
+
+        case _:  # Default to Fixed
+          self.setTableText(col, kTypeColumn, 'Fixed')
 
     horizHeader = self.ui.tableWidget.horizontalHeader()
     horizHeader.setStretchLastSection(True)
@@ -95,10 +120,10 @@ class TableFormatDialog(QtWidgets.QDialog):
       rowsToAdd = numRows - currentNumRows
 
       for row in range(numRows):
-        self.setTableValue(row, kWidthColumn, kDefaultColumnWidth)
-
-        # For now, make all columns "fixed"
-        self.setTableText(row, kTypeColumn, 'Fixed')
+        if row >= currentNumRows:
+          # New row; set type to Fixed
+          self.setTableText(row, kTypeColumn, 'Fixed')
+          self.setTableValue(row, kWidthColumn, kDefaultColumnWidth)
 
   def setTable(self, textTable: TextTable | None):
     self.textTable = textTable
@@ -117,6 +142,15 @@ class TableFormatDialog(QtWidgets.QDialog):
     if item is not None:
       cellText = item.text()
       retVal = float(cellText)
+
+    return retVal
+
+  def getTableStringValue(self, row: int, col: int, defaultValue: str) -> str:
+    retVal = defaultValue
+    item = self.ui.tableWidget.item(row, col)
+
+    if item is not None:
+      retVal = item.text()
 
     return retVal
 
