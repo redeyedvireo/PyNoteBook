@@ -456,12 +456,11 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
           self.addFileToRecentFilesList()
 
           if len(password) > 0:
-            self.db.storePassword(password)
+            self.db.storePasswordInDatabase(password)
 
           self.setAppTitle()
       else:
-        QtWidgets.QMessageBox.critical(self, kAppName, 'Could not create NoteBook')
-
+        # User clicked Cancel on the password dialog - don't create a new NoteBook
         self.notebookFileName = ''
         self.currentNoteBookPath = ''
 
@@ -474,7 +473,32 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
       self.db.openDatabase(self.currentNoteBookPath)
 
-      # TODO: If the database is password protected, get password from the user
+      # If the database is password protected, get password from the user
+      if self.db.isPasswordProtected():
+        password = ''
+
+        for x in range(3):
+          passwordTuple = QtWidgets.QInputDialog.getText(self, 'PyNoteBook - Enter Password',
+                                                    'Enter log password:', QtWidgets.QLineEdit.EchoMode.Password)
+
+          if passwordTuple[1]:
+            password = passwordTuple[0]
+
+            if self.db.passwordMatch(password):
+              # Password correct
+              self.db.setPasswordInMemory(password)
+              break
+            else:
+              # Wrong password.  Has the user used up all 3 attempts?
+              if x == 2:
+                # Yup
+                QtWidgets.QMessageBox.critical(self, kAppName, 'The password you entered was incorrect.')
+                self.db.closeDatabase()
+                return False
+          else:
+            # User clicked cancel
+            self.db.closeDatabase()
+            return False
 
       # Read the page order for the notebook, if one exists
       pageOrderStr = self.db.getPageOrder()

@@ -1,4 +1,6 @@
 
+kHashedPwFieldName = 'hashedPw'
+kSaltFieldName = 'salt'
 
 # Prefs constants
 kPrefsFileName = 'PyNoteBook.ini'

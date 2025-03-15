@@ -4,7 +4,9 @@ import datetime
 import logging
 
 from encrypter import Encrypter
-from utility import toQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray, unknownToString, pixmapToQByteArray, qByteArrayToPixmap
+from utility import toQByteArray, qByteArrayToBytes, qByteArrayToString, stringToArray, unknownToString, unknownToBytes, toQByteArray, pixmapToQByteArray, qByteArrayToPixmap
+
+from constants import kHashedPwFieldName, kSaltFieldName
 
 from page_data import PageData, PageDataDict, PageIdDict
 from notebook_types import PAGE_TYPE, ENTITY_ID, ENTITY_LIST, ENTITY_PAIR, ENTITY_PAIR_LIST, ID_TITLE_LIST, kInvalidPageId
@@ -147,15 +149,66 @@ class Database:
 
     return True
 
-  def storePassword(self, password: str):
-    # TODO: Implement
-    logging.error('[Database.storePassword] Passwords are not supported yet')
+  def isPasswordProtected(self):
+    return self.globalValueExists(kHashedPwFieldName)
 
-  def getQueryField(self, queryObj, fieldName) -> int | str | bytes | None:
+  def setPasswordInMemory(self, plainTextPassword) -> None:
+    # First, get the salt value from the database
+    salt = self.getGlobalValue(kSaltFieldName)
+
+    if salt is not None and isinstance(salt, bytes):
+      self.encrypter.setPasswordAndSalt(plainTextPassword, salt)
+
+  def storePasswordInDatabase(self, plainTextPassword) -> None:
+    """ Sets the password for a new log file.  The salt is generated here. """
+    if len(plainTextPassword) > 0:
+      self.encrypter.setPasswordGenerateSalt(plainTextPassword)
+      hashedPassword = self.encrypter.hashedPassword()
+
+      if hashedPassword is not None:
+        self.setGlobalValue(kHashedPwFieldName, hashedPassword)
+        self.setGlobalValue(kSaltFieldName, self.encrypter.salt)
+
+  def passwordMatch(self, password) -> bool:
+    storedHashedPassword = self.getGlobalValue(kHashedPwFieldName)
+
+    if storedHashedPassword is not None and isinstance(storedHashedPassword, str):
+      hashedPw = self.encrypter.hashValue(password)
+
+      return storedHashedPassword == hashedPw
+    else:
+      logging.error(f'[passwordMatch] Error retrieving hashed password.')
+      return False
+
+  def getQueryField(self, queryObj, fieldName):
+    """Retrieves a field from a query object.  If the field is encrypted, it is decrypted before being returned.
+
+    Args:
+        queryObj (_type_): Query object in question
+        fieldName (_type_): Field to retrieve
+
+    Returns:
+        _type_: string or unknown
+    """
     fieldIndex = queryObj.record().indexOf(fieldName)
 
-    # TODO: Take encryption into account.  Will probably need to pass a parameter to this function indicating whether it should be decrypted.
-    return queryObj.value(fieldIndex)
+    # Take encryption into account.
+    rawValue = queryObj.value(fieldIndex)
+
+    if self.encrypter.hasPassword():
+      # Encypted database
+      # Only contents, pagetitle, and tags are encrypted
+      if fieldName == 'contents' or fieldName == 'pagetitle' or fieldName == 'tags':
+        # Decrypt the field
+        rawValueBytes = unknownToBytes(rawValue)
+        decryptedValue = self.encrypter.decrypt(rawValueBytes)
+        return decryptedValue
+      else:
+        return rawValue
+    else:
+      if type(rawValue) is int:
+        return rawValue
+      return unknownToString(rawValue)
 
   def getGlobalValue(self, key: str) -> int | str | bytes | None:
     """ Returns the value of a 'global value' for the given key. """
@@ -391,19 +444,18 @@ class Database:
     while queryObj.next():
       pageIdField = queryObj.record().indexOf('pageid')
       parentIdField = queryObj.record().indexOf('parentid')
-      pageTitleField = queryObj.record().indexOf('pagetitle')
       lastModifiedField = queryObj.record().indexOf('lastmodified')
       pageTypeField = queryObj.record().indexOf('pagetype')
 
-      # TODO: Check for encryption, and if so, decrypt (page & title) (may need to convert to bytes)
-
+      # Note: getQueryField takes care of decryption
+      pageTitle = str(self.getQueryField(queryObj, 'pagetitle'))
 
       newPage = PageData()
 
       newPage.m_pageId = queryObj.value(pageIdField)          # This should be an int
       newPage.m_parentId = queryObj.value(parentIdField)
       newPage.m_modifiedDateTime = datetime.datetime.fromtimestamp(queryObj.value(lastModifiedField))
-      newPage.m_title = unknownToString(queryObj.value(pageTitleField))
+      newPage.m_title = pageTitle
       newPage.m_pageType = queryObj.value(pageTypeField)
 
       pageDict[newPage.m_pageId] = newPage
@@ -426,16 +478,10 @@ class Database:
     pageIdDict = {}
 
     while queryObj.next():
-      pageIdField = queryObj.record().indexOf('pageid')
-      tagsField = queryObj.record().indexOf('tags')
+      pageId = int(self.getQueryField(queryObj, 'pageid'))
 
-      pageId = queryObj.value(pageIdField)
-      tagsList = queryObj.value(tagsField)
-
-      # TODO: Check for encryption, and if encrypted, decrypt
-
-      if tagsList != '':
-        tagsList = unknownToString(tagsList).strip()
+      # Note: getQueryField takes care of decryption
+      tagsList = str(self.getQueryField(queryObj, 'tags')).strip()
 
       tagsArray = stringToArray(tagsList)
 
@@ -492,7 +538,6 @@ class Database:
 
     return True
 
-  # TODO: Should return an error message
   def getPage(self, pageId) -> PageData | None:
     queryObj = QtSql.QSqlQuery()
     queryObj.prepare("select pagetype, parentid, contents, pagetitle, tags, created, lastmodified, nummodifications, additionalitems, isfavorite from pages where pageid=?")
@@ -515,9 +560,6 @@ class Database:
 
     pageTypeField = queryObj.record().indexOf('pagetype')
     parentIdField = queryObj.record().indexOf('parentid')
-    contentsField = queryObj.record().indexOf('contents')
-    pageTitleField = queryObj.record().indexOf('pagetitle')
-    tagsField = queryObj.record().indexOf('tags')
     createdField = queryObj.record().indexOf('created')
     lastModifiedDateField = queryObj.record().indexOf('lastmodified')
     numModificationsField = queryObj.record().indexOf("nummodifications")
@@ -526,20 +568,16 @@ class Database:
 
     pageType = queryObj.value(pageTypeField)
     parentId = queryObj.value(parentIdField)
-    contentsData = queryObj.value(contentsField)
-    titleData = queryObj.value(pageTitleField)
-    tagData = queryObj.value(tagsField)
     lastModifiedTime_t = queryObj.value(lastModifiedDateField)
     numModifications = queryObj.value(numModificationsField)
     createdTime_t = queryObj.value(createdField)
     additionalItemsStr = queryObj.value(additionalItemsField)
     bIsFavorite = queryObj.value(isFavoriteField) != 0
 
-    # TODO: Check for encryption, and if encrypted, decrypt
-
-    pageData.m_contentString = unknownToString(contentsData) if contentsData != '' else ''
-    pageData.m_title = unknownToString(titleData) if titleData != '' else ''
-    pageData.m_tags = unknownToString(tagData) if tagData != '' else ''
+    # Note: getQueryField takes care of decryption
+    pageData.m_contentString = str(self.getQueryField(queryObj, 'contents'))
+    pageData.m_title = str(self.getQueryField(queryObj, 'pagetitle'))
+    pageData.m_tags = str(self.getQueryField(queryObj, 'tags'))
     pageData.m_pageId = pageId
 
     try:
@@ -591,33 +629,41 @@ class Database:
     if not queryObj.first():
       return None
 
-    pageTitle = unknownToString(self.getQueryField(queryObj, 'pagetitle'))
-    pageContents = unknownToString(self.getQueryField(queryObj, 'contents'))
-    tags = unknownToString(self.getQueryField(queryObj, 'tags'))
-
-    # TODO: Check for encryption, and if encrypted, decrypt
+    # Note: getQueryField takes care of decryption
+    pageTitle = str(self.getQueryField(queryObj, 'pagetitle'))
+    pageContents = str(self.getQueryField(queryObj, 'contents'))
+    tags = str(self.getQueryField(queryObj, 'tags')).strip()
 
     return (pageTitle, pageContents, tags)
 
-  # TODO: Should return an error message
-  def saveNewPage(self, pageData: PageData) -> bool:
-    return True
-
-  # TODO: Should return an error message
   def updatePage(self, pageData) -> bool:
     queryObj = QtSql.QSqlQuery()
     queryObj.prepare('update pages set contents=?, pagetitle=?, tags=?, lastmodified=?, nummodifications=?, additionalitems=?, isfavorite=? where pageid=?')
-    # queryObj.bindValue(0, pageId)
-    queryObj.addBindValue(toQByteArray(pageData.m_contentString))
-    queryObj.addBindValue(toQByteArray(pageData.m_title))
-    queryObj.addBindValue(toQByteArray(pageData.m_tags))
+
+    # If this is an encrypted Notebook, encrypt data
+    contentData = unknownToBytes('')
+    titleData = unknownToBytes('')
+    tagsData = unknownToBytes('')
+
+    if self.encrypter.hasPassword():
+      # Encrypt the content
+      contentData = self.encrypter.encrypt(pageData.m_contentString)
+      titleData = self.encrypter.encrypt(pageData.m_title)
+      tagsData = self.encrypter.encrypt(pageData.m_tags)
+    else:
+      contentData = unknownToBytes(pageData.m_contentString)
+      titleData = unknownToBytes(pageData.m_title)
+      tagsData = unknownToBytes(pageData.m_tags)
+
+    # Bytes data must be converted to a QByteArray before storing
+    queryObj.addBindValue(toQByteArray(contentData))
+    queryObj.addBindValue(toQByteArray(titleData))
+    queryObj.addBindValue(toQByteArray(tagsData))
     queryObj.addBindValue(pageData.m_modifiedDateTime.timestamp())
     queryObj.addBindValue(pageData.m_numModifications)
     queryObj.addBindValue(pageData.additionalItems())
     queryObj.addBindValue(pageData.m_bIsFavorite)
     queryObj.addBindValue(pageData.m_pageId)
-
-    # TODO: Check if this is an encrypted Notebook, and if so, encrypt
 
     queryObj.exec_()
 
@@ -638,8 +684,8 @@ class Database:
       self.reportError(f'addNewBlankPage error: invalid page ID')
       return False
 
-    # TODO: If this is an encrypted notebook, encrypt the content
-    titleData = toQByteArray(pageData.m_title)
+    # Encrypt if necessary
+    titleData = self.encrypter.encrypt(pageData.m_title) if self.encrypter.hasPassword() else unknownToBytes(pageData.m_title)
 
     queryObj = QtSql.QSqlQuery()
 
@@ -652,7 +698,7 @@ class Database:
     queryObj.addBindValue(pageData.m_modifiedDateTime.timestamp())		# Last modified date and time is same as created date/time for a new page
     queryObj.addBindValue(numModifications)
     queryObj.addBindValue(pageData.m_pageType.value)
-    queryObj.addBindValue(titleData)
+    queryObj.addBindValue(toQByteArray(titleData))        # Must be stored as a QByteArray
 
     queryObj.exec_()
 
@@ -670,7 +716,8 @@ class Database:
         isModification indicates whether this change should be recorded as a modification (for example, when
         a page is first created, its title is changed in this manner.  Such a change wouldn't count as a modification).
     """
-    # TODO: If page is encrypted, encrypt the title
+    # Encrypt if necessary
+    titleData = self.encrypter.encrypt(newTitle) if self.encrypter.hasPassword() else unknownToBytes(newTitle)
 
     if isModification:
       # Get current modification count
@@ -679,7 +726,7 @@ class Database:
 
     queryObj = QtSql.QSqlQuery()
     queryObj.prepare("update pages set pagetitle=?, lastmodified=? where pageid=?")
-    queryObj.addBindValue(newTitle)
+    queryObj.addBindValue(titleData)
     queryObj.addBindValue(datetime.datetime.now().timestamp())
     queryObj.addBindValue(pageId)
 
@@ -781,12 +828,10 @@ class Database:
       self.reportError(f'[Database.getPageTitle]: {sqlErr.text()}')
       return None
 
-    # TODO: If this is an encrypted notebook, must decrypt the title
-
     if queryObj.first():
-      pageTitleField = queryObj.record().indexOf('pagetitle')
-      titleData = queryObj.value(pageTitleField)
-      return unknownToString(titleData) if titleData != '' else ''
+      # Note: getQueryField takes care of decryption
+      pageTitle = str(self.getQueryField(queryObj, 'pagetitle'))
+      return pageTitle
     else:
       return None
 
