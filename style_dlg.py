@@ -44,17 +44,19 @@ class StyleDlg(QtWidgets.QDialog):
                     FormatFlag.Underline,\
                     FormatFlag.Strikeout })
 
-    if self.ui.fgColorToolButton.hasColor():
+    if self.ui.fgColorToolButton.hasColor:
       formatFlags.addFlag(FormatFlag.FGColor)
-      fgColor = self.ui.fgColorToolButton.getColor()
+      fgColor = self.ui.fgColorToolButton.color
     else:
       formatFlags.addFlag(FormatFlag.FGColorNone)
+      fgColor = None
 
-    if self.ui.bgColorToolButton.hasColor():
+    if self.ui.bgColorToolButton.hasColor:
       formatFlags.addFlag(FormatFlag.BGColor)
-      bgColor = self.ui.bgColorToolButton.getColor()
+      bgColor = self.ui.bgColorToolButton.color
     else:
       formatFlags.addFlag(FormatFlag.BGColorNone)
+      bgColor = None
 
     theStyle = StyleDef()
 
@@ -63,8 +65,8 @@ class StyleDlg(QtWidgets.QDialog):
     theStyle.formatFlags = formatFlags
     theStyle.strFontFamily = self.currentFont.family()
     theStyle.fontPointSize = self.currentFont.pointSize()
-    theStyle.textColor = fgColor
-    theStyle.backgroundColor = bgColor
+    theStyle.fgColor = fgColor
+    theStyle.bgColor = bgColor
     theStyle.bIsBold = self.currentFont.bold()
     theStyle.bIsItalic = self.currentFont.italic()
     theStyle.bIsUnderline = self.currentFont.underline()
@@ -96,16 +98,16 @@ class StyleDlg(QtWidgets.QDialog):
         self.currentFont.setStrikeOut(styleDef.bIsStrikeout)
 
       if styleDef.formatFlags.hasFlag(FormatFlag.FGColorNone):
-        self.ui.fgColorToolButton.setNoColor()
+        self.ui.fgColorToolButton.color = None
 
       if styleDef.formatFlags.hasFlag(FormatFlag.FGColor):
-        self.ui.fgColorToolButton.setColor(styleDef.textColor)
+        self.ui.fgColorToolButton.color = styleDef.textColor
 
       if styleDef.formatFlags.hasFlag(FormatFlag.BGColorNone):
-        self.ui.bgColorToolButton.setNoColor()
+        self.ui.bgColorToolButton.color = None
 
       if styleDef.formatFlags.hasFlag(FormatFlag.BGColor):
-        self.ui.bgColorToolButton.setColor(styleDef.backgroundColor)
+        self.ui.bgColorToolButton.color = styleDef.backgroundColor
 
   @QtCore.Slot()
   def on_fontButton_clicked(self):
@@ -158,11 +160,13 @@ class StyleDlg(QtWidgets.QDialog):
     if self.currentFont.strikeOut():
       fontStr += ' strikeout'
 
-    if self.ui.bgColorToolButton.hasColor():
-      styleElementList.append(f'background-color: {self.ui.bgColorToolButton.getColor().name()}')
+    if self.ui.bgColorToolButton.hasColor:
+      if self.ui.bgColorToolButton.color is not None:
+        styleElementList.append(f'background-color: {self.ui.bgColorToolButton.color.name()}')
 
-    if self.ui.fgColorToolButton.hasColor():
-      styleElementList.append(f'color: {self.ui.fgColorToolButton.getColor().name()}')
+    if self.ui.fgColorToolButton.hasColor:
+      if self.ui.fgColorToolButton.color is not None:
+        styleElementList.append(f'color: {self.ui.fgColorToolButton.color.name()}')
 
     styleElementList.append(f'font {fontStr} "{self.currentFont.family()}"')
     styleElementList.append(f'font-size: {self.currentFont.pointSize()}px')
