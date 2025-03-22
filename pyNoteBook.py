@@ -413,7 +413,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     """
     appDataDir = self.getAppDataDir()
     styleDefsPath = os.path.normpath(os.path.join(appDataDir, kAppName, kStyleDefsFileName))
-    print(f'Style defs path: {styleDefsPath}')
     return styleDefsPath
 
 
