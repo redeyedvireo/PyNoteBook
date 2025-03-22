@@ -412,6 +412,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
         if styleId is not None:
           self.styleManager.applyStyle(self.ui.textEdit, styleId)
+          self.updateControls()
           self.initStyleButton()
           self.switchboard.emitStylesChanged()
 
