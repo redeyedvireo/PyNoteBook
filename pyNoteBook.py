@@ -90,6 +90,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     self.prefs.readPrefsFile()
 
+    self.switchboard.preferences = self.prefs
+
     pos = self.prefs.windowPos
     size = self.prefs.windowSize
 

@@ -132,6 +132,9 @@ class RichTextEditWidget(QtWidgets.QWidget):
   def setPageContents(self, contents: str, imageNames: list[str], pageId: ENTITY_ID) -> None:
     self.ui.textEdit.clear()
 
+    # Set default font
+    self.setGlobalFont(self.switchboard.preferences.editorDefaultFontFamily, self.switchboard.preferences.editorDefaultFontSize)
+
     # Load images
     self.loadImagesIntoDocument(imageNames)
 
@@ -405,8 +408,11 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
   @QtCore.Slot()
   def on_styleButton_clicked(self):
+    defaultFontFamily = self.switchboard.preferences.editorDefaultFontFamily
+    defaultFontSize = self.switchboard.preferences.editorDefaultFontSize
+
     if self.styleManager is not None:
-      styleDlg = SelectStyleDialog(self, self.styleManager)
+      styleDlg = SelectStyleDialog(self, self.styleManager, defaultFontFamily, defaultFontSize)
       if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
         styleId = styleDlg.getSelectedStyle()
 

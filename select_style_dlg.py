@@ -7,12 +7,14 @@ from style_manager import StyleManager, kUserStyleStartIndex
 from ui_select_style_dlg import Ui_SelectStyleDlg
 
 class SelectStyleDialog(QtWidgets.QDialog):
-  def __init__(self, parent, styleManager: StyleManager):
+  def __init__(self, parent, styleManager: StyleManager, defaultFontFamily: str, defaultFontSize: int) -> None:
     super(SelectStyleDialog, self).__init__(parent)
 
     self.ui = Ui_SelectStyleDlg()
     self.ui.setupUi(self)
 
+    self.defaultFontFamily = defaultFontFamily
+    self.defaultFontSize = defaultFontSize
     self.styleManager = styleManager
     self.loadStyles()
 
@@ -77,7 +79,8 @@ class SelectStyleDialog(QtWidgets.QDialog):
   def on_newButton_clicked(self) -> None:
     styleDef = StyleDef()
     styleDef.setAllFormatFlags()
-    styleDef.strFontFamily = QtGui.QGuiApplication.font().family()
+    styleDef.strFontFamily = self.defaultFontFamily
+    styleDef.fontPointSize = self.defaultFontSize
 
     dlg = StyleDlg(self, styleDef)
 

@@ -2,6 +2,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from page_data import PageData
+from preferences import Preferences
 
 class Switchboard(QtCore.QObject):
   pageSelected = QtCore.Signal(int)
@@ -16,6 +17,7 @@ class Switchboard(QtCore.QObject):
 
   def __init__(self):
     super(Switchboard, self).__init__()
+    self.preferences = Preferences('')
 
   def emitPageSelected(self, pageId: int):
     self.pageSelected.emit(pageId)
