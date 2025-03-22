@@ -284,6 +284,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     styleId = action.data()
     if self.styleManager:
       self.styleManager.applyStyle(self.ui.textEdit, styleId)
+      self.updateControls()
 
   @QtCore.Slot()
   def on_boldButton_clicked(self):
