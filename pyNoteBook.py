@@ -133,7 +133,6 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     # Editor signals
     self.ui.pageTextEdit.editorTextChangedSignal.connect(self.onPageModified)
-    self.ui.pageTextEdit.newPageSelected.connect(self.onPageSelected)
 
     # Tags edit signals
     self.ui.tagsEdit.textEdited.connect(self.onTagsModified)

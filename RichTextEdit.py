@@ -16,7 +16,6 @@ from notebook_types import ENTITY_ID
 
 class RichTextEditWidget(QtWidgets.QWidget):
   editorTextChangedSignal = QtCore.Signal()
-  newPageSelected = QtCore.Signal(ENTITY_ID)
 
   def __init__(self):
     super(RichTextEditWidget, self).__init__()
@@ -56,7 +55,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.ui.textEdit.textChanged.connect(self.onTextChanged)
     self.ui.textEdit.cursorPositionChanged.connect(self.onCursorPositionChanged)
     self.ui.textEdit.CTE_TableFormat.connect(self.on_tableButton_clicked)
-    self.ui.textEdit.CTE_GotoPage.connect(lambda pageId: self.newPageSelected.emit(pageId))
+    self.ui.textEdit.CTE_GotoPage.connect(lambda pageId: self.switchboard.emitPageSelected(pageId))
 
   def populatePointSizesCombo(self):
     fontDatabase = QtGui.QFontDatabase()
