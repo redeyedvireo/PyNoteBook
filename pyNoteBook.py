@@ -229,10 +229,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   @QtCore.Slot()
   def on_actionSearch_triggered(self):
-    dlg = SearchDialog(self.db, self.ui.pageTree, self)
+    dlg = SearchDialog(self.db, self.ui.pageTree, self.switchboard, self)
     dlg.show()
-
-    dlg.pageSelectedSignal.connect(self.onPageSelected)
 
   @QtCore.Slot()
   def on_actionManage_Favorites_triggered(self):

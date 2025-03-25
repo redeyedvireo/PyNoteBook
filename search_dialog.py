@@ -4,12 +4,11 @@ from database import Database
 
 from notebook_types import ENTITY_ID
 
+from switchboard import Switchboard
 from ui_search_dialog import Ui_searchDialog
 
 class SearchDialog(QtWidgets.QDialog):
-  pageSelectedSignal = QtCore.Signal(ENTITY_ID)
-
-  def __init__(self, db: Database, pageTree: CPageTree, parent):
+  def __init__(self, db: Database, pageTree: CPageTree, switchboard: Switchboard, parent):
     super(SearchDialog, self).__init__(parent)
 
     self.ui = Ui_searchDialog()
@@ -17,6 +16,7 @@ class SearchDialog(QtWidgets.QDialog):
 
     self.db = db
     self.pageTree = pageTree
+    self.switchboard = switchboard
 
     self.setConnections()
 
@@ -40,7 +40,7 @@ class SearchDialog(QtWidgets.QDialog):
   @QtCore.Slot(QtWidgets.QListWidgetItem)
   def on_resultsListWidget_itemClicked(self, item):
     pageId = item.data(QtCore.Qt.ItemDataRole.UserRole)
-    self.pageSelectedSignal.emit(pageId)
+    self.switchboard.emitPageSelected(pageId)
 
   def search(self):
     searchTerm = self.ui.searchEdit.text()
