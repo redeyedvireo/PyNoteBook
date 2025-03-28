@@ -651,9 +651,9 @@ class Database:
       titleData = self.encrypter.encrypt(pageData.m_title)
       tagsData = self.encrypter.encrypt(pageData.m_tags)
     else:
-      contentData = unknownToBytes(pageData.m_contentString)
-      titleData = unknownToBytes(pageData.m_title)
-      tagsData = unknownToBytes(pageData.m_tags)
+      contentData = pageData.m_contentString
+      titleData = pageData.m_title
+      tagsData = pageData.m_tags
 
     # Bytes data must be converted to a QByteArray before storing
     queryObj.addBindValue(toQByteArray(contentData))
@@ -685,7 +685,7 @@ class Database:
       return False
 
     # Encrypt if necessary
-    titleData = self.encrypter.encrypt(pageData.m_title) if self.encrypter.hasPassword() else unknownToBytes(pageData.m_title)
+    titleData = self.encrypter.encrypt(pageData.m_title) if self.encrypter.hasPassword() else pageData.m_title
 
     queryObj = QtSql.QSqlQuery()
 
@@ -717,7 +717,7 @@ class Database:
         a page is first created, its title is changed in this manner.  Such a change wouldn't count as a modification).
     """
     # Encrypt if necessary
-    titleData = self.encrypter.encrypt(newTitle) if self.encrypter.hasPassword() else unknownToBytes(newTitle)
+    titleData = toQByteArray(self.encrypter.encrypt(newTitle)) if self.encrypter.hasPassword() else newTitle
 
     if isModification:
       # Get current modification count
