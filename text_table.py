@@ -1,4 +1,3 @@
-from turtle import bgcolor
 from PySide6 import QtCore, QtWidgets, QtGui
 import re
 import logging
