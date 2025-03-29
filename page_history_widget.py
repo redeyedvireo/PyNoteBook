@@ -3,7 +3,7 @@ from database import Database
 from switchboard import Switchboard
 from notebook_types import ENTITY_ID, kInvalidPageId
 
-kDefaultMaxHistory = 20
+kDefaultMaxHistory = 100
 
 class CPageHistoryWidget(QtWidgets.QListWidget):
   def __init__(self, parent):
