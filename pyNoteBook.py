@@ -37,6 +37,7 @@ from constants import kPrefsFileName, \
 
 kUserTextEditor = 0
 kToDoEditor = 1
+kFolderEditor = 2
 
 kMaxLogileSize = 1024 * 1024
 kMaxRecentFiles = 20
@@ -739,6 +740,10 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
         pass
       else:
         self.ui.pageToDoEdit.setPageContents(pageData.m_contentString, imageNames)
+
+    elif pageData.m_pageType == PAGE_TYPE.kPageFolder:
+      pass
+      self.ui.editorStackedWidget.setCurrentIndex(kFolderEditor)
 
     # Set tags
     if len(pageData.m_tags) == 0:

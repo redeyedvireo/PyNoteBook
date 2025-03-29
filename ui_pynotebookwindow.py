@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QLabel,
 
 from RichTextEdit import RichTextEditWidget
 from date_tree import CDateTree
+from folder_edit_widget import FolderEditWidget
 from page_history_widget import CPageHistoryWidget
 from page_title_list import CPageTitleList
 from page_tree import CPageTree
@@ -216,6 +217,15 @@ class Ui_PyNoteBookWindow(object):
         self.horizontalLayout_5.setContentsMargins(11, 11, 11, 11)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.editorStackedWidget.addWidget(self.pageToDoEdit)
+        self.folderEdit = FolderEditWidget()
+        self.folderEdit.setObjectName(u"folderEdit")
+        sizePolicy1.setHeightForWidth(self.folderEdit.sizePolicy().hasHeightForWidth())
+        self.folderEdit.setSizePolicy(sizePolicy1)
+        self.horizontalLayout_6 = QHBoxLayout(self.folderEdit)
+        self.horizontalLayout_6.setSpacing(6)
+        self.horizontalLayout_6.setContentsMargins(11, 11, 11, 11)
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.editorStackedWidget.addWidget(self.folderEdit)
 
         self.verticalLayout.addWidget(self.editorStackedWidget)
 
@@ -330,7 +340,7 @@ class Ui_PyNoteBookWindow(object):
         self.actionExit.triggered.connect(PyNoteBookWindow.close)
 
         self.navigationTabWidget.setCurrentIndex(0)
-        self.editorStackedWidget.setCurrentIndex(1)
+        self.editorStackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(PyNoteBookWindow)

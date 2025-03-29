@@ -221,7 +221,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>2</number>
         </property>
         <widget class="RichTextEditWidget" name="pageTextEdit">
          <property name="sizePolicy">
@@ -240,6 +240,15 @@
           </sizepolicy>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5"/>
+        </widget>
+        <widget class="FolderEditWidget" name="folderEdit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_6"/>
         </widget>
        </widget>
       </item>
@@ -575,6 +584,12 @@
    <class>ToDoEditWidget</class>
    <extends>QWidget</extends>
    <header>to_do_edit</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FolderEditWidget</class>
+   <extends>QWidget</extends>
+   <header>folder_edit_widget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
