@@ -24,6 +24,7 @@ from favorites_manager import FavoritesManager
 from search_dialog import SearchDialog
 from style_manager import StyleManager
 from switchboard import Switchboard
+from folder_edit_widget import FolderEditWidget
 
 from notebook_types import PAGE_TYPE, PAGE_ADD, PAGE_ADD_WHERE, ENTITY_ID, kInvalidPageId
 from utility import stringToArray
@@ -88,6 +89,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.tagList.initialize(self.tagCache, self.pageCache, self.switchboard)
     self.ui.pageTitleList.initialize(self.switchboard)
     self.ui.dateTree.initialize(self.switchboard)
+    self.ui.folderEdit.initialize(self.ui.pageTree, self.switchboard)
 
     self.prefs.readPrefsFile()
 
@@ -742,7 +744,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
         self.ui.pageToDoEdit.setPageContents(pageData.m_contentString, imageNames)
 
     elif pageData.m_pageType == PAGE_TYPE.kPageFolder:
-      pass
+      self.ui.folderEdit.displayFolder(pageId)
       self.ui.editorStackedWidget.setCurrentIndex(kFolderEditor)
 
     # Set tags

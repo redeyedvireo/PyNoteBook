@@ -281,6 +281,22 @@ class CPageTree(QtWidgets.QTreeWidget):
 
     return True
 
+  def getPageTitle(self, pageId: ENTITY_ID) -> str:
+    """Returns the title of a page.
+
+    Args:
+        pageId (ENTITY_ID): Page ID
+
+    Returns:
+        str: Title of the page.
+    """
+    item = self.findItem(pageId)
+
+    if item is not None and type(item) is CPageWidgetItem:
+      return item.text(0)
+    else:
+      return ''
+
   def findItem(self, pageId: ENTITY_ID) -> CPageWidgetItem | None:
     if pageId == kInvalidPageId:
       return None
@@ -474,6 +490,43 @@ class CPageTree(QtWidgets.QTreeWidget):
           entityList.append(subPageItem)
           subList = self.getFolderListFromSubTree(subPageItem)
           entityList.extend(subList)
+
+    return entityList
+
+  def getFolderChildren(self, pageId: ENTITY_ID):
+    """Returns a list of all of a folder's children.
+
+    Args:
+        pageId (ENTITY_ID): Element from which to return the children
+
+    Returns:
+        PageItemList: List of children.
+    """
+    entityList = []
+    folderItem = self.findItem(pageId)
+
+    if folderItem is not None and type(folderItem) is CPageWidgetItem:
+
+      numChildren = folderItem.childCount()
+
+      for i in range(numChildren):
+        subPageItem = folderItem.child(i)
+
+        if type(subPageItem) is CPageWidgetItem:
+          pageType = PAGE_TYPE.kPageTypeUserText
+
+          match subPageItem.itemType:
+            case PageWidgetItemType.eItemPage:
+              pageType = PAGE_TYPE.kPageTypeUserText
+
+            case PageWidgetItemType.eItemFolder:
+              pageType = PAGE_TYPE.kPageFolder
+
+            case PageWidgetItemType.eItemToDoList:
+              pageType = PAGE_TYPE.kPageTypeToDoList
+
+          entityDict = { 'pageId': subPageItem.pageId, 'title': subPageItem.text(0), 'itemType': pageType}
+          entityList.append(entityDict)
 
     return entityList
 
