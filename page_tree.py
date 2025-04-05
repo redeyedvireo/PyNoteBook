@@ -123,7 +123,7 @@ class CPageTree(QtWidgets.QTreeWidget):
     # For now, deleting non-empty folders is not supported.  This could be a very involved operation, as child pages and folders
     # will have to be deleted also.  A recursive function will be needed to delete a folder.  The UI should not be
     # updated until all children of the folder have been deleted.
-    self.folderContextMenu.addAction('Delete Empty Folder', self.onDeleteFolderTriggered)
+    self.deleteEmptyFolderAction = self.folderContextMenu.addAction('Delete Empty Folder', self.onDeleteFolderTriggered)
     self.folderContextMenu.addSeparator()
     self.folderContextMenu.addAction('Expand All', self.expandAll)
     self.folderContextMenu.addAction('Collapse All', self.collapseAll)
@@ -542,7 +542,7 @@ class CPageTree(QtWidgets.QTreeWidget):
     if item is None:
       return True
     else:
-      return item.childCount == 0
+      return item.childCount() == 0
 
   def isPointOnPage(self, pt) -> bool:
     item = self.itemAt(pt)
@@ -633,10 +633,12 @@ class CPageTree(QtWidgets.QTreeWidget):
 
         if self.isPointOnPage(pos):
           self.pageContextMenu.popup(self.mapToGlobal(pos))
-        else:
+        elif self.isPointOnFolder(pos):
+          # User clicked on a folder
           # For now, deleting non-empty folders is not supported.  So,
           # check if the folder is empty, and if not, hide the "Delete Empty Folder"
           # menu item.
+          self.deleteEmptyFolderAction.setVisible(self.isFolderEmpty(item))
           self.folderContextMenu.popup(self.mapToGlobal(pos))
     else:
       # User clicked on white space
@@ -654,8 +656,7 @@ class CPageTree(QtWidgets.QTreeWidget):
         self.deletePage(self.lastClickedPage.pageId)
 
   def onDeleteFolderTriggered(self):
-    # TODO: Implement this
-    pass
+    self.deleteFolder()
 
   def onMoveToTopLevel(self):
     if self.lastClickedPage is not None:
@@ -683,8 +684,7 @@ class CPageTree(QtWidgets.QTreeWidget):
     self.PT_OnCreateNewPage.emit()
 
   def onNewToDoListTriggered(self):
-    # TODO: Implement this
-    pass
+    self.switchboard.emitCreateNewToDoList()
 
   def onNewFolderTriggered(self):
     self.PT_OnCreateNewFolder.emit()

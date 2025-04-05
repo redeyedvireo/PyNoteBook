@@ -129,6 +129,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.switchboard.pageTitleUpdated.connect(self.onPageTitleChanged)
     self.switchboard.pageDeleted.connect(self.onPageDeleted)
     self.switchboard.stylesChanged.connect(self.saveStyles)
+    self.switchboard.createNewToDoList.connect(self.on_actionNew_To_Do_List_triggered)
 
     # Page Tree signals
     self.ui.pageTree.PT_OnCreateNewPage.connect(self.on_actionNew_Page_triggered)

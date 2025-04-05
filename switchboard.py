@@ -7,6 +7,7 @@ from preferences import Preferences
 class Switchboard(QtCore.QObject):
   pageSelected = QtCore.Signal(int)
   newPageCreated = QtCore.Signal(PageData)
+  createNewToDoList = QtCore.Signal()
   pageSaved = QtCore.Signal(PageData)
   pageTitleUpdated = QtCore.Signal(int, str, bool)
   pageDeleted = QtCore.Signal(int)
@@ -24,6 +25,9 @@ class Switchboard(QtCore.QObject):
 
   def emitNewPageCreated(self, pageData: PageData):
     self.newPageCreated.emit(pageData)
+
+  def emitCreateNewToDoList(self):
+    self.createNewToDoList.emit()
 
   def emitPageSaved(self, pageData: PageData):
     self.pageSaved.emit(pageData)
