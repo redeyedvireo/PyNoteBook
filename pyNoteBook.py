@@ -90,6 +90,7 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
     self.ui.pageTitleList.initialize(self.switchboard)
     self.ui.dateTree.initialize(self.switchboard)
     self.ui.folderEdit.initialize(self.ui.pageTree, self.switchboard)
+    self.ui.pageToDoEdit.initialize(self.switchboard)
 
     self.prefs.readPrefsFile()
 

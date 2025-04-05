@@ -1,6 +1,8 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from page_data import PageData
 from priority_delegate import PriorityDelegate
+from switchboard import Switchboard
 from taskdef import TaskDef, Task
 from task_reader import TaskReader
 from task_writer import writeTasks
@@ -40,6 +42,13 @@ class ToDoEditWidget(QtWidgets.QWidget):
     self.ui.treeView.setModel(self.model)
 
     self.configureTree()
+
+  def initialize(self, switchboard: Switchboard):
+    self.switchboard = switchboard
+    self.setConnections()
+
+  def setConnections(self):
+    self.switchboard.newPageCreated.connect(self.onNewPageCreated)
 
   def setAutoSave(self, autosave: bool):
     self.autosave = autosave
@@ -291,7 +300,9 @@ class ToDoEditWidget(QtWidgets.QWidget):
         self.modified = True
         self.toDoListModifiedSignal.emit()
 
-  @QtCore.Slot(QtCore.QPoint)
+  def onNewPageCreated(self, pageData: PageData):
+    self.removeAllTasks()
+
   def onCustomContextMenu(self, point: QtCore.QPoint):
     index = self.ui.treeView.indexAt(point)
     if index.isValid():
@@ -299,7 +310,6 @@ class ToDoEditWidget(QtWidgets.QWidget):
       menu.addAction('Delete task', self.on_deleteTaskButton_clicked)
       menu.exec(self.ui.treeView.mapToGlobal(point))
 
-  @QtCore.Slot(QtGui.QStandardItem)
   def handleItemChanged(self, item: QtGui.QStandardItem):
     if item.column() == kDoneColumn:
       # This will be handled by handleItemClicked().
@@ -324,7 +334,6 @@ class ToDoEditWidget(QtWidgets.QWidget):
 
     self.saveOrEmitModified()
 
-  @QtCore.Slot(QtCore.QModelIndex)
   def handleItemClicked(self, index: QtCore.QModelIndex):
     item = self.model.itemFromIndex(index)
 
