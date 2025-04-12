@@ -58,6 +58,11 @@ class ToDoItem:
     toDoItem.priorityPart.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
 
     toDoItem.done = taskDef.done
+
+    if (taskDef.done):
+      # If the task is done, then cross it out.
+      toDoItem.crossOutTask(True)
+
     return toDoItem
 
   @property
