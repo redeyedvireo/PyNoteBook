@@ -80,6 +80,11 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
     self.ui.pageTextEdit.initialize(self.styleManager, self.ui.messageLabel, self.db, self.switchboard)
 
+    # Kind of a hack - the ultimate goal of this is to prevent text in the message label from causing the window width to increase.
+    # When the window is resized the message label is resized to be the width of the window minus self.messageLabelWidthDiff.
+    # This value is calculated through a timer event, which is called after the window is shown.
+    self.messageLabelWidthDiff = 0
+
     self.setConnections()
 
   def initialize(self):
@@ -119,6 +124,8 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
       if self.prefs.onStartupLoad == kStartupLoadPreviousNoteBook:
         # Reopen previously opened notebook.
         self.openNotebookFile(previousFilepath)
+
+    QtCore.QTimer.singleShot(0, self.messageLabelSizeHack)
 
 
   # *************************** SLOTS ***************************
@@ -830,6 +837,32 @@ class PyNoteBookWindow(QtWidgets.QMainWindow):
 
   def currentPageIsValid(self) -> bool:
     return self.currentPageId != kInvalidPageId
+
+
+  def messageLabelSizeHack(self):
+    """ Message Label Size Hack - the ultimate goal of this is to prevent text in the message label from causing the window width to increase.
+        When the window is resized the message label is resized to be the width of the window minus self.messageLabelWidthDiff.
+        This value is calculated through a timer event, which is called after the window is shown.  """
+    windowWidth = self.size().width()
+    messageLabelWidth = self.ui.messageLabel.size().width()
+    widthDiff = windowWidth - messageLabelWidth
+    self.messageLabelWidthDiff = widthDiff
+    self.setMessageLabelMaxWidth()
+
+  def setMessageLabelMaxWidth(self):
+    windowWidth = self.size().width()
+    self.ui.messageLabel.setMaximumWidth(windowWidth - self.messageLabelWidthDiff)
+
+  def resizeEvent(self, event: QtGui.QResizeEvent):
+    super(PyNoteBookWindow, self).resizeEvent(event)
+
+    messageLabelX = self.ui.messageLabel.pos().x()
+    saveButtonX = self.ui.savePageButton.pos().x()
+
+    # When the app first starts, a resize event is sent, but the message label and save button
+    # have not been created yet, so their positions are invalid.  In this case, don't do anything.
+    if messageLabelX > 0 and saveButtonX > messageLabelX:
+      self.setMessageLabelMaxWidth()
 
 
 # *************************** SHUTDOWN ***************************
