@@ -179,20 +179,16 @@ class CustomTextEdit(QtWidgets.QTextEdit):
     """
     linkAtCursor = self.anchorAt(pt)
 
-    if len(linkAtCursor) > 0:
-      if linkAtCursor.startswith(WEBURLTAG) or linkAtCursor.startswith(WEBURLTAGS):
-        possibleUrl = QtCore.QUrl(linkAtCursor)
-
-        if possibleUrl.isValid():
-          self.hoveredLink = linkAtCursor
-          return True
-
-      elif linkAtCursor.startswith(NOTEBOOKTAG):
+    if len(linkAtCursor) > 0 and '://' in linkAtCursor:
+      if linkAtCursor.startswith(NOTEBOOKTAG):
         self.hoveredLink = self.getNotebookLinkPage(linkAtCursor)
         return True
 
-      else:
-        self.hoveredLink = None
+      possibleUrl = QtCore.QUrl(linkAtCursor)
+
+      if possibleUrl.isValid():
+        self.hoveredLink = linkAtCursor
+        return True
 
     return False
 
@@ -304,7 +300,8 @@ class CustomTextEdit(QtWidgets.QTextEdit):
   def insertWebLink(self, url: str, description: str, withBrackets: bool):
     webUrlStr = url
 
-    if not (url.startswith(WEBURLTAG) or url.startswith(WEBURLTAGS)):
+    # if not (url.startswith(WEBURLTAG) or url.startswith(WEBURLTAGS)):
+    if not ('://' in url):
       # Add "http://" header
       webUrlStr = f'{WEBURLTAG}{url}'
 
