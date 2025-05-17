@@ -397,27 +397,16 @@ class CPageTree(QtWidgets.QTreeWidget):
       self.setCurrentItem(selectedItem)
       self.loading = False
 
+  def emitCurrentPage(self):
+    currentItem = self.currentItem()
+    currentPageWidgetItem = self.itemToCPageWidgetItem(currentItem)
+    if currentPageWidgetItem is not None:
+      self.switchboard.emitPageSelected(currentPageWidgetItem.pageId)
+
   def removePage(self, pageId: ENTITY_ID):
     item = self.findItem(pageId)
 
     if item is not None:
-      # Determine which item to select next
-      #  - First try to select the item below.
-      #  - If that item does not exist, try to select the item above
-      #  - If that item does not exist, try to select the parent
-      newItem = self.itemBelow(item)
-
-      if newItem is None:
-        # Try item above
-        newItem = self.itemAbove(item)
-
-        if newItem is None:
-          # Try parent
-          newItem = item.parent()
-
-      if newItem is not None:
-        self.setCurrentItem(newItem)
-
       # Remove the item from the tree
       if item.parent() is not None:
         item.parent().removeChild(item)
@@ -427,8 +416,8 @@ class CPageTree(QtWidgets.QTreeWidget):
 
       self.writePageOrderToDatabase()
 
-      if newItem is not None and type(newItem) is CPageWidgetItem:
-        self.switchboard.emitPageSelected(newItem.pageId)
+      # Whenever a page is deleted, the current item will change.
+      self.emitCurrentPage()
 
   def getPageOrderString(self) -> str:
     idList = self.getTreeIdList()
@@ -603,11 +592,8 @@ class CPageTree(QtWidgets.QTreeWidget):
     if self.lastClickedPage is not None:
       self.updateParent(self.lastClickedPage.pageId, self.getParentId(self.lastClickedPage))
 
-      currentItem = self.currentItem()
-      currentPageWidgetItem = self.itemToCPageWidgetItem(currentItem)
-      if currentPageWidgetItem is not None:
-        # When a drop event occurs, the current item will change.
-        self.switchboard.emitPageSelected(currentPageWidgetItem.pageId)
+      # When a drop event occurs, the current item will change.
+      self.emitCurrentPage()
 
 
 # *************************** SLOTS ***************************
