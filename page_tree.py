@@ -37,6 +37,14 @@ class CPageWidgetItem(QtWidgets.QTreeWidgetItem):
       case PageWidgetItemType.eItemToDoList:
         self.setIcon(0, QtGui.QIcon(':/NoteBook/Resources/ToDoList.png'))
 
+  @property
+  def itemText(self):
+    return self.text(0)
+
+  @itemText.setter
+  def itemText(self, value):
+    self.setText(0, value)
+
   def SetPageId(self, pageId):
     self.pageId = pageId
 
@@ -144,7 +152,7 @@ class CPageTree(QtWidgets.QTreeWidget):
 
   def addTopLevelPageTreeItem(self, pageTitle: str, pageId: ENTITY_ID, itemType: PageWidgetItemType):
     newItem = CPageWidgetItem(0, pageId, itemType)
-    newItem.setText(0, pageTitle)
+    newItem.itemText = pageTitle
     self.addTopLevelItem(newItem)
 
   def newItem(self, pageId: ENTITY_ID, pageType: PAGE_TYPE, pageAddWhere: PAGE_ADD_WHERE, title: str) -> tuple[bool, str, int]:
@@ -214,9 +222,9 @@ class CPageTree(QtWidgets.QTreeWidget):
       self.editItem(newItem, 0)
     else:
       # Use the title parameter as the item's title
-      newItem.setText(0, title)
+      newItem.itemText = title
 
-    return (True, newItem.text(0), parentId)
+    return (True, newItem.itemText, parentId)
 
   def addItemsNew(self, pageDict, pageOrderStr):
     pageIdList = pageOrderStr.split(',')
@@ -272,7 +280,7 @@ class CPageTree(QtWidgets.QTreeWidget):
         return False
 
     newTreeWidgetItem = CPageWidgetItem(parent, pageId, pageType)
-    newTreeWidgetItem.setText(0, pageTitle)
+    newTreeWidgetItem.itemText = pageTitle
 
     if parent is not None:
       parent.addChild(newTreeWidgetItem)
@@ -292,8 +300,8 @@ class CPageTree(QtWidgets.QTreeWidget):
     """
     item = self.findItem(pageId)
 
-    if item is not None and type(item) is CPageWidgetItem:
-      return item.text(0)
+    if item is not None:
+      return item.itemText
     else:
       return ''
 
@@ -565,7 +573,7 @@ class CPageTree(QtWidgets.QTreeWidget):
     pageList = self.getFolderList()
 
     for item in pageList:
-      newAction = QtGui.QAction(item.text(0), self)
+      newAction = QtGui.QAction(item.itemText, self)
       newAction.setData(item.pageId)
       self.folderListSubmenu.addAction(newAction)
 
@@ -595,6 +603,13 @@ class CPageTree(QtWidgets.QTreeWidget):
     if self.lastClickedPage is not None:
       self.updateParent(self.lastClickedPage.pageId, self.getParentId(self.lastClickedPage))
 
+      currentItem = self.currentItem()
+      currentPageWidgetItem = self.itemToCPageWidgetItem(currentItem)
+      if currentPageWidgetItem is not None:
+        # When a drop event occurs, the current item will change.
+        self.switchboard.emitPageSelected(currentPageWidgetItem.pageId)
+
+
 # *************************** SLOTS ***************************
 
   def onItemClicked(self, item, column):
@@ -609,7 +624,7 @@ class CPageTree(QtWidgets.QTreeWidget):
 
     if type(item) is CPageWidgetItem:
       self.setCurrentItem(item)
-      self.switchboard.emitPageTitleUpdated(item.pageId, item.text(0), not self.newPageBeingCreated)
+      self.switchboard.emitPageTitleUpdated(item.pageId, item.itemText, not self.newPageBeingCreated)
 
     # Reset this flag.
     self.newPageBeingCreated = False
@@ -650,7 +665,7 @@ class CPageTree(QtWidgets.QTreeWidget):
 
   def onDeletePageTriggered(self):
     if self.lastClickedPage is not None:
-      message = f'Do you want to delete the page {self.lastClickedPage.text(0)}'
+      message = f'Do you want to delete the page {self.lastClickedPage.itemText}?'
 
       if QtWidgets.QMessageBox.question(self, 'NoteBook - Delete Page', message) == QtWidgets.QMessageBox.StandardButton.Yes:
         self.deletePage(self.lastClickedPage.pageId)
