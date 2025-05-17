@@ -460,10 +460,6 @@
    </property>
   </action>
   <action name="actionNew_Page">
-   <property name="icon">
-    <iconset resource="pynotebook.qrc">
-     <normaloff>:/NoteBook/Resources/NewPage.png</normaloff>:/NoteBook/Resources/NewPage.png</iconset>
-   </property>
    <property name="text">
     <string>New Page</string>
    </property>
