@@ -1,5 +1,5 @@
 from PySide6 import QtCore, QtGui, QtWidgets
-import datetime
+import logging
 
 from select_style_dlg import SelectStyleDialog
 from switchboard import Switchboard
@@ -202,6 +202,10 @@ class RichTextEditWidget(QtWidgets.QWidget):
       index = self.ui.fontCombo.findText(fontFamilies[0])
       if index != -1:
         self.ui.fontCombo.setCurrentIndex(index)
+      else:
+        logging.error(f'[RichTextEditWidget.updateControls] Font family "{fontFamilies[0]}" not found in font combo box.')
+    else:
+      logging.error('[RichTextEditWidget.updateControls] No font families found in selection format.')
 
     fontSize = selectionFormat.fontPointSize()
     fontSizeStr = f'{int(fontSize)}'
