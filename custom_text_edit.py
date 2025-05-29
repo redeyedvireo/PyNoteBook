@@ -325,6 +325,23 @@ class CustomTextEdit(QtWidgets.QTextEdit):
       url, description = dlg.getLink()
       self.insertWebLink(url, description, True)
 
+  def insertFromMimeData(self, source: QtCore.QMimeData):
+    """Override the insertFromMimeData to handle custom text insertion."""
+    if source.hasHtml():
+      # The text has formatting.  Ask user if it should be pasted with formatting or as plain text
+      reply = QtWidgets.QMessageBox.question(self, 'Paste with Formatting?', 'The text contains formatting.  Paste text with formatting intact?',
+                                              QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+
+      if reply == QtWidgets.QMessageBox.StandardButton.No:
+        # Convert it to a plain text object
+        plainText = source.text()
+        newMimeData = QtCore.QMimeData()
+        newMimeData.setText(plainText)
+        super(CustomTextEdit, self).insertFromMimeData(newMimeData)
+      else:
+        # Call the base class to insert the HTML
+        super(CustomTextEdit, self).insertFromMimeData(source)
+
   @QtCore.Slot()
   def onConvertSelectionToTable(self):
     TextTable.selectionToTable(self.textCursor())
