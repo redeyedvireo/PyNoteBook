@@ -198,6 +198,14 @@ class RichTextEditWidget(QtWidgets.QWidget):
     selectionCursor, selectionFormat = self.getCursorAndSelectionFormat()
 
     fontFamilies = selectionFormat.fontFamilies()     # Returns an array of strings (font families)
+
+    if fontFamilies is None:
+      # There is no selection, so use the default font families
+      # This condition generally happens after pasting plain text into the document
+      doc = self.ui.textEdit.document()
+      font = doc.defaultFont()
+      fontFamilies = font.families()
+
     if fontFamilies is not None:
       index = self.ui.fontCombo.findText(fontFamilies[0])
       if index != -1:
@@ -208,6 +216,13 @@ class RichTextEditWidget(QtWidgets.QWidget):
       logging.error('[RichTextEditWidget.updateControls] No font families found in selection format.')
 
     fontSize = selectionFormat.fontPointSize()
+
+    if fontSize <= 0:
+      # If the font size is 0, use the default font size
+      # This typically happens after pasting plain text into the document
+      doc = self.ui.textEdit.document()
+      fontSize = doc.defaultFont().pointSize()
+
     fontSizeStr = f'{int(fontSize)}'
     index = self.ui.sizeCombo.findText(fontSizeStr)
     if index != -1:
