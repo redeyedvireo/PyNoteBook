@@ -337,10 +337,15 @@ class CustomTextEdit(QtWidgets.QTextEdit):
         plainText = source.text()
         newMimeData = QtCore.QMimeData()
         newMimeData.setText(plainText)
+
+        # Call the base class to insert the plain text
         super(CustomTextEdit, self).insertFromMimeData(newMimeData)
       else:
         # Call the base class to insert the HTML
         super(CustomTextEdit, self).insertFromMimeData(source)
+    else:
+      # There is no HTML in this text, so just call the base class to insert it
+      super(CustomTextEdit, self).insertFromMimeData(source)
 
   @QtCore.Slot()
   def onConvertSelectionToTable(self):
