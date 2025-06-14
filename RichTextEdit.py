@@ -28,10 +28,20 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     self.ui.textColorButton.color = QtGui.QColor('Black')
 
-    # Disable style button at first.  It will be enabled whenever there is a selection.
-    self.ui.styleButton.setEnabled(False)
+    # Disable style button and style shortcut buttons at first.  These will be enabled whenever there is a selection.
+    self.onSelectionChanged()
 
     self.styleMenu = QtWidgets.QMenu()
+
+    # Style shortcuts
+    # Each style shortcut is a tuple containing the style ID and a QMenu.
+    # The style ID is -1 if the button is not configured.
+    self.styleShortcuts = [
+      (-1, QtWidgets.QMenu()),
+      (-1, QtWidgets.QMenu()),
+      (-1, QtWidgets.QMenu()),
+      (-1, QtWidgets.QMenu())
+    ]
 
     # Connect signals
     self.setConnections()
@@ -43,6 +53,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     self.switchboard = switchboard
     self.ui.textEdit.initialize(self.styleManager, messageLabel, self.db)
     self.initStyleButton()
+    self.initStyleShortcutButtons()
     self.populatePointSizesCombo()
     self.initBulletStyleButton()
     self.initNumberStyleButton()
@@ -81,6 +92,25 @@ class RichTextEditWidget(QtWidgets.QWidget):
         action.setData(styleId)
 
       self.ui.styleButton.setMenu(self.styleMenu)
+
+  def initStyleShortcutButtons(self):
+    self.initStyleShortcutButon(self.ui.styleShortcut1, 1)
+    self.initStyleShortcutButon(self.ui.styleShortcut2, 2)
+    self.initStyleShortcutButon(self.ui.styleShortcut3, 3)
+    self.initStyleShortcutButon(self.ui.styleShortcut4, 4)
+
+    # Connect the style shortcut buttons to their respective slots
+    self.ui.styleShortcut1.clicked.connect(lambda: self.on_styleShortcut_clicked(1))
+    self.ui.styleShortcut2.clicked.connect(lambda: self.on_styleShortcut_clicked(2))
+    self.ui.styleShortcut3.clicked.connect(lambda: self.on_styleShortcut_clicked(3))
+    self.ui.styleShortcut4.clicked.connect(lambda: self.on_styleShortcut_clicked(4))
+
+  def initStyleShortcutButon(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
+    styleButtonMenu = self.styleShortcuts[styleNumber - 1][1]
+    styleButtonMenu.clear()
+    styleButton.setMenu(styleButtonMenu)
+    action = styleButtonMenu.addAction('Configure...')
+    action.triggered.connect(lambda: self.configureStyleShortcut(styleButton, styleNumber))
 
   def initBulletStyleButton(self):
     self.bulletStyleMenu.clear()
@@ -294,13 +324,60 @@ class RichTextEditWidget(QtWidgets.QWidget):
   def onSelectionChanged(self):
     selectionCursor = self.ui.textEdit.textCursor()
     self.ui.styleButton.setEnabled(selectionCursor.hasSelection())
+    self.ui.styleShortcut1.setEnabled(selectionCursor.hasSelection())
+    self.ui.styleShortcut2.setEnabled(selectionCursor.hasSelection())
+    self.ui.styleShortcut3.setEnabled(selectionCursor.hasSelection())
+    self.ui.styleShortcut4.setEnabled(selectionCursor.hasSelection())
 
   @QtCore.Slot(QtGui.QAction)
   def on_styleButton_triggered(self, action):
     """ A 'triggered' event happens when the user changes
         the current item in the style button. """
     styleId = action.data()
-    if self.styleManager:
+    self.applyStyleToSelection(styleId)
+
+  @QtCore.Slot()
+  def on_styleButton_clicked(self):
+    defaultFontFamily = self.switchboard.preferences.editorDefaultFontFamily
+    defaultFontSize = self.switchboard.preferences.editorDefaultFontSize
+
+    if self.styleManager is not None:
+      styleDlg = SelectStyleDialog(self, self.styleManager, defaultFontFamily, defaultFontSize)
+      if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
+        styleId = styleDlg.getSelectedStyle()
+
+        if styleId is not None:
+          self.styleManager.applyStyle(self.ui.textEdit, styleId)
+          self.updateControls()
+          self.initStyleButton()
+          self.switchboard.emitStylesChanged()
+
+  def configureStyleShortcut(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
+    """ Configure the style shortcut button. """
+    if self.styleManager is not None:
+      defaultFontFamily = self.switchboard.preferences.editorDefaultFontFamily
+      defaultFontSize = self.switchboard.preferences.editorDefaultFontSize
+
+      styleDlg = SelectStyleDialog(self, self.styleManager, defaultFontFamily, defaultFontSize)
+
+      if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
+        styleId = styleDlg.getSelectedStyle()
+        if styleId is not None:
+          self.styleShortcuts[styleNumber - 1] = (styleId, self.styleShortcuts[styleNumber - 1][1])  # Update the style shortcut with the selected style ID
+          styleButton.setText(self.styleManager.styles[styleId].strName)
+          styleButton.setToolTip(self.styleManager.styles[styleId].strName)
+
+  def on_styleShortcut_clicked(self, styleNumber: int):
+    if self.styleShortcuts[styleNumber - 1][0] == -1:
+      QtWidgets.QMessageBox.warning(self, 'Style Button Not Configured', f'This style button is not configured.  Use the "Configure" option to set it up.')
+    else:
+      styleId = self.styleShortcuts[styleNumber - 1][0]
+      if styleId > -1:
+        self.applyStyleToSelection(styleId)
+
+  def applyStyleToSelection(self, styleId: int):
+    """ Apply a style to the current selection. """
+    if self.styleManager is not None:
       self.styleManager.applyStyle(self.ui.textEdit, styleId)
       self.updateControls()
 
@@ -424,22 +501,6 @@ class RichTextEditWidget(QtWidgets.QWidget):
     # Advance cursor to after the line
     selectionCursor.insertBlock(curBlockFormat)         # Create a new block, with the previous block's format (ie, without the line)
     self.ui.textEdit.setTextCursor(selectionCursor)
-
-  @QtCore.Slot()
-  def on_styleButton_clicked(self):
-    defaultFontFamily = self.switchboard.preferences.editorDefaultFontFamily
-    defaultFontSize = self.switchboard.preferences.editorDefaultFontSize
-
-    if self.styleManager is not None:
-      styleDlg = SelectStyleDialog(self, self.styleManager, defaultFontFamily, defaultFontSize)
-      if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-        styleId = styleDlg.getSelectedStyle()
-
-        if styleId is not None:
-          self.styleManager.applyStyle(self.ui.textEdit, styleId)
-          self.updateControls()
-          self.initStyleButton()
-          self.switchboard.emitStylesChanged()
 
   @QtCore.Slot()
   def onSolidCircleTriggered(self):

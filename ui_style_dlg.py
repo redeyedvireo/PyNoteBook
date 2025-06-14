@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'style_dlg.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -44,22 +44,22 @@ class Ui_CStyleDlg(object):
         self.label_4 = QLabel(CStyleDlg)
         self.label_4.setObjectName(u"label_4")
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.label_4)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_4)
 
         self.styleNameEdit = QLineEdit(CStyleDlg)
         self.styleNameEdit.setObjectName(u"styleNameEdit")
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.styleNameEdit)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.styleNameEdit)
 
         self.label_5 = QLabel(CStyleDlg)
         self.label_5.setObjectName(u"label_5")
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label_5)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_5)
 
         self.descriptionEdit = QLineEdit(CStyleDlg)
         self.descriptionEdit.setObjectName(u"descriptionEdit")
 
-        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.descriptionEdit)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.descriptionEdit)
 
 
         self.verticalLayout.addLayout(self.formLayout)

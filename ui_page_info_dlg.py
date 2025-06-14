@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'page_info_dlg.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -34,7 +34,7 @@ class Ui_CPageInfoDlg(object):
         self.label = QLabel(CPageInfoDlg)
         self.label.setObjectName(u"label")
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label)
 
         self.pageTitleLabel = QLabel(CPageInfoDlg)
         self.pageTitleLabel.setObjectName(u"pageTitleLabel")
@@ -42,47 +42,47 @@ class Ui_CPageInfoDlg(object):
         font.setPointSize(8)
         self.pageTitleLabel.setFont(font)
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.pageTitleLabel)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.pageTitleLabel)
 
         self.label_2 = QLabel(CPageInfoDlg)
         self.label_2.setObjectName(u"label_2")
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label_2)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_2)
 
         self.createdLabel = QLabel(CPageInfoDlg)
         self.createdLabel.setObjectName(u"createdLabel")
 
-        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.createdLabel)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.createdLabel)
 
         self.label_3 = QLabel(CPageInfoDlg)
         self.label_3.setObjectName(u"label_3")
 
-        self.formLayout.setWidget(2, QFormLayout.LabelRole, self.label_3)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_3)
 
         self.modifiedLabel = QLabel(CPageInfoDlg)
         self.modifiedLabel.setObjectName(u"modifiedLabel")
 
-        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.modifiedLabel)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.modifiedLabel)
 
         self.label_4 = QLabel(CPageInfoDlg)
         self.label_4.setObjectName(u"label_4")
 
-        self.formLayout.setWidget(3, QFormLayout.LabelRole, self.label_4)
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_4)
 
         self.numChangesLabel = QLabel(CPageInfoDlg)
         self.numChangesLabel.setObjectName(u"numChangesLabel")
 
-        self.formLayout.setWidget(3, QFormLayout.FieldRole, self.numChangesLabel)
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.numChangesLabel)
 
         self.label_5 = QLabel(CPageInfoDlg)
         self.label_5.setObjectName(u"label_5")
 
-        self.formLayout.setWidget(4, QFormLayout.LabelRole, self.label_5)
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_5)
 
         self.sizeLabel = QLabel(CPageInfoDlg)
         self.sizeLabel.setObjectName(u"sizeLabel")
 
-        self.formLayout.setWidget(4, QFormLayout.FieldRole, self.sizeLabel)
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.sizeLabel)
 
 
         self.verticalLayout.addLayout(self.formLayout)

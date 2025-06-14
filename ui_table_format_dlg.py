@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'table_format_dlg.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -34,36 +34,36 @@ class Ui_TableFormatDlg(object):
         self.label = QLabel(TableFormatDlg)
         self.label.setObjectName(u"label")
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label)
 
         self.rowsSpin = QSpinBox(TableFormatDlg)
         self.rowsSpin.setObjectName(u"rowsSpin")
         self.rowsSpin.setMinimum(1)
         self.rowsSpin.setValue(2)
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.rowsSpin)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.rowsSpin)
 
         self.label_2 = QLabel(TableFormatDlg)
         self.label_2.setObjectName(u"label_2")
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label_2)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_2)
 
         self.columnsSpin = QSpinBox(TableFormatDlg)
         self.columnsSpin.setObjectName(u"columnsSpin")
         self.columnsSpin.setMinimum(1)
         self.columnsSpin.setValue(2)
 
-        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.columnsSpin)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.columnsSpin)
 
         self.label_5 = QLabel(TableFormatDlg)
         self.label_5.setObjectName(u"label_5")
 
-        self.formLayout.setWidget(2, QFormLayout.LabelRole, self.label_5)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_5)
 
         self.backgroundColorButton = CColorButton(TableFormatDlg)
         self.backgroundColorButton.setObjectName(u"backgroundColorButton")
 
-        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.backgroundColorButton)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.backgroundColorButton)
 
 
         self.verticalLayout.addLayout(self.formLayout)

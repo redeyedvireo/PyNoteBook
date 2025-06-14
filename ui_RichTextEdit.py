@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'RichTextEdit.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -27,7 +27,7 @@ class Ui_RichTextEditWidget(object):
     def setupUi(self, RichTextEditWidget):
         if not RichTextEditWidget.objectName():
             RichTextEditWidget.setObjectName(u"RichTextEditWidget")
-        RichTextEditWidget.resize(545, 628)
+        RichTextEditWidget.resize(688, 628)
         self.verticalLayout = QVBoxLayout(RichTextEditWidget)
         self.verticalLayout.setSpacing(1)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -53,11 +53,29 @@ class Ui_RichTextEditWidget(object):
 
         self.horizontalLayout_2.addWidget(self.sizeCombo)
 
+        self.textColorButton = CColorButton(RichTextEditWidget)
+        self.textColorButton.setObjectName(u"textColorButton")
+        icon = QIcon()
+        icon.addFile(u":/NoteBook/Resources/Text Foreground.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.textColorButton.setIcon(icon)
+        self.textColorButton.setIconSize(QSize(16, 16))
+
+        self.horizontalLayout_2.addWidget(self.textColorButton)
+
+        self.textBackgroundButton = CColorButton(RichTextEditWidget)
+        self.textBackgroundButton.setObjectName(u"textBackgroundButton")
+        icon1 = QIcon()
+        icon1.addFile(u":/NoteBook/Resources/Text Background.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.textBackgroundButton.setIcon(icon1)
+        self.textBackgroundButton.setIconSize(QSize(16, 16))
+
+        self.horizontalLayout_2.addWidget(self.textBackgroundButton)
+
         self.leftAlignButton = QToolButton(RichTextEditWidget)
         self.leftAlignButton.setObjectName(u"leftAlignButton")
-        icon = QIcon()
-        icon.addFile(u":/NoteBook/Resources/Left.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.leftAlignButton.setIcon(icon)
+        icon2 = QIcon()
+        icon2.addFile(u":/NoteBook/Resources/Left.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.leftAlignButton.setIcon(icon2)
         self.leftAlignButton.setIconSize(QSize(16, 16))
         self.leftAlignButton.setCheckable(True)
         self.leftAlignButton.setAutoExclusive(True)
@@ -66,9 +84,9 @@ class Ui_RichTextEditWidget(object):
 
         self.centerAlignButton = QToolButton(RichTextEditWidget)
         self.centerAlignButton.setObjectName(u"centerAlignButton")
-        icon1 = QIcon()
-        icon1.addFile(u":/NoteBook/Resources/Center.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.centerAlignButton.setIcon(icon1)
+        icon3 = QIcon()
+        icon3.addFile(u":/NoteBook/Resources/Center.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.centerAlignButton.setIcon(icon3)
         self.centerAlignButton.setIconSize(QSize(16, 16))
         self.centerAlignButton.setCheckable(True)
         self.centerAlignButton.setAutoExclusive(True)
@@ -77,9 +95,9 @@ class Ui_RichTextEditWidget(object):
 
         self.rightAlignButton = QToolButton(RichTextEditWidget)
         self.rightAlignButton.setObjectName(u"rightAlignButton")
-        icon2 = QIcon()
-        icon2.addFile(u":/NoteBook/Resources/Right.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.rightAlignButton.setIcon(icon2)
+        icon4 = QIcon()
+        icon4.addFile(u":/NoteBook/Resources/Right.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.rightAlignButton.setIcon(icon4)
         self.rightAlignButton.setIconSize(QSize(16, 16))
         self.rightAlignButton.setCheckable(True)
         self.rightAlignButton.setAutoExclusive(True)
@@ -91,9 +109,9 @@ class Ui_RichTextEditWidget(object):
         font = QFont()
         font.setBold(True)
         self.boldButton.setFont(font)
-        icon3 = QIcon()
-        icon3.addFile(u":/NoteBook/Resources/Bold.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.boldButton.setIcon(icon3)
+        icon5 = QIcon()
+        icon5.addFile(u":/NoteBook/Resources/Bold.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.boldButton.setIcon(icon5)
         self.boldButton.setIconSize(QSize(16, 16))
         self.boldButton.setCheckable(True)
 
@@ -104,9 +122,9 @@ class Ui_RichTextEditWidget(object):
         font1 = QFont()
         font1.setItalic(True)
         self.italicButton.setFont(font1)
-        icon4 = QIcon()
-        icon4.addFile(u":/NoteBook/Resources/Italic.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.italicButton.setIcon(icon4)
+        icon6 = QIcon()
+        icon6.addFile(u":/NoteBook/Resources/Italic.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.italicButton.setIcon(icon6)
         self.italicButton.setCheckable(True)
 
         self.horizontalLayout_2.addWidget(self.italicButton)
@@ -116,55 +134,87 @@ class Ui_RichTextEditWidget(object):
         font2 = QFont()
         font2.setUnderline(True)
         self.underlineButton.setFont(font2)
-        icon5 = QIcon()
-        icon5.addFile(u":/NoteBook/Resources/Underline.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.underlineButton.setIcon(icon5)
+        icon7 = QIcon()
+        icon7.addFile(u":/NoteBook/Resources/Underline.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.underlineButton.setIcon(icon7)
         self.underlineButton.setCheckable(True)
 
         self.horizontalLayout_2.addWidget(self.underlineButton)
 
         self.strikethroughButton = QToolButton(RichTextEditWidget)
         self.strikethroughButton.setObjectName(u"strikethroughButton")
-        icon6 = QIcon()
-        icon6.addFile(u":/NoteBook/Resources/Strikethrough.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.strikethroughButton.setIcon(icon6)
+        icon8 = QIcon()
+        icon8.addFile(u":/NoteBook/Resources/Strikethrough.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.strikethroughButton.setIcon(icon8)
         self.strikethroughButton.setCheckable(True)
 
         self.horizontalLayout_2.addWidget(self.strikethroughButton)
 
         self.bulletTableInsertButton = QToolButton(RichTextEditWidget)
         self.bulletTableInsertButton.setObjectName(u"bulletTableInsertButton")
-        icon7 = QIcon()
-        icon7.addFile(u":/NoteBook/Resources/Bullet Table.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.bulletTableInsertButton.setIcon(icon7)
+        icon9 = QIcon()
+        icon9.addFile(u":/NoteBook/Resources/Bullet Table.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.bulletTableInsertButton.setIcon(icon9)
         self.bulletTableInsertButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
         self.horizontalLayout_2.addWidget(self.bulletTableInsertButton)
 
         self.numberTableInsertButton = QToolButton(RichTextEditWidget)
         self.numberTableInsertButton.setObjectName(u"numberTableInsertButton")
-        icon8 = QIcon()
-        icon8.addFile(u":/NoteBook/Resources/Number Table.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.numberTableInsertButton.setIcon(icon8)
+        icon10 = QIcon()
+        icon10.addFile(u":/NoteBook/Resources/Number Table.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.numberTableInsertButton.setIcon(icon10)
         self.numberTableInsertButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
         self.horizontalLayout_2.addWidget(self.numberTableInsertButton)
 
         self.tableButton = QToolButton(RichTextEditWidget)
         self.tableButton.setObjectName(u"tableButton")
-        icon9 = QIcon()
-        icon9.addFile(u":/NoteBook/Resources/Table.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.tableButton.setIcon(icon9)
+        icon11 = QIcon()
+        icon11.addFile(u":/NoteBook/Resources/Table.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.tableButton.setIcon(icon11)
 
         self.horizontalLayout_2.addWidget(self.tableButton)
 
         self.insertHLineButton = QToolButton(RichTextEditWidget)
         self.insertHLineButton.setObjectName(u"insertHLineButton")
-        icon10 = QIcon()
-        icon10.addFile(u":/NoteBook/Resources/Horizontal Line.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.insertHLineButton.setIcon(icon10)
+        icon12 = QIcon()
+        icon12.addFile(u":/NoteBook/Resources/Horizontal Line.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.insertHLineButton.setIcon(icon12)
 
         self.horizontalLayout_2.addWidget(self.insertHLineButton)
+
+        self.indentRightButton = QToolButton(RichTextEditWidget)
+        self.indentRightButton.setObjectName(u"indentRightButton")
+        icon13 = QIcon()
+        icon13.addFile(u":/NoteBook/Resources/IndentRight.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.indentRightButton.setIcon(icon13)
+
+        self.horizontalLayout_2.addWidget(self.indentRightButton)
+
+        self.indentLeftButton = QToolButton(RichTextEditWidget)
+        self.indentLeftButton.setObjectName(u"indentLeftButton")
+        icon14 = QIcon()
+        icon14.addFile(u":/NoteBook/Resources/IndentLeft.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.indentLeftButton.setIcon(icon14)
+
+        self.horizontalLayout_2.addWidget(self.indentLeftButton)
+
+        self.clearFormattingButton = QToolButton(RichTextEditWidget)
+        self.clearFormattingButton.setObjectName(u"clearFormattingButton")
+        icon15 = QIcon()
+        icon15.addFile(u":/NoteBook/Resources/clear-formatting.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clearFormattingButton.setIcon(icon15)
+
+        self.horizontalLayout_2.addWidget(self.clearFormattingButton)
+
+        self.searchButton = QToolButton(RichTextEditWidget)
+        self.searchButton.setObjectName(u"searchButton")
+        icon16 = QIcon()
+        icon16.addFile(u":/NoteBook/Resources/Search.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.searchButton.setIcon(icon16)
+
+        self.horizontalLayout_2.addWidget(self.searchButton)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_2)
@@ -181,63 +231,37 @@ class Ui_RichTextEditWidget(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
-        self.textColorButton = CColorButton(RichTextEditWidget)
-        self.textColorButton.setObjectName(u"textColorButton")
-        icon11 = QIcon()
-        icon11.addFile(u":/NoteBook/Resources/Text Foreground.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.textColorButton.setIcon(icon11)
-        self.textColorButton.setIconSize(QSize(16, 16))
+        self.styleShortcut1 = QToolButton(RichTextEditWidget)
+        self.styleShortcut1.setObjectName(u"styleShortcut1")
+        self.styleShortcut1.setMinimumSize(QSize(64, 0))
+        self.styleShortcut1.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
-        self.horizontalLayout.addWidget(self.textColorButton)
+        self.horizontalLayout.addWidget(self.styleShortcut1)
 
-        self.horizontalSpacer_3 = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+        self.styleShortcut2 = QToolButton(RichTextEditWidget)
+        self.styleShortcut2.setObjectName(u"styleShortcut2")
+        self.styleShortcut2.setMinimumSize(QSize(64, 0))
+        self.styleShortcut2.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
-        self.horizontalLayout.addItem(self.horizontalSpacer_3)
+        self.horizontalLayout.addWidget(self.styleShortcut2)
 
-        self.textBackgroundButton = CColorButton(RichTextEditWidget)
-        self.textBackgroundButton.setObjectName(u"textBackgroundButton")
-        icon12 = QIcon()
-        icon12.addFile(u":/NoteBook/Resources/Text Background.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.textBackgroundButton.setIcon(icon12)
-        self.textBackgroundButton.setIconSize(QSize(16, 16))
+        self.styleShortcut3 = QToolButton(RichTextEditWidget)
+        self.styleShortcut3.setObjectName(u"styleShortcut3")
+        self.styleShortcut3.setMinimumSize(QSize(64, 0))
+        self.styleShortcut3.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
-        self.horizontalLayout.addWidget(self.textBackgroundButton)
+        self.horizontalLayout.addWidget(self.styleShortcut3)
+
+        self.styleShortcut4 = QToolButton(RichTextEditWidget)
+        self.styleShortcut4.setObjectName(u"styleShortcut4")
+        self.styleShortcut4.setMinimumSize(QSize(64, 0))
+        self.styleShortcut4.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+
+        self.horizontalLayout.addWidget(self.styleShortcut4)
 
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
-
-        self.clearFormattingButton = QToolButton(RichTextEditWidget)
-        self.clearFormattingButton.setObjectName(u"clearFormattingButton")
-        icon13 = QIcon()
-        icon13.addFile(u":/NoteBook/Resources/clear-formatting.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.clearFormattingButton.setIcon(icon13)
-
-        self.horizontalLayout.addWidget(self.clearFormattingButton)
-
-        self.indentLeftButton = QToolButton(RichTextEditWidget)
-        self.indentLeftButton.setObjectName(u"indentLeftButton")
-        icon14 = QIcon()
-        icon14.addFile(u":/NoteBook/Resources/IndentLeft.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.indentLeftButton.setIcon(icon14)
-
-        self.horizontalLayout.addWidget(self.indentLeftButton)
-
-        self.indentRightButton = QToolButton(RichTextEditWidget)
-        self.indentRightButton.setObjectName(u"indentRightButton")
-        icon15 = QIcon()
-        icon15.addFile(u":/NoteBook/Resources/IndentRight.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.indentRightButton.setIcon(icon15)
-
-        self.horizontalLayout.addWidget(self.indentRightButton)
-
-        self.searchButton = QToolButton(RichTextEditWidget)
-        self.searchButton.setObjectName(u"searchButton")
-        icon16 = QIcon()
-        icon16.addFile(u":/NoteBook/Resources/Search.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.searchButton.setIcon(icon16)
-
-        self.horizontalLayout.addWidget(self.searchButton)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -312,6 +336,14 @@ class Ui_RichTextEditWidget(object):
         self.sizeCombo.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Font Size", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
+        self.textColorButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Text (Foreground) Color", None))
+#endif // QT_CONFIG(tooltip)
+        self.textColorButton.setText("")
+#if QT_CONFIG(tooltip)
+        self.textBackgroundButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Background Color", None))
+#endif // QT_CONFIG(tooltip)
+        self.textBackgroundButton.setText("")
+#if QT_CONFIG(tooltip)
         self.leftAlignButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Left Alignment", None))
 #endif // QT_CONFIG(tooltip)
         self.leftAlignButton.setText(QCoreApplication.translate("RichTextEditWidget", u"Left", None))
@@ -365,29 +397,17 @@ class Ui_RichTextEditWidget(object):
 #endif // QT_CONFIG(tooltip)
         self.insertHLineButton.setText(QCoreApplication.translate("RichTextEditWidget", u".", None))
 #if QT_CONFIG(tooltip)
-        self.styleButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Style", None))
+        self.indentRightButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Increase Indent", None))
 #endif // QT_CONFIG(tooltip)
-        self.styleButton.setText(QCoreApplication.translate("RichTextEditWidget", u"Apply Style...", None))
-#if QT_CONFIG(tooltip)
-        self.textColorButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Text (Foreground) Color", None))
-#endif // QT_CONFIG(tooltip)
-        self.textColorButton.setText("")
-#if QT_CONFIG(tooltip)
-        self.textBackgroundButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Background Color", None))
-#endif // QT_CONFIG(tooltip)
-        self.textBackgroundButton.setText("")
-#if QT_CONFIG(tooltip)
-        self.clearFormattingButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Clear all formatting", None))
-#endif // QT_CONFIG(tooltip)
-        self.clearFormattingButton.setText("")
+        self.indentRightButton.setText(QCoreApplication.translate("RichTextEditWidget", u"...", None))
 #if QT_CONFIG(tooltip)
         self.indentLeftButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Reduce Indent", None))
 #endif // QT_CONFIG(tooltip)
         self.indentLeftButton.setText(QCoreApplication.translate("RichTextEditWidget", u"...", None))
 #if QT_CONFIG(tooltip)
-        self.indentRightButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Increase Indent", None))
+        self.clearFormattingButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Clear all formatting", None))
 #endif // QT_CONFIG(tooltip)
-        self.indentRightButton.setText(QCoreApplication.translate("RichTextEditWidget", u"...", None))
+        self.clearFormattingButton.setText("")
 #if QT_CONFIG(tooltip)
         self.searchButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Search (Alt+S)", None))
 #endif // QT_CONFIG(tooltip)
@@ -395,6 +415,14 @@ class Ui_RichTextEditWidget(object):
 #if QT_CONFIG(shortcut)
         self.searchButton.setShortcut(QCoreApplication.translate("RichTextEditWidget", u"Ctrl+F", None))
 #endif // QT_CONFIG(shortcut)
+#if QT_CONFIG(tooltip)
+        self.styleButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Style", None))
+#endif // QT_CONFIG(tooltip)
+        self.styleButton.setText(QCoreApplication.translate("RichTextEditWidget", u"Apply Style...", None))
+        self.styleShortcut1.setText(QCoreApplication.translate("RichTextEditWidget", u"Style 1", None))
+        self.styleShortcut2.setText(QCoreApplication.translate("RichTextEditWidget", u"Style 2", None))
+        self.styleShortcut3.setText(QCoreApplication.translate("RichTextEditWidget", u"Style 3", None))
+        self.styleShortcut4.setText(QCoreApplication.translate("RichTextEditWidget", u"Style 4", None))
         self.searchHideButton.setText("")
         self.matchCaseCheckBox.setText(QCoreApplication.translate("RichTextEditWidget", u"Match Case", None))
         self.wholeWordCheckBox.setText(QCoreApplication.translate("RichTextEditWidget", u"Whole Words", None))

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'prefs_dialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -92,22 +92,22 @@ class Ui_PrefsDialog(object):
         self.label = QLabel(self.text_editor_page)
         self.label.setObjectName(u"label")
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label)
 
         self.fontSizeCombo = QComboBox(self.text_editor_page)
         self.fontSizeCombo.setObjectName(u"fontSizeCombo")
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.fontSizeCombo)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.fontSizeCombo)
 
         self.label_2 = QLabel(self.text_editor_page)
         self.label_2.setObjectName(u"label_2")
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label_2)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_2)
 
         self.fontCombo = QFontComboBox(self.text_editor_page)
         self.fontCombo.setObjectName(u"fontCombo")
 
-        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.fontCombo)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.fontCombo)
 
 
         self.verticalLayout_2.addLayout(self.formLayout)

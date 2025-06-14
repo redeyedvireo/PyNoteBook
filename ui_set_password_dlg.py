@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'set_password_dlg.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -47,24 +47,24 @@ class Ui_SetPasswordDlg(object):
         self.label_2 = QLabel(SetPasswordDlg)
         self.label_2.setObjectName(u"label_2")
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.label_2)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_2)
 
         self.passwordEdit = QLineEdit(SetPasswordDlg)
         self.passwordEdit.setObjectName(u"passwordEdit")
         self.passwordEdit.setEchoMode(QLineEdit.EchoMode.Password)
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.passwordEdit)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.passwordEdit)
 
         self.label_3 = QLabel(SetPasswordDlg)
         self.label_3.setObjectName(u"label_3")
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label_3)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_3)
 
         self.reEnterPasswordEdit = QLineEdit(SetPasswordDlg)
         self.reEnterPasswordEdit.setObjectName(u"reEnterPasswordEdit")
         self.reEnterPasswordEdit.setEchoMode(QLineEdit.EchoMode.Password)
 
-        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.reEnterPasswordEdit)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.reEnterPasswordEdit)
 
         self.passwordsNotMatchLabel = QLabel(SetPasswordDlg)
         self.passwordsNotMatchLabel.setObjectName(u"passwordsNotMatchLabel")
@@ -73,7 +73,7 @@ class Ui_SetPasswordDlg(object):
         self.passwordsNotMatchLabel.setFont(font)
         self.passwordsNotMatchLabel.setStyleSheet(u"color: red")
 
-        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.passwordsNotMatchLabel)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.passwordsNotMatchLabel)
 
 
         self.verticalLayout.addLayout(self.formLayout)
