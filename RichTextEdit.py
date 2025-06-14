@@ -4,7 +4,7 @@ import logging
 from select_style_dlg import SelectStyleDialog
 from switchboard import Switchboard
 from table_format_dlg import TableFormatDialog
-from style_manager import StyleManager
+from style_manager import StyleManager, kStyleShortcutNoStyle
 from text_table import TextTable
 from utility import formatDateTime
 from textformatter import TextFormatter, TextInserter
@@ -90,23 +90,26 @@ class RichTextEditWidget(QtWidgets.QWidget):
     if self.styleManager is not None:
       self.styleShortCutMenus = [ QtWidgets.QMenu() for _ in range(self.styleManager.numShortcuts()) ]
 
-      self.initStyleShortcutButon(self.ui.styleShortcut1, 1)
-      self.initStyleShortcutButon(self.ui.styleShortcut2, 2)
-      self.initStyleShortcutButon(self.ui.styleShortcut3, 3)
-      self.initStyleShortcutButon(self.ui.styleShortcut4, 4)
+      # Initialize the style shortcut buttons with the current styles
+      for styleNumber in range( self.styleManager.numShortcuts()):
+        styleButton = getattr(self.ui, f'styleShortcut{styleNumber}')
 
-      # Connect the style shortcut buttons to their respective slots
-      self.ui.styleShortcut1.clicked.connect(lambda: self.on_styleShortcut_clicked(1))
-      self.ui.styleShortcut2.clicked.connect(lambda: self.on_styleShortcut_clicked(2))
-      self.ui.styleShortcut3.clicked.connect(lambda: self.on_styleShortcut_clicked(3))
-      self.ui.styleShortcut4.clicked.connect(lambda: self.on_styleShortcut_clicked(4))
+        self.initStyleShortcutButon(styleButton, styleNumber)
+        self.connectStyleShortcutButton(styleButton, styleNumber)
+
+        if self.styleManager.styleShortcutIsValid(styleNumber):
+          styleId = self.styleManager.getShortcutStyleId(styleNumber)
+          self.setStyleShortcutButtonText(styleButton, styleNumber, styleId)
 
   def initStyleShortcutButon(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
-    styleButtonMenu = self.styleShortCutMenus[styleNumber - 1]
+    styleButtonMenu = self.styleShortCutMenus[styleNumber]
     styleButtonMenu.clear()
     styleButton.setMenu(styleButtonMenu)
     action = styleButtonMenu.addAction('Configure...')
     action.triggered.connect(lambda: self.configureStyleShortcut(styleButton, styleNumber))
+
+  def connectStyleShortcutButton(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
+    styleButton.clicked.connect(lambda: self.on_styleShortcut_clicked(styleNumber))
 
   def initBulletStyleButton(self):
     self.bulletStyleMenu.clear()
@@ -357,20 +360,23 @@ class RichTextEditWidget(QtWidgets.QWidget):
       if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
         styleId = styleDlg.getSelectedStyle()
         if styleId is not None:
-          self.styleManager.setShortcutStyleId(styleNumber - 1, styleId)    # Update the style shortcut with the selected style ID
-          styleButton.setText(self.styleManager.styles[styleId].strName)
-          styleButton.setToolTip(self.styleManager.styles[styleId].strName)
+          self.setStyleShortcutButtonText(styleButton, styleNumber, styleId)
+
+  def setStyleShortcutButtonText(self, styleButton: QtWidgets.QToolButton, styleNumber: int, styleId: int):
+    if self.styleManager is not None:
+      self.styleManager.setShortcutStyleId(styleNumber, styleId)    # Update the style shortcut with the selected style ID
+      styleButton.setText(self.styleManager.styles[styleId].strName)
+      styleButton.setToolTip(self.styleManager.styles[styleId].strName)
 
   def on_styleShortcut_clicked(self, styleNumber: int):
     selectionCursor = self.ui.textEdit.textCursor()
     if selectionCursor.hasSelection():
       if self.styleManager is not None:
-        if not self.styleManager.styleShortcutIsValid(styleNumber - 1):
+        if not self.styleManager.styleShortcutIsValid(styleNumber):
           QtWidgets.QMessageBox.warning(self, 'Style Button Not Configured', f'This style button is not configured.  Use the "Configure" option to set it up.')
         else:
-          styleId = self.styleManager.getShortcutStyleId(styleNumber - 1)
-          if styleId > -1:
-            self.applyStyleToSelection(styleId)
+          styleId = self.styleManager.getShortcutStyleId(styleNumber)
+          self.applyStyleToSelection(styleId)
 
   def applyStyleToSelection(self, styleId: int):
     """ Apply a style to the current selection. """

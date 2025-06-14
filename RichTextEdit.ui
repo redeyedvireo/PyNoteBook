@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>688</width>
+    <width>724</width>
     <height>628</height>
    </rect>
   </property>
@@ -440,7 +440,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QToolButton" name="styleShortcut1">
+      <widget class="QToolButton" name="styleShortcut0">
        <property name="minimumSize">
         <size>
          <width>64</width>
@@ -456,7 +456,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="styleShortcut2">
+      <widget class="QToolButton" name="styleShortcut1">
        <property name="minimumSize">
         <size>
          <width>64</width>
@@ -472,7 +472,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="styleShortcut3">
+      <widget class="QToolButton" name="styleShortcut2">
        <property name="minimumSize">
         <size>
          <width>64</width>
@@ -488,7 +488,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="styleShortcut4">
+      <widget class="QToolButton" name="styleShortcut3">
        <property name="minimumSize">
         <size>
          <width>64</width>

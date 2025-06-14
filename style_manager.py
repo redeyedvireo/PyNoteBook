@@ -33,6 +33,8 @@ kItalicRoot = 'italic'
 kUnderlineRoot = 'underline'
 kStrikeoutRoot = 'strikeout'
 
+kStyleShortcutElement = 'Shortcut'
+
 
 class StyleManager:
   def __init__(self) -> None:
@@ -178,8 +180,11 @@ class StyleManager:
     root = tree.getroot()
 
     for child in root:
-      styleId, styleDef = self.parseStyle(child)
-      self.setStyle(styleId, styleDef)
+      if child.tag == kStyleElement:
+        styleId, styleDef = self.parseStyle(child)
+        self.setStyle(styleId, styleDef)
+      elif child.tag == kStyleShortcutElement:
+        self.parseStyleShortcut(child)
 
     return True
 
@@ -201,6 +206,15 @@ class StyleManager:
     styleDef.isStrikeout = self.getChildNodeValue(styleNode, 'strikeout')
 
     return (int(styleId), styleDef)
+
+  def parseStyleShortcut(self, shortcutNode):
+    index = int(shortcutNode.get('index'))
+    styleId = int(shortcutNode.get('styleId', kStyleShortcutNoStyle))
+
+    if 0 <= index < self.numShortcuts():
+      self.setShortcutStyleId(index, styleId)
+    else:
+      logging.error(f'[parseStyleShortcut] Invalid shortcut index: {index}')
 
   def getChildNodeValue(self, parentNode, childName) -> str | None:
     node = parentNode.find(childName)
@@ -226,6 +240,11 @@ class StyleManager:
       styleDef = self.getStyle(styleId)
       if styleDef is not None:
         self.addStyleToDom(root, styleDef, styleId)
+
+    # Store style shortcuts
+    for i in range(self.numShortcuts()):
+      styleId = self.getShortcutStyleId(i)
+      self.addShortcutToDom(root,  i, styleId)
 
     elementTree = ET.ElementTree(root)
 
@@ -275,3 +294,9 @@ class StyleManager:
         root.set(kValueAttr, value.name())
       else:
         print(f'[addStyleNode] Unknown type for {nodeName}: {value}')
+
+  def addShortcutToDom(self, domRoot: ET.Element, shortcutIndex: int, styleId: int):
+    shortcutNode = ET.SubElement(domRoot, kStyleShortcutElement)
+
+    shortcutNode.set('index', str(shortcutIndex))
+    shortcutNode.set('styleId', str(styleId))
