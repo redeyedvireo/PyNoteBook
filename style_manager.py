@@ -87,6 +87,16 @@ class StyleManager:
 
     self.styleShortcuts[shortcutIndex] = styleId
 
+  def clearStyleShortcut(self, shortcutIndex: int):
+    """Clears the style assigned to the given shortcut index.
+    Args:
+        shortcutIndex (int): Index of the shortcut (0 to numShortcuts - 1)
+    """
+    if shortcutIndex < 0 or shortcutIndex >= self.numShortcuts():
+      return
+
+    self.styleShortcuts[shortcutIndex] = kStyleShortcutNoStyle
+
   def numStyles(self) -> int:
     return len(self.styles)
 

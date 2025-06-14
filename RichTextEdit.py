@@ -100,6 +100,10 @@ class RichTextEditWidget(QtWidgets.QWidget):
         if self.styleManager.styleShortcutIsValid(styleNumber):
           styleId = self.styleManager.getShortcutStyleId(styleNumber)
           self.setStyleShortcutButtonText(styleButton, styleNumber, styleId)
+        else:
+          # If the style shortcut is not configured, set the button text to indicate that
+          styleButton.setText(f'Style {styleNumber + 1}')
+          styleButton.setToolTip('Style button not configured')
 
   def initStyleShortcutButon(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
     styleButtonMenu = self.styleShortCutMenus[styleNumber]
@@ -107,6 +111,9 @@ class RichTextEditWidget(QtWidgets.QWidget):
     styleButton.setMenu(styleButtonMenu)
     action = styleButtonMenu.addAction('Configure...')
     action.triggered.connect(lambda: self.configureStyleShortcut(styleButton, styleNumber))
+
+    resetAction = styleButtonMenu.addAction('Reset')
+    resetAction.triggered.connect(lambda: self.resetStyleShortcutButton(styleButton, styleNumber))
 
   def connectStyleShortcutButton(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
     styleButton.clicked.connect(lambda: self.on_styleShortcut_clicked(styleNumber))
@@ -361,6 +368,12 @@ class RichTextEditWidget(QtWidgets.QWidget):
         styleId = styleDlg.getSelectedStyle()
         if styleId is not None:
           self.setStyleShortcutButtonText(styleButton, styleNumber, styleId)
+
+  def resetStyleShortcutButton(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
+    if self.styleManager is not None:
+      self.styleManager.clearStyleShortcut(styleNumber)  # Clear the style shortcut
+      styleButton.setText(f'Style {styleNumber + 1}')  # Reset the button text
+      styleButton.setToolTip('Style button not configured')
 
   def setStyleShortcutButtonText(self, styleButton: QtWidgets.QToolButton, styleNumber: int, styleId: int):
     if self.styleManager is not None:
