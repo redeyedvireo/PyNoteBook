@@ -9,6 +9,10 @@ from styleDef import FormatFlag, StyleDef
 # Index of first user-defined style item
 kUserStyleStartIndex = 0
 
+# Number of style shortcuts
+kNumStyleShortcuts = 4
+kStyleShortcutNoStyle = -1  # No style assigned to this shortcut
+
 kStyleDefRoot = 'StyleDoc'
 kStyleElement = 'Style'
 
@@ -33,6 +37,53 @@ kStrikeoutRoot = 'strikeout'
 class StyleManager:
   def __init__(self) -> None:
     self.styles: dict[int, StyleDef] = { }     # This is a Python dictionary
+    self.styleShortcuts = [kStyleShortcutNoStyle for _ in range(kNumStyleShortcuts)]  # Initialize with -1 (no style)
+
+  def numShortcuts(self) -> int:
+    return kNumStyleShortcuts
+
+  def getShortcutStyleId(self, shortcutIndex: int) -> int:
+    """Returns the style ID for the given shortcut index.
+    If the index is invalid, returns kStyleShortcutNoStyle.
+
+    Args:
+        shortcutIndex (int): Index of the shortcut (0 to numShortcuts - 1)
+
+    Returns:
+        int: Style ID for the shortcut, or kStyleShortcutNoStyle if invalid.
+    """
+    if shortcutIndex < 0 or shortcutIndex >= self.numShortcuts():
+      return kStyleShortcutNoStyle
+
+    return self.styleShortcuts[shortcutIndex]
+
+  def styleShortcutIsValid(self, shortcutIndex: int) -> bool:
+    """Checks if the given shortcut index is valid and has a style assigned.
+
+    Args:
+        shortcutIndex (int): Index of the shortcut (0 to numShortcuts - 1)
+
+    Returns:
+        bool: True if the shortcut index is valid and has a style assigned, False otherwise.
+    """
+    if shortcutIndex < 0 or shortcutIndex >= self.numShortcuts():
+      return False
+
+    return self.styleShortcuts[shortcutIndex] != kStyleShortcutNoStyle
+
+  def setShortcutStyleId(self, shortcutIndex: int, styleId: int):
+    """Sets the style ID for the given shortcut index.
+    Args:
+        shortcutIndex (int): Index of the shortcut (0 to numShortcuts - 1)
+        styleId (int): Style ID to set for the shortcut
+    """
+    if shortcutIndex < 0 or shortcutIndex >= self.numShortcuts():
+      return
+
+    if not self.isValidStyleId(styleId):
+      return
+
+    self.styleShortcuts[shortcutIndex] = styleId
 
   def numStyles(self) -> int:
     return len(self.styles)

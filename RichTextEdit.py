@@ -33,15 +33,8 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     self.styleMenu = QtWidgets.QMenu()
 
-    # Style shortcuts
-    # Each style shortcut is a tuple containing the style ID and a QMenu.
-    # The style ID is -1 if the button is not configured.
-    self.styleShortcuts = [
-      (-1, QtWidgets.QMenu()),
-      (-1, QtWidgets.QMenu()),
-      (-1, QtWidgets.QMenu()),
-      (-1, QtWidgets.QMenu())
-    ]
+    # Style shortcut menus
+    self.styleShortCutMenus = []
 
     # Connect signals
     self.setConnections()
@@ -94,19 +87,22 @@ class RichTextEditWidget(QtWidgets.QWidget):
       self.ui.styleButton.setMenu(self.styleMenu)
 
   def initStyleShortcutButtons(self):
-    self.initStyleShortcutButon(self.ui.styleShortcut1, 1)
-    self.initStyleShortcutButon(self.ui.styleShortcut2, 2)
-    self.initStyleShortcutButon(self.ui.styleShortcut3, 3)
-    self.initStyleShortcutButon(self.ui.styleShortcut4, 4)
+    if self.styleManager is not None:
+      self.styleShortCutMenus = [ QtWidgets.QMenu() for _ in range(self.styleManager.numShortcuts()) ]
 
-    # Connect the style shortcut buttons to their respective slots
-    self.ui.styleShortcut1.clicked.connect(lambda: self.on_styleShortcut_clicked(1))
-    self.ui.styleShortcut2.clicked.connect(lambda: self.on_styleShortcut_clicked(2))
-    self.ui.styleShortcut3.clicked.connect(lambda: self.on_styleShortcut_clicked(3))
-    self.ui.styleShortcut4.clicked.connect(lambda: self.on_styleShortcut_clicked(4))
+      self.initStyleShortcutButon(self.ui.styleShortcut1, 1)
+      self.initStyleShortcutButon(self.ui.styleShortcut2, 2)
+      self.initStyleShortcutButon(self.ui.styleShortcut3, 3)
+      self.initStyleShortcutButon(self.ui.styleShortcut4, 4)
+
+      # Connect the style shortcut buttons to their respective slots
+      self.ui.styleShortcut1.clicked.connect(lambda: self.on_styleShortcut_clicked(1))
+      self.ui.styleShortcut2.clicked.connect(lambda: self.on_styleShortcut_clicked(2))
+      self.ui.styleShortcut3.clicked.connect(lambda: self.on_styleShortcut_clicked(3))
+      self.ui.styleShortcut4.clicked.connect(lambda: self.on_styleShortcut_clicked(4))
 
   def initStyleShortcutButon(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
-    styleButtonMenu = self.styleShortcuts[styleNumber - 1][1]
+    styleButtonMenu = self.styleShortCutMenus[styleNumber - 1]
     styleButtonMenu.clear()
     styleButton.setMenu(styleButtonMenu)
     action = styleButtonMenu.addAction('Configure...')
@@ -324,10 +320,8 @@ class RichTextEditWidget(QtWidgets.QWidget):
   def onSelectionChanged(self):
     selectionCursor = self.ui.textEdit.textCursor()
     self.ui.styleButton.setEnabled(selectionCursor.hasSelection())
-    self.ui.styleShortcut1.setEnabled(selectionCursor.hasSelection())
-    self.ui.styleShortcut2.setEnabled(selectionCursor.hasSelection())
-    self.ui.styleShortcut3.setEnabled(selectionCursor.hasSelection())
-    self.ui.styleShortcut4.setEnabled(selectionCursor.hasSelection())
+
+    # Note: we're keeping the style shortcut buttons enabled all the time, so that the user can configure them
 
   @QtCore.Slot(QtGui.QAction)
   def on_styleButton_triggered(self, action):
@@ -363,17 +357,20 @@ class RichTextEditWidget(QtWidgets.QWidget):
       if styleDlg.exec() == QtWidgets.QDialog.DialogCode.Accepted:
         styleId = styleDlg.getSelectedStyle()
         if styleId is not None:
-          self.styleShortcuts[styleNumber - 1] = (styleId, self.styleShortcuts[styleNumber - 1][1])  # Update the style shortcut with the selected style ID
+          self.styleManager.setShortcutStyleId(styleNumber - 1, styleId)    # Update the style shortcut with the selected style ID
           styleButton.setText(self.styleManager.styles[styleId].strName)
           styleButton.setToolTip(self.styleManager.styles[styleId].strName)
 
   def on_styleShortcut_clicked(self, styleNumber: int):
-    if self.styleShortcuts[styleNumber - 1][0] == -1:
-      QtWidgets.QMessageBox.warning(self, 'Style Button Not Configured', f'This style button is not configured.  Use the "Configure" option to set it up.')
-    else:
-      styleId = self.styleShortcuts[styleNumber - 1][0]
-      if styleId > -1:
-        self.applyStyleToSelection(styleId)
+    selectionCursor = self.ui.textEdit.textCursor()
+    if selectionCursor.hasSelection():
+      if self.styleManager is not None:
+        if not self.styleManager.styleShortcutIsValid(styleNumber - 1):
+          QtWidgets.QMessageBox.warning(self, 'Style Button Not Configured', f'This style button is not configured.  Use the "Configure" option to set it up.')
+        else:
+          styleId = self.styleManager.getShortcutStyleId(styleNumber - 1)
+          if styleId > -1:
+            self.applyStyleToSelection(styleId)
 
   def applyStyleToSelection(self, styleId: int):
     """ Apply a style to the current selection. """
