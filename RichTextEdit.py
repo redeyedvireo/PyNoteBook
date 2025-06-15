@@ -91,11 +91,9 @@ class RichTextEditWidget(QtWidgets.QWidget):
       self.styleShortCutMenus = [ QtWidgets.QMenu() for _ in range(self.styleManager.numShortcuts()) ]
 
       # Initialize the style shortcut buttons with the current styles
+      insertToTheRightOfSpacer = self.ui.horizontalLayout.indexOf(self.ui.horizontalStyleSpacer_10) + 1
       for styleNumber in range( self.styleManager.numShortcuts()):
-        styleButton = getattr(self.ui, f'styleShortcut{styleNumber}')
-
-        self.initStyleShortcutButon(styleButton, styleNumber)
-        self.connectStyleShortcutButton(styleButton, styleNumber)
+        styleButton = self.createStyleShortcutButton(styleNumber, insertToTheRightOfSpacer + styleNumber)
 
         if self.styleManager.styleShortcutIsValid(styleNumber):
           styleId = self.styleManager.getShortcutStyleId(styleNumber)
@@ -105,7 +103,21 @@ class RichTextEditWidget(QtWidgets.QWidget):
           styleButton.setText(f'Style {styleNumber + 1}')
           styleButton.setToolTip('Style button not configured')
 
-  def initStyleShortcutButon(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
+  def createStyleShortcutButton(self, styleNumber: int, insertionIndex: int) -> QtWidgets.QToolButton:
+    """ Create a style shortcut button and initialize it. """
+    styleButton = QtWidgets.QToolButton(self)
+    styleButton.setObjectName(f'styleShortcut{styleNumber}')
+    styleButton.setMinimumWidth(64)
+    styleButton.setText(f'Style {styleNumber + 1}')
+    self.ui.horizontalLayout.insertWidget(insertionIndex, styleButton)
+    styleButton.setPopupMode(QtWidgets.QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+
+    self.initStyleShortcutButtonMenu(styleButton, styleNumber)
+    styleButton.clicked.connect(lambda: self.on_styleShortcut_clicked(styleNumber))
+
+    return styleButton
+
+  def initStyleShortcutButtonMenu(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
     styleButtonMenu = self.styleShortCutMenus[styleNumber]
     styleButtonMenu.clear()
     styleButton.setMenu(styleButtonMenu)
@@ -114,9 +126,6 @@ class RichTextEditWidget(QtWidgets.QWidget):
 
     resetAction = styleButtonMenu.addAction('Reset')
     resetAction.triggered.connect(lambda: self.resetStyleShortcutButton(styleButton, styleNumber))
-
-  def connectStyleShortcutButton(self, styleButton: QtWidgets.QToolButton, styleNumber: int):
-    styleButton.clicked.connect(lambda: self.on_styleShortcut_clicked(styleNumber))
 
   def initBulletStyleButton(self):
     self.bulletStyleMenu.clear()
@@ -386,7 +395,7 @@ class RichTextEditWidget(QtWidgets.QWidget):
     if selectionCursor.hasSelection():
       if self.styleManager is not None:
         if not self.styleManager.styleShortcutIsValid(styleNumber):
-          QtWidgets.QMessageBox.warning(self, 'Style Button Not Configured', f'This style button is not configured.  Use the "Configure" option to set it up.')
+          QtWidgets.QMessageBox.warning(self, 'Style Button Not Configured', f'This style button is not configured.  Use the "Configure" menu item to set it up.')
         else:
           styleId = self.styleManager.getShortcutStyleId(styleNumber)
           self.applyStyleToSelection(styleId)

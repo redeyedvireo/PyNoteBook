@@ -227,37 +227,9 @@ class Ui_RichTextEditWidget(object):
 
         self.horizontalLayout.addWidget(self.styleButton)
 
-        self.horizontalSpacer_2 = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+        self.horizontalStyleSpacer_10 = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout.addItem(self.horizontalSpacer_2)
-
-        self.styleShortcut0 = QToolButton(RichTextEditWidget)
-        self.styleShortcut0.setObjectName(u"styleShortcut0")
-        self.styleShortcut0.setMinimumSize(QSize(64, 0))
-        self.styleShortcut0.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
-
-        self.horizontalLayout.addWidget(self.styleShortcut0)
-
-        self.styleShortcut1 = QToolButton(RichTextEditWidget)
-        self.styleShortcut1.setObjectName(u"styleShortcut1")
-        self.styleShortcut1.setMinimumSize(QSize(64, 0))
-        self.styleShortcut1.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
-
-        self.horizontalLayout.addWidget(self.styleShortcut1)
-
-        self.styleShortcut2 = QToolButton(RichTextEditWidget)
-        self.styleShortcut2.setObjectName(u"styleShortcut2")
-        self.styleShortcut2.setMinimumSize(QSize(64, 0))
-        self.styleShortcut2.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
-
-        self.horizontalLayout.addWidget(self.styleShortcut2)
-
-        self.styleShortcut3 = QToolButton(RichTextEditWidget)
-        self.styleShortcut3.setObjectName(u"styleShortcut3")
-        self.styleShortcut3.setMinimumSize(QSize(64, 0))
-        self.styleShortcut3.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
-
-        self.horizontalLayout.addWidget(self.styleShortcut3)
+        self.horizontalLayout.addItem(self.horizontalStyleSpacer_10)
 
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -419,10 +391,6 @@ class Ui_RichTextEditWidget(object):
         self.styleButton.setToolTip(QCoreApplication.translate("RichTextEditWidget", u"Style", None))
 #endif // QT_CONFIG(tooltip)
         self.styleButton.setText(QCoreApplication.translate("RichTextEditWidget", u"Apply Style...", None))
-        self.styleShortcut0.setText(QCoreApplication.translate("RichTextEditWidget", u"Style 1", None))
-        self.styleShortcut1.setText(QCoreApplication.translate("RichTextEditWidget", u"Style 2", None))
-        self.styleShortcut2.setText(QCoreApplication.translate("RichTextEditWidget", u"Style 3", None))
-        self.styleShortcut3.setText(QCoreApplication.translate("RichTextEditWidget", u"Style 4", None))
         self.searchHideButton.setText("")
         self.matchCaseCheckBox.setText(QCoreApplication.translate("RichTextEditWidget", u"Match Case", None))
         self.wholeWordCheckBox.setText(QCoreApplication.translate("RichTextEditWidget", u"Whole Words", None))

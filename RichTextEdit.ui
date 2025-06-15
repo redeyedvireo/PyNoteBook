@@ -424,7 +424,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2">
+      <spacer name="horizontalStyleSpacer_10">
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
@@ -438,70 +438,6 @@
         </size>
        </property>
       </spacer>
-     </item>
-     <item>
-      <widget class="QToolButton" name="styleShortcut0">
-       <property name="minimumSize">
-        <size>
-         <width>64</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Style 1</string>
-       </property>
-       <property name="popupMode">
-        <enum>QToolButton::ToolButtonPopupMode::MenuButtonPopup</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="styleShortcut1">
-       <property name="minimumSize">
-        <size>
-         <width>64</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Style 2</string>
-       </property>
-       <property name="popupMode">
-        <enum>QToolButton::ToolButtonPopupMode::MenuButtonPopup</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="styleShortcut2">
-       <property name="minimumSize">
-        <size>
-         <width>64</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Style 3</string>
-       </property>
-       <property name="popupMode">
-        <enum>QToolButton::ToolButtonPopupMode::MenuButtonPopup</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="styleShortcut3">
-       <property name="minimumSize">
-        <size>
-         <width>64</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Style 4</string>
-       </property>
-       <property name="popupMode">
-        <enum>QToolButton::ToolButtonPopupMode::MenuButtonPopup</enum>
-       </property>
-      </widget>
      </item>
      <item>
       <spacer name="horizontalSpacer">

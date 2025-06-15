@@ -10,7 +10,7 @@ from styleDef import FormatFlag, StyleDef
 kUserStyleStartIndex = 0
 
 # Number of style shortcuts
-kNumStyleShortcuts = 4
+kNumStyleShortcuts = 8
 kStyleShortcutNoStyle = -1  # No style assigned to this shortcut
 
 kStyleDefRoot = 'StyleDoc'
