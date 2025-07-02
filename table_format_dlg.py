@@ -10,6 +10,9 @@ kTableColumns = 2
 kWidthColumn =  0
 kTypeColumn =   1
 
+kDefaultNumRows = 1
+kDefaultNumColumns = 2
+
 class TableFormatDialog(QtWidgets.QDialog):
   def __init__(self, parent):
     super(TableFormatDialog, self).__init__(parent)
@@ -86,6 +89,13 @@ class TableFormatDialog(QtWidgets.QDialog):
 
 
   def adjustTableRows(self, numRows: int):
+    """Adjusts the number of rows in the table widget.  This is very confusing, since there is some
+       ambiguity as to whether we are referring to rows and columns in the table widget or in the
+       text table.  In this case, we are referring to the number of rows in the table widget.
+
+    Args:
+        numRows (int): Number of rows to set in the table widget.
+    """
     currentNumRows = self.ui.tableWidget.rowCount()
 
     if numRows == currentNumRows:
@@ -117,6 +127,11 @@ class TableFormatDialog(QtWidgets.QDialog):
     if self.textTable is not None:
       self.ui.rowsSpin.setValue(self.textTable.rows())
       self.ui.columnsSpin.setValue(self.textTable.columns())
+    else:
+      # No table exists; set to default values
+      self.ui.rowsSpin.setValue(kDefaultNumRows)
+      self.ui.columnsSpin.setValue(kDefaultNumColumns)
+      self.adjustTableRows(kDefaultNumColumns)
 
   def getTableValue(self, row: int, col: int, defaultValue: float) -> float:
     retVal = defaultValue
