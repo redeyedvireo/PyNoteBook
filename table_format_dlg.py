@@ -1,5 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
+from column_type_combo_box import ColumnTypeComboBox
 from text_table import TextTable
 from ui_table_format_dlg import Ui_TableFormatDlg
 
@@ -42,20 +43,8 @@ class TableFormatDialog(QtWidgets.QDialog):
 
     for i in range(numColumns):
       colWidth = self.getTableValue(i, 0, kDefaultColumnWidth)
-      constraintType = self.getTableStringValue(i, 1, 'Fixed')
-
-      match constraintType:
-        case 'Fixed':
-          textLength = QtGui.QTextLength(QtGui.QTextLength.Type.FixedLength, colWidth)
-
-        case 'Percentage':
-          textLength = QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, colWidth)
-
-        case 'Variable':
-          textLength = QtGui.QTextLength(QtGui.QTextLength.Type.VariableLength, colWidth)
-
-        case _:  # Default to Fixed
-          textLength = QtGui.QTextLength(QtGui.QTextLength.Type.FixedLength, colWidth)
+      columnType = self.getColumnType(i)
+      textLength = QtGui.QTextLength(columnType, colWidth)
 
       columnConstraints.append(textLength)
 
@@ -90,18 +79,7 @@ class TableFormatDialog(QtWidgets.QDialog):
       self.setTableValue(col, kWidthColumn, textLength.rawValue())
 
       # For now, make all columns "fixed"
-      match textLength.type():
-        case QtGui.QTextLength.Type.FixedLength:
-          self.setTableText(col, kTypeColumn, 'Fixed')
-
-        case QtGui.QTextLength.Type.PercentageLength:
-          self.setTableText(col, kTypeColumn, 'Percentage')
-
-        case QtGui.QTextLength.Type.VariableLength:
-          self.setTableText(col, kTypeColumn, 'Variable')
-
-        case _:  # Default to Fixed
-          self.setTableText(col, kTypeColumn, 'Fixed')
+      self.setColumnType(col, textLength.type())
 
     horizHeader = self.ui.tableWidget.horizontalHeader()
     horizHeader.setStretchLastSection(True)
@@ -122,8 +100,14 @@ class TableFormatDialog(QtWidgets.QDialog):
       for row in range(numRows):
         if row >= currentNumRows:
           # New row; set type to Fixed
-          self.setTableText(row, kTypeColumn, 'Fixed')
           self.setTableValue(row, kWidthColumn, kDefaultColumnWidth)
+
+          comboBox  = self.createColumnTypeComboBox()
+          self.ui.tableWidget.setCellWidget(row, kTypeColumn, comboBox)
+
+  def createColumnTypeComboBox(self):
+    comboBox = ColumnTypeComboBox(self.ui.tableWidget)
+    return comboBox
 
   def setTable(self, textTable: TextTable | None):
     self.textTable = textTable
@@ -133,7 +117,6 @@ class TableFormatDialog(QtWidgets.QDialog):
     if self.textTable is not None:
       self.ui.rowsSpin.setValue(self.textTable.rows())
       self.ui.columnsSpin.setValue(self.textTable.columns())
-
 
   def getTableValue(self, row: int, col: int, defaultValue: float) -> float:
     retVal = defaultValue
@@ -167,3 +150,27 @@ class TableFormatDialog(QtWidgets.QDialog):
 
     item.setText(text)
 
+  def setColumnType(self, row: int, columnType: QtGui.QTextLength.Type):
+    """ Sets the column type for the specified row and column. """
+    comboBox = self.ui.tableWidget.cellWidget(row, kTypeColumn)
+
+    if comboBox is None:
+      # Create a new combo box if it doesn't exist
+      comboBox = self.createColumnTypeComboBox()
+      comboBox.type = columnType  # Set the type using the property setter
+      self.ui.tableWidget.setCellWidget(row, kTypeColumn, comboBox)
+
+    elif isinstance(comboBox, ColumnTypeComboBox):
+      comboBox.type = columnType  # Set the type using the property setter
+
+  def getColumnType(self, row: int) -> QtGui.QTextLength.Type:
+    """ Returns the column type for the specified row. """
+    comboBox = self.ui.tableWidget.cellWidget(row, kTypeColumn)
+
+    if comboBox is None:
+      return QtGui.QTextLength.Type.FixedLength  # Default to Fixed if no combo box exists
+
+    if isinstance(comboBox, ColumnTypeComboBox):
+      return comboBox.type  # Use the property getter
+
+    return QtGui.QTextLength.Type.FixedLength  # Default to Fixed if not a ColumnTypeComboBox
