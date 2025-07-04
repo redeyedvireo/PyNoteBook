@@ -22,7 +22,7 @@ class TextTable:
     return cursor.currentTable() is not None
 
   @staticmethod
-  def fromCursor(cursor: QtGui.QTextCursor) -> 'TextTable | None':
+  def fromCursor(cursor: QtGui.QTextCursor):
     """Returns a CTextTable object corresponding to the QTextTable located at the
        cursor position.  Returns None if the cursor is not within a QTextTable.
 

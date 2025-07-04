@@ -10,20 +10,28 @@ kTableColumns = 2
 kWidthColumn =  0
 kTypeColumn =   1
 
-kDefaultNumRows = 1
+kDefaultNumRows = 2
 kDefaultNumColumns = 2
 
 class TableFormatDialog(QtWidgets.QDialog):
-  def __init__(self, parent):
+  def __init__(self, textTable: TextTable | None, parent):
     super(TableFormatDialog, self).__init__(parent)
 
     self.ui = Ui_TableFormatDlg()
     self.ui.setupUi(self)
 
-    self.textTable = None
+    self.textTable = textTable
 
     self.ui.backgroundColorButton.setColorSwatchFillsButton(True)
     self.ui.backgroundColorButton.hasColor = False
+
+    # Set background color
+    if self.textTable is not None:
+      self.setBackgroundColor(self.textTable.background())
+    else:
+      self.setBackgroundColor(None)
+
+    self.setUpTable()
 
   def rows(self) -> int:
     return self.ui.rowsSpin.value()
@@ -55,43 +63,53 @@ class TableFormatDialog(QtWidgets.QDialog):
 
   @QtCore.Slot(int)
   def on_columnsSpin_valueChanged(self, i: int):
-    self.adjustTableRows(i)
+    self.adjustTableColumns(i)
+
+  def setUpTable(self):
+    self.populateColumns()
+
+    if self.textTable is not None:
+      self.ui.rowsSpin.setValue(self.textTable.rows())
+      self.ui.columnsSpin.setValue(self.textTable.columns())
+    else:
+      # No table exists; set to default values
+      self.ui.rowsSpin.setValue(kDefaultNumRows)
+      self.ui.columnsSpin.setValue(kDefaultNumColumns)
 
   def populateColumns(self):
-    colWidths = []
+    columnWidths: list[QtGui.QTextLength] = []
+    numColumns = kDefaultNumColumns
 
     if self.textTable is None:
-      # No table exists; a new table will be created.  Create a default table format.
-      numColumns = 1
-      textLength = QtGui.QTextLength(QtGui.QTextLength.Type.FixedLength, kDefaultColumnWidth)
-      colWidths.append(textLength)
+      # No table exists; a new table will be created.  By default, make columns fixed width.
+      for _ in range(numColumns):
+        textLength = QtGui.QTextLength(QtGui.QTextLength.Type.FixedLength, kDefaultColumnWidth)
+        columnWidths.append(textLength)
     else:
       numColumns = self.textTable.columns()
       tableFormat = self.textTable.textTableFormat()
-      colWidths = tableFormat.columnWidthConstraints()
+      columnWidths = tableFormat.columnWidthConstraints()
 
     self.ui.tableWidget.setColumnCount(kTableColumns)
+
+    # Set the number of rows in the table widget to the number of columns in the text table.
+    # There is one table widget row per column in the text table.
     self.ui.tableWidget.setRowCount(numColumns)
 
     # Set Header labels
     self.ui.tableWidget.setHorizontalHeaderLabels(['Width', 'Type'])
 
-    for col in range(numColumns):
-      # Get column width for column
-      textLength = colWidths[col]
-      self.setTableValue(col, kWidthColumn, textLength.rawValue())
-
-      # For now, make all columns "fixed"
-      self.setColumnType(col, textLength.type())
+    # Set the column widths and types in the table widget to match the text table.
+    for column, textLength in enumerate(columnWidths):
+      self.setTableValue(column, kWidthColumn, textLength.rawValue())
+      self.setColumnType(column, textLength.type())
 
     horizHeader = self.ui.tableWidget.horizontalHeader()
     horizHeader.setStretchLastSection(True)
 
-
-  def adjustTableRows(self, numRows: int):
-    """Adjusts the number of rows in the table widget.  This is very confusing, since there is some
-       ambiguity as to whether we are referring to rows and columns in the table widget or in the
-       text table.  In this case, we are referring to the number of rows in the table widget.
+  def adjustTableColumns(self, numRows: int):
+    """Adjusts the number of columns in the text table.
+       Recall that each column in the text table corresponds to a row in the table widget.
 
     Args:
         numRows (int): Number of rows to set in the table widget.
@@ -105,7 +123,6 @@ class TableFormatDialog(QtWidgets.QDialog):
 
     if numRows > currentNumRows:
       # Add rows and set table column constraints to default values
-      rowsToAdd = numRows - currentNumRows
 
       for row in range(numRows):
         if row >= currentNumRows:
@@ -118,20 +135,6 @@ class TableFormatDialog(QtWidgets.QDialog):
   def createColumnTypeComboBox(self):
     comboBox = ColumnTypeComboBox(self.ui.tableWidget)
     return comboBox
-
-  def setTable(self, textTable: TextTable | None):
-    self.textTable = textTable
-
-    self.populateColumns()
-
-    if self.textTable is not None:
-      self.ui.rowsSpin.setValue(self.textTable.rows())
-      self.ui.columnsSpin.setValue(self.textTable.columns())
-    else:
-      # No table exists; set to default values
-      self.ui.rowsSpin.setValue(kDefaultNumRows)
-      self.ui.columnsSpin.setValue(kDefaultNumColumns)
-      self.adjustTableRows(kDefaultNumColumns)
 
   def getTableValue(self, row: int, col: int, defaultValue: float) -> float:
     retVal = defaultValue

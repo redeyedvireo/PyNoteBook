@@ -459,33 +459,15 @@ class RichTextEditWidget(QtWidgets.QWidget):
   @QtCore.Slot()
   def on_tableButton_clicked(self):
     selectionCursor = self.ui.textEdit.textCursor()
-    dlg = TableFormatDialog(self)
-    textTable = None
+    textTable = TextTable.fromCursor(selectionCursor)
 
-    if TextTable.isCursorInTable(selectionCursor):
-      textTable = TextTable.fromCursor(selectionCursor)
-      if textTable is not None:
-        tableFormat = textTable.textTableFormat()
+    if textTable is None and selectionCursor.hasSelection():
+      # The cursor is not in a table, but there is a selection.
+      # Convert the selected text to a table
+      TextTable.selectionToTable(selectionCursor)
+      return
 
-        # Initialize dialog controls with data from the table
-        frameFormat = textTable.textFrameFormat()
-        tableWidth = frameFormat.width()
-
-        # Background color
-        dlg.setBackgroundColor(textTable.background())
-
-    else:
-      # The cursor is not in a table
-      if selectionCursor.hasSelection():
-        # Convert the selected text to a table
-        TextTable.selectionToTable(selectionCursor)
-        return
-
-      else:
-        # New Table
-        dlg.setBackgroundColor(None)
-
-    dlg.setTable(textTable)
+    dlg = TableFormatDialog(textTable, self)
     result = dlg.exec()
 
     if result == QtWidgets.QDialog.DialogCode.Accepted:
